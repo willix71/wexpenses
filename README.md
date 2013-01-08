@@ -1,0 +1,1 @@
+Expense tracking project using vaadin-spring-jpacontainer
