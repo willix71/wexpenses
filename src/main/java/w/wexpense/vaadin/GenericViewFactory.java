@@ -4,9 +4,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import com.vaadin.addon.jpacontainer.EntityItem;
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.data.Container.Filter;
-import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.util.filter.Like;
@@ -27,7 +27,7 @@ import com.vaadin.ui.VerticalLayout;
 
 public class GenericViewFactory<T> extends AbstractViewFactory<T> {
 	
-	private GenericEditorFactory<?> editorFactory;
+	private GenericEditorFactory<T> editorFactory;
 
 	private List<GenericViewFactory<?>> subViews;
 
@@ -35,7 +35,7 @@ public class GenericViewFactory<T> extends AbstractViewFactory<T> {
 		super(entityClass);
 	}
 	
-	public GenericViewFactory(Class<T> entityClass, GenericEditorFactory<?> editorFactory) {
+	public GenericViewFactory(Class<T> entityClass, GenericEditorFactory<T> editorFactory) {
 		super(entityClass);
 		this.editorFactory = editorFactory;
 	}
@@ -108,9 +108,7 @@ public class GenericViewFactory<T> extends AbstractViewFactory<T> {
 					if (event.isDoubleClick()) {
 						table.select(event.getItemId());
 
-						Item item = event.getItem();
-						Component c = editorFactory.newInstance(item);
-						newWindow(c);
+						editEntity();
 					}
 				}
 			});
@@ -174,14 +172,13 @@ public class GenericViewFactory<T> extends AbstractViewFactory<T> {
 		}
 
 		protected void addEntity() {
-			Item item = table.getItem(null);
-			Component c = editorFactory.newInstance(item);
+			Component c = editorFactory.newInstance(null);
 			newWindow(c);
 		}
 
 		protected void editEntity() {
-			Item item = table.getItem(table.getValue());
-			Component c = editorFactory.newInstance(item);
+			EntityItem<T> item = (EntityItem<T>) table.getItem(table.getValue());
+			Component c = editorFactory.newInstance(item.getEntity());
 			newWindow(c);			
 		}
 		

@@ -33,14 +33,6 @@ public class SimpleFieldFactory<T> extends DefaultFieldFactory {
 
 	private static final long serialVersionUID = -2122739273213720235L;
 
-	private static final Object[] systemProperties = {"id", "version", "fullId", "uid", "modifiedTs", "createdTs"} ;
-
-	public static boolean isSystemProperty(Object propertyId) {
-		for(Object o: systemProperties) { 
-			if (o.equals(propertyId)) return true;
-		}
-		return false;		
-	}
 	
 	private final JPAContainer<T> jpaContainer;
 
@@ -67,7 +59,7 @@ public class SimpleFieldFactory<T> extends DefaultFieldFactory {
 		}
 
 		field.setCaption(createCaptionByPropertyId(propertyId));
-		if (isSystemProperty(propertyId)) {
+		if (FieldFactoryHelper.isSystemProperty(propertyId)) {
 			field.setReadOnly(true);
 		}
 		return field;

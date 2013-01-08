@@ -3,12 +3,16 @@ package w.wexpense.persistence;
 import static w.wexpense.model.enums.AccountEnum.ASSET;
 import static w.wexpense.model.enums.AccountEnum.EXPENSE;
 
+import java.util.Date;
 import java.util.GregorianCalendar;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import w.wexpense.model.Account;
 import w.wexpense.model.City;
@@ -94,5 +98,20 @@ public class DatabasePopulator {
 	private <T> T save(T t) {
 		em.persist(t);
 		return t;
+	}
+	
+	private static final Logger logger = LoggerFactory.getLogger(DatabasePopulator.class);
+
+	public static void main(String[] args) throws Exception {
+		logger.info("Application started by {} at {} ",
+				System.getProperty("user.name"), new Date());
+
+		if (args.length ==0) {
+			args = new String[]{"database-populator-context.xml"};
+		}
+		
+		// Start the Spring container
+		new ClassPathXmlApplicationContext(args);
+
 	}
 }

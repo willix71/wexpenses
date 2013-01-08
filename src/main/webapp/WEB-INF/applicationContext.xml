@@ -13,7 +13,7 @@
 	<context:property-placeholder location="classpath:persistence.properties" />
 	
 	<context:component-scan base-package="w.wexpense.persistence" />
-	
+		
 	<bean class="w.wexpense.vaadin.GenericViewFactory">
 		<constructor-arg value="w.wexpense.model.Currency" />		
 		<constructor-arg>
@@ -105,4 +105,5 @@
 		<property name="nestedPropertiesList" value="expense.date,expense.payee" />
 		<property name="visiblePropertiesList" value="expense.date,expense.payee,account,inAmount,outAmount" />
 	</bean>	
+	
 </beans>

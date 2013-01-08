@@ -2,6 +2,9 @@ package w.wexpense.vaadin;
 
 import java.util.Arrays;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+
 import w.wexpense.vaadin.fieldfactory.SimpleFieldFactory;
 
 import com.vaadin.addon.beanvalidation.BeanValidationForm;
@@ -19,26 +22,29 @@ public class GenericEditorFactory<T> extends AbstractViewFactory<T> {
 		super(entityClass);
 	}
 
-	public Component newInstance(Item item) {
-		return new GenericEditor(item);
+	public Component newInstance(T entity) {
+		return new GenericEditor(entity);
 	}
 
 	class GenericEditor extends BeanValidationForm<T> implements Button.ClickListener {
-		
-		private final Item genericItem;
-
 		private final JPAContainer<T> jpaContainer;
-
+		
+		private final BeanItem<T> item;
+		
 		private Button saveButton;
 		private Button cancelButton;
 
-		public GenericEditor(Item entityItem) {
+		private boolean isNew;
+		
+		public GenericEditor(T entity) {
 			super(getEntityClass());
 			
-			if (entityItem == null) {
-				genericItem = new BeanItem<T>(newInstance());
+			if (entity == null) {
+				item = new BeanItem<T>(newInstance());
+				isNew = true;
 			} else {
-				genericItem = entityItem;
+				item = new BeanItem<T>(entity);
+				isNew = false;
 			}
 			
 			jpaContainer = buildJPAContainer();
@@ -46,7 +52,7 @@ public class GenericEditorFactory<T> extends AbstractViewFactory<T> {
 			setFormFieldFactory();
 			setWriteThrough(false);
 			setImmediate(true);
-			setItemDataSource(genericItem,
+			setItemDataSource(item,
 					Arrays.asList(GenericEditorFactory.this
 							.getVisibleProperties()));
 
@@ -63,8 +69,8 @@ public class GenericEditorFactory<T> extends AbstractViewFactory<T> {
 		
 		@Override
 		public String getCaption() {
-			if (genericItem instanceof EntityItem) {
-				Object o = ((EntityItem<?>) genericItem).getEntity();
+			if (!isNew) {
+				Object o = item.getBean();
 				if (o != null) {
 					return o.toString();
 				}
@@ -82,14 +88,20 @@ public class GenericEditorFactory<T> extends AbstractViewFactory<T> {
 			close();
 		}
 
-		@SuppressWarnings("unchecked")
-      public EntityItem<T> save() {
+		public T save() {
 			commit();
-			if (genericItem instanceof BeanItem) {
-				Object itemId = jpaContainer.addEntity(((BeanItem<T>) genericItem).getBean());
-				return jpaContainer.getItem(itemId);
+			T t;
+			if (isNew) {
+				Object tid = jpaContainer.addEntity(item.getBean());
+				EntityItem<T> et = jpaContainer.getItem(tid);
+				t = et.getEntity();
+			} else {
+				EntityManager em = jpaContainer.getEntityProvider().getEntityManager();
+				//em.getTransaction().begin();
+				t = em.merge(item.getBean());				
+				//em.getTransaction().commit();
 			}
-			return (EntityItem<T>) genericItem;
+			return t;
 		}
 		
 		public void cancel() {
@@ -119,13 +131,8 @@ public class GenericEditorFactory<T> extends AbstractViewFactory<T> {
 			}
 		}
 
-		public Item getGenericItem() {
-			return genericItem;
-		}
-
 		public JPAContainer<T> getJpaContainer() {
 			return jpaContainer;
 		}
-		
 	}
 }

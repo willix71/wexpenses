@@ -15,16 +15,16 @@ public class ExpenseEditorFactory extends GenericEditorFactory<Expense> {
 		super(Expense.class);
 	}
 
-	public Component newInstance(Item item) {
-		return new ExpenseEditor(item);
+	public Component newInstance(Expense expense) {
+		return new ExpenseEditor(expense);
 	}
 
 	class ExpenseEditor extends GenericEditorFactory<Expense>.GenericEditor {
 
 		OneToManyFieldFactory transactionsEditor;
 		
-		public ExpenseEditor(Item entityItem) {
-			super(entityItem);
+		public ExpenseEditor(Expense expense) {
+			super(expense);
 		}
 
 		@Override
@@ -40,11 +40,11 @@ public class ExpenseEditorFactory extends GenericEditorFactory<Expense> {
 		}
 		
 		@Override
-      public EntityItem<Expense> save() {
-			EntityItem<Expense> xItem = super.save();
+      public Expense save() {
+			Expense x = super.save();
 			
-			((TwoStepCommit) getField("transactions")).postCommit(xItem);
-			return xItem;
+			((TwoStepCommit) getField("transactions")).postCommit(x);
+			return x;
       }
 	}
 }

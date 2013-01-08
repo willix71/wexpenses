@@ -36,10 +36,6 @@ import com.vaadin.ui.Field;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TableFieldFactory;
 
-/**
- * @author 
- *
- */
 public class OneToManyFieldFactory implements CustomFieldFactory {
 
 	private Class<?> childType;
@@ -257,7 +253,7 @@ public class OneToManyFieldFactory implements CustomFieldFactory {
 		}		
 		
 		@Override
-		public void postCommit(EntityItem masterItem) {
+		public void postCommit() {
 			if (container instanceof BeanContainer) {
 				JPAContainer jpaContainer = getJpaContainer(masterItem, false);
 				for (Object itemId : container.getItemIds() ) {
