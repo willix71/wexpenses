@@ -36,6 +36,10 @@ import com.vaadin.ui.Field;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TableFieldFactory;
 
+/**
+ * @author 
+ *
+ */
 public class OneToManyFieldFactory implements CustomFieldFactory {
 
 	private Class<?> childType;
