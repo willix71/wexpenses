@@ -1,0 +1,220 @@
+package w.wexpense.vaadin;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
+import com.vaadin.addon.jpacontainer.JPAContainer;
+import com.vaadin.data.Container.Filter;
+import com.vaadin.data.Item;
+import com.vaadin.data.Property;
+import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.util.filter.Like;
+import com.vaadin.event.FieldEvents.TextChangeEvent;
+import com.vaadin.event.FieldEvents.TextChangeListener;
+import com.vaadin.event.ItemClickEvent;
+import com.vaadin.event.ItemClickEvent.ItemClickListener;
+import com.vaadin.ui.AbstractLayout;
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.ComponentContainer;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Table;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
+
+public class GenericViewFactory<T> extends AbstractViewFactory<T> {
+	
+	private GenericEditorFactory<?> editorFactory;
+
+	private List<GenericViewFactory<?>> subViews;
+
+	public GenericViewFactory(Class<T> entityClass) {
+		super(entityClass);
+	}
+	
+	public GenericViewFactory(Class<T> entityClass, GenericEditorFactory<?> editorFactory) {
+		super(entityClass);
+		this.editorFactory = editorFactory;
+	}
+	
+	public List<GenericViewFactory<?>> getSubViews() {
+		return subViews;
+	}
+	public void setSubViews(List<GenericViewFactory<?>> subViews) {
+		this.subViews = subViews;
+	}
+	
+	public Component newInstance() {
+		return new GenericView();
+	}
+
+	class GenericView extends VerticalLayout implements Button.ClickListener, ComponentContainer {
+		private static final long serialVersionUID = 5282517667310057582L;
+		
+		private JPAContainer<T> jpaContainer;
+
+		private AbstractLayout toolbar;
+		private Button newButton;
+		private Button deleteButton;
+		private Button editButton;
+		private Table table;
+
+		private TextField searchField;
+		private String textFilter;
+
+		public GenericView() {
+			jpaContainer = buildJPAContainer();
+			
+			buildTable();
+			buildToolbar();
+
+			addComponent(toolbar);
+			addComponent(table);
+			setExpandRatio(table, 1);
+			setSizeFull();
+		}
+
+		private void buildTable() {
+			table = new Table(null, jpaContainer) {
+			    protected String formatPropertyValue(Object rowId, Object colId, Property property) {
+			        if (property == null) {
+			            return "";
+			        }
+			        if (Date.class.isAssignableFrom(property.getType())) {
+			      	  return new SimpleDateFormat("dd/MM/yyyy").format(property.getValue());			      	  
+			        }
+			        return property.toString();
+			    }
+			};
+			table.setSelectable(true);
+			table.setImmediate(true);
+			table.setSizeFull();
+			
+			table.addListener(new Property.ValueChangeListener() {
+				@Override
+				public void valueChange(ValueChangeEvent event) {
+					boolean modificationEnabled = event.getProperty().getValue() != null;
+					
+					deleteButton.setEnabled(modificationEnabled);
+					editButton.setEnabled(modificationEnabled);
+				}
+			});
+			table.addListener(new ItemClickListener() {
+				@Override
+				public void itemClick(ItemClickEvent event) {
+					if (event.isDoubleClick()) {
+						table.select(event.getItemId());
+
+						Item item = event.getItem();
+						Component c = editorFactory.newInstance(item);
+						newWindow(c);
+					}
+				}
+			});
+
+			Object[] propertyIds=GenericViewFactory.this.getVisibleProperties();
+			table.setVisibleColumns(propertyIds);
+		}
+
+		private void buildToolbar() {
+			HorizontalLayout toolbar = new HorizontalLayout();
+
+			if (editorFactory != null) {
+				newButton = new Button("Add");
+				newButton.addListener(this);
+	
+				deleteButton = new Button("Delete");
+				deleteButton.addListener(this);
+				deleteButton.setEnabled(false);
+	
+				editButton = new Button("Edit");
+				editButton.addListener(this);
+				editButton.setEnabled(false);
+
+				toolbar.addComponent(newButton);
+				toolbar.addComponent(deleteButton);
+				toolbar.addComponent(editButton);
+			}
+
+			searchField = new TextField();
+			searchField.setInputPrompt("Search for");
+			searchField.addListener(new TextChangeListener() {
+				
+				@Override
+				public void textChange(TextChangeEvent event) {
+					textFilter = event.getText();
+					updateFilters();
+				}
+			});
+
+			toolbar.addComponent(searchField);
+			toolbar.setWidth("100%");
+			toolbar.setExpandRatio(searchField, 1);
+			toolbar.setComponentAlignment(searchField, Alignment.TOP_RIGHT);
+
+			this.toolbar = toolbar;
+		}
+
+		@Override
+		public String getCaption() {
+			return getEntityClass().getSimpleName();
+		}
+
+		public void buttonClick(ClickEvent event) {
+			if (event.getButton() == newButton) {
+				addEntity();
+			} else if (event.getButton() == deleteButton) {
+				deleteEntity();
+			} else if (event.getButton() == editButton) {
+				editEntity();
+			}
+		}
+
+		protected void addEntity() {
+			Item item = table.getItem(null);
+			Component c = editorFactory.newInstance(item);
+			newWindow(c);
+		}
+
+		protected void editEntity() {
+			Item item = table.getItem(table.getValue());
+			Component c = editorFactory.newInstance(item);
+			newWindow(c);			
+		}
+		
+		protected void deleteEntity() {
+			jpaContainer.removeItem(table.getValue());
+		}
+
+		protected void newWindow(Component component) {
+			getApplication().getMainWindow().addWindow(new ClosableWindow(component));
+		}
+		
+		protected void updateFilters() {
+			jpaContainer.setApplyFiltersImmediately(false);
+			jpaContainer.removeAllContainerFilters();
+
+			if (textFilter != null && !textFilter.equals("")) {
+				Filter filter = new Like("display", "%" + textFilter + "%", false);
+				jpaContainer.addContainerFilter(filter);
+			}
+			jpaContainer.applyFilters();
+		}
+
+		/**
+		 * Method to refresh containers in this view. E.g. if a bidirectional
+		 * reference is edited from the opposite direction or if we knew that an
+		 * other user had edited visible values.
+		 */
+		public void refreshContainer() {
+			jpaContainer.refresh();
+		}
+
+		public JPAContainer<T> getJpaContainer() {
+			return jpaContainer;
+		}
+	}
+}

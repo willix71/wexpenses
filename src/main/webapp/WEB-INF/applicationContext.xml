@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="
+   		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+   		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+	<context:annotation-config />
+	
+	<context:property-placeholder location="classpath:persistence.properties" />
+	
+	<context:component-scan base-package="w.wexpense.persistence" />
+	
+	<bean class="w.wexpense.vaadin.GenericViewFactory">
+		<constructor-arg value="w.wexpense.model.Currency" />		
+		<constructor-arg>
+				<bean class="w.wexpense.vaadin.GenericEditorFactory">
+					<constructor-arg value="w.wexpense.model.Currency" />				
+					<property name="visiblePropertiesList" value="code,name" />
+				</bean>
+		</constructor-arg>
+		<property name="visiblePropertiesList" value="code,name" />
+	</bean>
+	
+	<bean class="w.wexpense.vaadin.GenericViewFactory">
+		<constructor-arg value="w.wexpense.model.Country" />		
+		<constructor-arg>
+				<bean class="w.wexpense.vaadin.GenericEditorFactory">
+					<constructor-arg value="w.wexpense.model.Country" />				
+					<property name="visiblePropertiesList" value="code,name,currency" />
+				</bean>
+		</constructor-arg>
+		<property name="visiblePropertiesList" value="code,name,currency" />
+	</bean>
+
+	<bean class="w.wexpense.vaadin.GenericViewFactory">
+		<constructor-arg value="w.wexpense.model.City" />		
+		<constructor-arg>
+				<bean class="w.wexpense.vaadin.GenericEditorFactory">
+					<constructor-arg value="w.wexpense.model.City" />				
+					<property name="visiblePropertiesList" value="fullId,uid,name,zip,country" />
+				</bean>
+		</constructor-arg>
+		<property name="visiblePropertiesList" value="name,zip,country" />
+	</bean>
+
+	<bean class="w.wexpense.vaadin.GenericViewFactory">
+		<constructor-arg value="w.wexpense.model.Payee" />		
+		<constructor-arg>
+				<bean class="w.wexpense.vaadin.GenericEditorFactory">
+					<constructor-arg value="w.wexpense.model.Payee" />				
+					<property name="visiblePropertiesList" value="fullId,uid,type,prefix,name,location,city,externalReference" />
+				</bean>
+		</constructor-arg>
+		<property name="visiblePropertiesList" value="type,prefix,name,location,city" />
+		
+		<property name="subViews">
+			<list>
+				<bean class="w.wexpense.vaadin.GenericViewFactory">
+					<constructor-arg value="w.wexpense.model.PayeeType" />		
+					<constructor-arg>
+							<bean class="w.wexpense.vaadin.GenericEditorFactory">
+								<constructor-arg value="w.wexpense.model.PayeeType" />				
+								<property name="visiblePropertiesList" value="fullId,uid,name,selectable" />
+							</bean>
+					</constructor-arg>
+					<property name="visiblePropertiesList" value="name,selectable" />
+				</bean>			
+			</list>
+		</property>
+			
+	</bean>
+	
+	<bean class="w.wexpense.vaadin.GenericViewFactory">
+		<constructor-arg value="w.wexpense.model.Expense" />		
+		<constructor-arg>
+				<bean class="w.wexpense.vaadin.ExpenseEditorFactory">				
+					<property name="visiblePropertiesList" value="fullId,uid,date,amount,currency,payee,type,externalReference,transactions" />
+				</bean>
+		</constructor-arg>
+		<property name="visiblePropertiesList" value="date,amount,currency,payee,type" />
+		
+		<property name="subViews">
+			<list>
+				<bean class="w.wexpense.vaadin.GenericViewFactory">
+					<constructor-arg value="w.wexpense.model.ExpenseType" />		
+					<constructor-arg>
+							<bean class="w.wexpense.vaadin.GenericEditorFactory">
+								<constructor-arg value="w.wexpense.model.ExpenseType" />				
+								<property name="visiblePropertiesList" value="fullId,uid,name,selectable" />
+							</bean>
+					</constructor-arg>
+					<property name="visiblePropertiesList" value="name,selectable" />
+				</bean>			
+			</list>
+		</property>
+		
+	</bean>
+		
+	<bean class="w.wexpense.vaadin.GenericViewFactory">
+		<constructor-arg value="w.wexpense.model.TransactionLine" />		
+		<property name="nestedPropertiesList" value="expense.date,expense.payee" />
+		<property name="visiblePropertiesList" value="expense.date,expense.payee,account,inAmount,outAmount" />
+	</bean>	
+</beans>
