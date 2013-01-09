@@ -2,11 +2,7 @@ package w.wexpense.vaadin;
 
 import java.util.List;
 
-import javax.persistence.EntityManagerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
-import w.wexpense.persistence.DatabasePopulator;
 
 import com.vaadin.Application;
 import com.vaadin.data.Property;
@@ -19,9 +15,6 @@ import com.vaadin.ui.Window;
 public class WexApplication extends Application {
 
 	private static final long serialVersionUID = 4614856229857072876L;
-
-	@Autowired
-	private EntityManagerFactory entityManagerFactory;
 	
 	@Autowired
 	private List<GenericViewFactory<?>> views;

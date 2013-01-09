@@ -8,11 +8,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import javax.persistence.EntityManager;
-
 import w.wexpense.model.DBable;
 import w.wexpense.persistence.PersistenceUtils;
-import w.wexpense.vaadin.TwoStepCommit;
 
 import com.vaadin.addon.jpacontainer.EntityContainer;
 import com.vaadin.addon.jpacontainer.EntityItem;
@@ -21,89 +18,72 @@ import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.JPAContainerFactory;
 import com.vaadin.addon.jpacontainer.fieldfactory.JPAContainerCustomField;
 import com.vaadin.data.Container;
-import com.vaadin.data.Container.Filter;
 import com.vaadin.data.Item;
+import com.vaadin.data.Buffered.SourceException;
+import com.vaadin.data.Container.Filter;
 import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.util.BeanContainer;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.filter.Compare;
 import com.vaadin.event.Action;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.CssLayout;
+import com.vaadin.ui.Table;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.CssLayout;
-import com.vaadin.ui.Field;
-import com.vaadin.ui.Table;
-import com.vaadin.ui.TableFieldFactory;
 
-public class OneToManyFieldFactory implements CustomFieldFactory {
+class OneToManyField<P,C> extends JPAContainerCustomField implements Action.Handler {
 
-	private Class<?> childType;
-	private String childPropertyId;
-
-	private EntityManager entityManager;
-	private TableFieldFactory fieldFactory;
-
-	private Object[] visibleColumns;
-	
-	public OneToManyFieldFactory(EntityManager entityManager, Class<?> childType, Class<?> masterType, Object masterPropertyId) {
-		this(entityManager, childType, PersistenceUtils.getMappedByProperty(masterType, masterPropertyId));
-	}
-
-	public OneToManyFieldFactory(EntityManager entityManager,Class<?> childType, String childPropertyId) {
-		this.entityManager = entityManager;
-		this.childType = childType;
-		this.childPropertyId = childPropertyId;
-
-		this.fieldFactory = new SimpleFieldFactory(JPAContainerFactory.make(childType, entityManager));
-	}
-
-	public void setVisibleColumns(Object[] visibleColumns) {
-		this.visibleColumns = visibleColumns;
-	}
-
-	@Override
-	public Field newInstance(Item item) {
-		return new OneToManyField(item);
-	}
-	
-	class OneToManyField extends JPAContainerCustomField implements Action.Handler, TwoStepCommit {
 		private static final long serialVersionUID = 1698018766277514987L;
-
+		
+		private final Class<C> childType;
+		private final Class<P> parentType;
+		private final String childPropertyId;
+		//private final String parentPropertyId;
+		
+		private JPAContainer<C> childJpaContainer;
+		private JPAContainer<P> parentJpaContainer;
+		private RelationalFieldFactory<C> fieldFactory;
+		
 		final private Action add = new Action(getMasterDetailAddItemCaption());
 		final private Action remove = new Action(getMasterDetailRemoveItemCaption());
 		final private Action[] actions = new Action[] { add, remove };
 
-		private Object masterEntity;
+		private P masterEntity;
 		private Container container;
 		private Table table;
 
-		public OneToManyField(Item item) {
-			if (item instanceof BeanItem) {
-				masterEntity = ((BeanItem) item).getBean();
-				container = new BeanContainer(childType);
-			} else {
-				masterEntity = ((EntityItem) item).getEntity();
-				container = getJpaContainer((EntityItem) item, false);
-			}
+		public OneToManyField(JPAContainer<P> parentJpaContainer, Item parentItem, Object parentPropertyId, Class<C> childType) {
+			this.parentJpaContainer = parentJpaContainer;
+			this.parentType = parentJpaContainer.getEntityClass();
+			this.childType = childType;
+
+			this.childPropertyId = PersistenceUtils.getMappedByProperty(parentType, parentPropertyId);
+			this.childJpaContainer = getJpaContainer();
+			this.fieldFactory = new RelationalFieldFactory<C>(this.childJpaContainer);
+			
+			this.container = new BeanContainer(this.childType);
+//			
+			
+//			if (parentItem instanceof BeanItem) {
+//				masterEntity = ((BeanItem) parentItem).getBean();
+//				
+//			} else {
+//				masterEntity = ((EntityItem) parentItem).getEntity();
+//				container = JPAContainer<T>
+//			}
 
 			buildLayout();
 		}
 
-		protected JPAContainer getJpaContainer(EntityItem item, boolean buffered) {
-			JPAContainer jpaContainer;
-			if (buffered) {
-				jpaContainer = JPAContainerFactory.make(childType, entityManager);
-			} else {
-				jpaContainer = JPAContainerFactory.makeBatchable(childType, entityManager);
-			}
+		protected JPAContainer<C> getJpaContainer() {
+			JPAContainer<C> jpaContainer = JPAContainerFactory.makeBatchable(this.childType, this.parentJpaContainer.getEntityProvider().getEntityManager());			
 
-			Filter filter = new Compare.Equal(childPropertyId, masterEntity);
+			Filter filter = new Compare.Equal(this.childPropertyId, masterEntity);
 			jpaContainer.addContainerFilter(filter);
 
 			// Set the lazy loading delegate to the same as the parent.
-			EntityContainer referenceContainer = item.getContainer();
-			jpaContainer.getEntityProvider().setLazyLoadingDelegate(referenceContainer.getEntityProvider().getLazyLoadingDelegate());
+			jpaContainer.getEntityProvider().setLazyLoadingDelegate(this.parentJpaContainer.getEntityProvider().getLazyLoadingDelegate());
 			return jpaContainer;
 		}
 
@@ -132,17 +112,17 @@ public class OneToManyFieldFactory implements CustomFieldFactory {
 
 		protected void buildTable() {
 			table = new Table(null, container);
-			Object[] visibleProperties = visibleColumns;
+			Object[] visibleProperties = null;
 			if (visibleProperties == null) {
 				List<Object> asList = new ArrayList<Object>(Arrays.asList(getTable().getVisibleColumns()));
-				asList.remove(childPropertyId);
+				asList.remove(this.childPropertyId);
 				visibleProperties = asList.toArray();
 			}
 			getTable().setPageLength(5);
 			getTable().setVisibleColumns(visibleProperties);
 			getTable().addActionHandler(this);
 
-			getTable().setTableFieldFactory(fieldFactory);
+			getTable().setTableFieldFactory(this.fieldFactory);
 			getTable().setEditable(true);
 			getTable().setSelectable(true);
 		}
@@ -168,7 +148,7 @@ public class OneToManyFieldFactory implements CustomFieldFactory {
 		 */
 		@Override
 		public Class<?> getType() {
-			return childType;
+			return this.childType;
 		}
 
 		public void handleAction(Action action, Object sender, Object target) {
@@ -186,7 +166,7 @@ public class OneToManyFieldFactory implements CustomFieldFactory {
 		private void remove(Object itemId) {
 			if (itemId != null) {
 				Item item = container.getItem(itemId);
-				item.getItemProperty(childPropertyId).setValue(null);
+				item.getItemProperty(this.childPropertyId).setValue(null);
 				container.removeItem(itemId);
 				// if (isWriteThrough()) {
 				// Collection<?> collection = (Collection<?>)
@@ -198,9 +178,9 @@ public class OneToManyFieldFactory implements CustomFieldFactory {
 
 		private void addNew() {
 			try {
-				Object newInstance = childType.newInstance();
-				BeanItem<?> beanItem = new BeanItem(newInstance);
-				beanItem.getItemProperty(childPropertyId).setValue(masterEntity);
+				C newInstance = this.childType.newInstance();
+				BeanItem<C> beanItem = new BeanItem<C>(newInstance);
+				beanItem.getItemProperty(this.childPropertyId).setValue(masterEntity);
 				if (container instanceof JPAContainer) {
 					((JPAContainer) container).addEntity(newInstance);
 				} else {
@@ -208,62 +188,49 @@ public class OneToManyFieldFactory implements CustomFieldFactory {
 				}
 
 			} catch (Exception e) {
-				Logger.getLogger(getClass().getName()).warning("Could not instantiate detail instance " + childType.getName());
+				Logger.getLogger(getClass().getName()).warning("Could not instantiate detail instance " + this.childType.getName());
 				e.printStackTrace();
 			}
 		}
 
 		@Override
 		public void commit() throws SourceException, InvalidValueException {
-			if (!isWriteThrough() && container instanceof JPAContainer) {
-				JPAContainer jpaConainer = (JPAContainer) container;
-				// Update the original collection to contain up to date list of
-				// referenced entities
-				((EntityItemProperty) getPropertyDataSource()).getItem().refresh();
-				Collection c = (Collection) getPropertyDataSource().getValue();
-				boolean isNew = c == null;
-				HashSet orphaned = !isNew ? new HashSet(c) : null;
-				Collection itemIds = jpaConainer.getItemIds();
-				for (Object object : itemIds) {
-					EntityItem item = jpaConainer.getItem(object);
-					Object entity = item.getEntity();
-					if (!isNew) {
-						orphaned.remove(entity);
-					}
-					if (c == null) {
-						try {
-							c = createNewCollectionForType(childType);
-						} catch (InstantiationException e) {
-							throw new SourceException(jpaConainer, e);
-						} catch (IllegalAccessException e) {
-							throw new SourceException(jpaConainer, e);
-						}
-					}
-					if (isNew || !c.contains(entity)) {
-						c.add(entity);
-					}
-				}
-				if (!isNew) {
-					c.removeAll(orphaned);
-				}
-				getPropertyDataSource().setValue(c);
-			} else {
-				super.commit();
-			}
+//			if (!isWriteThrough() && container instanceof JPAContainer) {
+//				JPAContainer jpaConainer = (JPAContainer) container;
+//				// Update the original collection to contain up to date list of
+//				// referenced entities
+//				((EntityItemProperty) getPropertyDataSource()).getItem().refresh();
+//				Collection c = (Collection) getPropertyDataSource().getValue();
+//				boolean isNew = c == null;
+//				HashSet orphaned = !isNew ? new HashSet(c) : null;
+//				Collection itemIds = jpaConainer.getItemIds();
+//				for (Object object : itemIds) {
+//					EntityItem item = jpaConainer.getItem(object);
+//					Object entity = item.getEntity();
+//					if (!isNew) {
+//						orphaned.remove(entity);
+//					}
+//					if (c == null) {
+//						try {
+//							c = createNewCollectionForType(this.childType);
+//						} catch (InstantiationException e) {
+//							throw new SourceException(jpaConainer, e);
+//						} catch (IllegalAccessException e) {
+//							throw new SourceException(jpaConainer, e);
+//						}
+//					}
+//					if (isNew || !c.contains(entity)) {
+//						c.add(entity);
+//					}
+//				}
+//				if (!isNew) {
+//					c.removeAll(orphaned);
+//				}
+//				getPropertyDataSource().setValue(c);
+//			} else {
+//				super.commit();
+//			}
 		}		
-		
-		@Override
-		public void postCommit() {
-			if (container instanceof BeanContainer) {
-				JPAContainer jpaContainer = getJpaContainer(masterItem, false);
-				for (Object itemId : container.getItemIds() ) {
-					BeanItem item = (BeanItem) container.getItem(itemId);
-					item.getItemProperty(childPropertyId).setValue(masterEntity);
-					jpaContainer.addEntity(item.getBean());
-				}
-				jpaContainer.commit();
-			}
-		}
 		
 	   public Collection createNewCollectionForType(Class<?> type)
 	         throws InstantiationException, IllegalAccessException {
@@ -281,4 +248,3 @@ public class OneToManyFieldFactory implements CustomFieldFactory {
 	     }
 	 }
 	}
-}

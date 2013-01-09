@@ -6,16 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.EntityManager;
-
-import w.wexpense.model.Codable;
-import w.wexpense.model.DBable;
-import w.wexpense.vaadin.WexApplication;
-
-import com.vaadin.addon.jpacontainer.JPAContainer;
-import com.vaadin.addon.jpacontainer.JPAContainerFactory;
-import com.vaadin.addon.jpacontainer.fieldfactory.SingleSelectTranslator;
-import com.vaadin.addon.jpacontainer.metadata.PropertyKind;
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
 import com.vaadin.ui.AbstractSelect;
@@ -26,25 +16,16 @@ import com.vaadin.ui.DateField;
 import com.vaadin.ui.DefaultFieldFactory;
 import com.vaadin.ui.Field;
 import com.vaadin.ui.Form;
-import com.vaadin.ui.NativeSelect;
 import com.vaadin.ui.TextField;
 
-public class SimpleFieldFactory<T> extends DefaultFieldFactory {
+public class SimpleFieldFactory extends DefaultFieldFactory {
 
 	private static final long serialVersionUID = -2122739273213720235L;
-
-	
-	private final JPAContainer<T> jpaContainer;
 
 	private Map<Object, CustomFieldFactory> customFieldFactories = new HashMap<Object, CustomFieldFactory>();
 
 	private int dateResolution = DateField.RESOLUTION_DAY;
 	private String dateFormat = "dd/MM/yyyy";
-
-	public SimpleFieldFactory(JPAContainer<T> jpaContainer) {
-		super();
-		this.jpaContainer = jpaContainer;
-	}
 
 	@Override
 	public Field createField(Item item, Object propertyId, Component uiContext) {
@@ -55,13 +36,15 @@ public class SimpleFieldFactory<T> extends DefaultFieldFactory {
 			field = factory.newInstance(item);
 		} else {
 			Class<?> type = item.getItemProperty(propertyId).getType();
-			field = createField(type, propertyId);
+			field = createField(item, type, propertyId, uiContext);
 		}
 
-		field.setCaption(createCaptionByPropertyId(propertyId));
 		if (FieldFactoryHelper.isSystemProperty(propertyId)) {
 			field.setReadOnly(true);
 		}
+
+		field.setCaption(createCaptionByPropertyId(propertyId));
+
 		return field;
 	}
 
@@ -76,14 +59,18 @@ public class SimpleFieldFactory<T> extends DefaultFieldFactory {
 			field = factory.newInstance(item);
 		} else {
 			Class<?> type = item.getItemProperty(propertyId).getType();
-			field = createField(type, propertyId);
+			field = createField(item, type, propertyId, uiContext);
 		}
 
 		field.setCaption(createCaptionByPropertyId(propertyId));
 		return field;
 	}
 
-	protected Field createField(Class<?> type, Object propertyId) {
+	protected Field createField(Item item, Class<?> type, Object propertyId, Component uiContext) {
+		return createSimpleField(type);
+	}
+		
+	protected Field createSimpleField(Class<?> type) {
 		// Null typed properties can not be edited
 		if (type == null) {
 			return null;
@@ -118,39 +105,12 @@ public class SimpleFieldFactory<T> extends DefaultFieldFactory {
 			return select;
 		}
 
-		if (Codable.class.isAssignableFrom(type)) {
-			return createManyToOneField(type);
-		}
-
-		if (DBable.class.isAssignableFrom(type)) {
-			PropertyKind propertyKind = jpaContainer.getPropertyKind(propertyId);
-			switch (propertyKind) {
-				case MANY_TO_ONE:
-					return createManyToOneField(type);
-				default:
-					// fall to default for now
-			}
-		}
 
 		TextField field = new TextField();
 		field.setNullRepresentation("");
 		return field;
 	}
 
-	protected Field createManyToOneField(Class<?> type) {
-		ComboBox select = new ComboBox();
-		select.setMultiSelect(false);
-		select.setContainerDataSource(getJpaContainer(type));
-		select.setPropertyDataSource(new SingleSelectTranslator(select));
-		select.setItemCaptionMode(NativeSelect.ITEM_CAPTION_MODE_ITEM);
-		select.setFilteringMode(AbstractSelect.Filtering.FILTERINGMODE_CONTAINS);
-		return select;
-	}
-
-	protected Container getJpaContainer(Class<?> type) {
-		EntityManager em = jpaContainer.getEntityProvider().getEntityManager();
-		return JPAContainerFactory.make(type, em);
-	}
 
 	public void addCustomFieldFactory(Object propertyId, CustomFieldFactory customFieldFactory) {
 		this.customFieldFactories.put(propertyId, customFieldFactory);

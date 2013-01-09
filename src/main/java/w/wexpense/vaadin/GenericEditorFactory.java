@@ -3,14 +3,12 @@ package w.wexpense.vaadin;
 import java.util.Arrays;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 
-import w.wexpense.vaadin.fieldfactory.SimpleFieldFactory;
+import w.wexpense.vaadin.fieldfactory.RelationalFieldFactory;
 
 import com.vaadin.addon.beanvalidation.BeanValidationForm;
 import com.vaadin.addon.jpacontainer.EntityItem;
 import com.vaadin.addon.jpacontainer.JPAContainer;
-import com.vaadin.data.Item;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -49,12 +47,10 @@ public class GenericEditorFactory<T> extends AbstractViewFactory<T> {
 			
 			jpaContainer = buildJPAContainer();
 			
-			setFormFieldFactory();
+			setFormFieldFactory(new RelationalFieldFactory<T>(jpaContainer));
 			setWriteThrough(false);
 			setImmediate(true);
-			setItemDataSource(item,
-					Arrays.asList(GenericEditorFactory.this
-							.getVisibleProperties()));
+			setItemDataSource(item, Arrays.asList(getProperties("editor","visibleProperties")));
 
 			saveButton = new Button("Save", (Button.ClickListener) this);
 			cancelButton = new Button("Cancel", (Button.ClickListener) this);
@@ -63,10 +59,6 @@ public class GenericEditorFactory<T> extends AbstractViewFactory<T> {
 			getFooter().addComponent(cancelButton);
 		}
 
-		protected void setFormFieldFactory() {
-			setFormFieldFactory(new SimpleFieldFactory<T>(jpaContainer));
-		}
-		
 		@Override
 		public String getCaption() {
 			if (!isNew) {
@@ -97,9 +89,9 @@ public class GenericEditorFactory<T> extends AbstractViewFactory<T> {
 				t = et.getEntity();
 			} else {
 				EntityManager em = jpaContainer.getEntityProvider().getEntityManager();
-				//em.getTransaction().begin();
+				em.getTransaction().begin();
 				t = em.merge(item.getBean());				
-				//em.getTransaction().commit();
+				em.getTransaction().commit();
 			}
 			return t;
 		}

@@ -4,6 +4,7 @@ import java.util.Properties;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,23 +33,26 @@ public class PersistenceConfiguration {
 	
 	@Value( "${jdbc.jpa.adapter}" ) 
 	private String jpaAdapter;
-	
-	@Autowired
-	private EntityManagerFactory entityManagerFactory;
+//	
+//	@Autowired
+//	private EntityManagerFactory entityManagerFactory;
 	
 	@Bean
-	public EntityManager getEntityManager() {
-		return entityManagerFactory.createEntityManager();
+	public EntityManager getEntityManager() throws Exception {
+		return Persistence.createEntityManagerFactory("w.vaadin.jpacontainer").createEntityManager();
 	}
 	
-	@Bean
-	public LocalContainerEntityManagerFactoryBean entityManagerFactoryBean() throws Exception {
+	//@Bean
+	public LocalContainerEntityManagerFactoryBean getEntityManagerFactoryBean() throws Exception {
+		//return Persistence.createEntityManagerFactory("w.vaadin.jpacontainer");
+		
 		final LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
 		factoryBean.setDataSource( wxDataSource() );
 		factoryBean.setPackagesToScan( new String[ ] { "w.wexpense.model" } );
 		
 		String jpaAdapterClassName = "org.springframework.orm.jpa.vendor." + jpaAdapter + "JpaVendorAdapter";
-		Class<JpaVendorAdapter> jpaAdapterClass = (Class<JpaVendorAdapter>) Class.forName(jpaAdapterClassName);
+		@SuppressWarnings("unchecked")
+      Class<JpaVendorAdapter> jpaAdapterClass = (Class<JpaVendorAdapter>) Class.forName(jpaAdapterClassName);
 		factoryBean.setJpaVendorAdapter( jpaAdapterClass.newInstance() );
 		
 		Properties jpaProperties = new Properties();
@@ -58,6 +62,7 @@ public class PersistenceConfiguration {
 
 		return factoryBean;
 	}
+		
 	@Bean
 	public DataSource wxDataSource(){
 		final DriverManagerDataSource dataSource = new DriverManagerDataSource();

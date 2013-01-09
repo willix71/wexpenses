@@ -1,5 +1,6 @@
 package w.wexpense.vaadin;
 
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -60,6 +61,7 @@ public class GenericViewFactory<T> extends AbstractViewFactory<T> {
 		private Button newButton;
 		private Button deleteButton;
 		private Button editButton;
+		private Button refreshButton;
 		private Table table;
 
 		private TextField searchField;
@@ -80,11 +82,14 @@ public class GenericViewFactory<T> extends AbstractViewFactory<T> {
 		private void buildTable() {
 			table = new Table(null, jpaContainer) {
 			    protected String formatPropertyValue(Object rowId, Object colId, Property property) {
-			        if (property == null) {
+			        if (property == null || property.getValue() == null) {
 			            return "";
 			        }
 			        if (Date.class.isAssignableFrom(property.getType())) {
 			      	  return new SimpleDateFormat("dd/MM/yyyy").format(property.getValue());			      	  
+			        }
+			        if (Number.class.isAssignableFrom(property.getType())) {
+			      	  return MessageFormat.format("{0,number,0.00}", property.getValue());
 			        }
 			        return property.toString();
 			    }
@@ -113,8 +118,15 @@ public class GenericViewFactory<T> extends AbstractViewFactory<T> {
 				}
 			});
 
-			Object[] propertyIds=GenericViewFactory.this.getVisibleProperties();
+			String[] propertyIds=getProperties("viewer","visibleProperties");
 			table.setVisibleColumns(propertyIds);
+			for(String pid: propertyIds) {
+				String p = getProperty("viewer", pid, "alignement");
+				if (p!=null) table.setColumnAlignment(pid, p);
+				p = getProperty("viewer", pid, "expandRatio");
+				if (p!=null) table.setColumnExpandRatio(pid, Float.valueOf(p));
+			}
+			
 		}
 
 		private void buildToolbar() {
@@ -131,10 +143,14 @@ public class GenericViewFactory<T> extends AbstractViewFactory<T> {
 				editButton = new Button("Edit");
 				editButton.addListener(this);
 				editButton.setEnabled(false);
-
+				
+				refreshButton = new Button("Refresh");
+				refreshButton.addListener(this);
+				
 				toolbar.addComponent(newButton);
 				toolbar.addComponent(deleteButton);
 				toolbar.addComponent(editButton);
+				toolbar.addComponent(refreshButton);
 			}
 
 			searchField = new TextField();
@@ -168,6 +184,8 @@ public class GenericViewFactory<T> extends AbstractViewFactory<T> {
 				deleteEntity();
 			} else if (event.getButton() == editButton) {
 				editEntity();
+			} else if (event.getButton() == refreshButton) {
+				refreshContainer();
 			}
 		}
 
