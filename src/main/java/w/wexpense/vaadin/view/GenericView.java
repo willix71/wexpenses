@@ -123,17 +123,17 @@ public class GenericView<T> extends VerticalLayout implements Button.ClickListen
 			newButton = new Button("Add");
 			newButton.addListener(this);
 
-			deleteButton = new Button("Delete");
-			deleteButton.addListener(this);
-			deleteButton.setEnabled(false);
-
 			editButton = new Button("Edit");
 			editButton.addListener(this);
 			editButton.setEnabled(false);
 			
+			deleteButton = new Button("Delete");
+			deleteButton.addListener(this);
+			deleteButton.setEnabled(false);
+			
 			toolbar.addComponent(newButton);
-			toolbar.addComponent(deleteButton);
 			toolbar.addComponent(editButton);
+			toolbar.addComponent(deleteButton);
 		}
 		
 		refreshButton = new Button("Refresh");
