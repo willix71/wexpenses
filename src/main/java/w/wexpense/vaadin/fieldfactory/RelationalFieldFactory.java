@@ -3,7 +3,6 @@ package w.wexpense.vaadin.fieldfactory;
 import javax.persistence.EntityManager;
 
 import w.wexpense.model.Codable;
-import w.wexpense.model.TransactionLine;
 
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.JPAContainerFactory;
@@ -46,8 +45,6 @@ public class RelationalFieldFactory<T> extends SimpleFieldFactory {
 		switch (propertyKind) {
 			case MANY_TO_ONE:
 				return createManyToOneField(item, type, propertyId, uiContext);
-			case ONE_TO_MANY:				
-				return oneToManyField(item, propertyId, uiContext);
 			default:
 				// fall to default for now
 				return null;
@@ -62,10 +59,6 @@ public class RelationalFieldFactory<T> extends SimpleFieldFactory {
 		select.setItemCaptionMode(NativeSelect.ITEM_CAPTION_MODE_ITEM);
 		select.setFilteringMode(AbstractSelect.Filtering.FILTERINGMODE_CONTAINS);
 		return select;
-	}
-
-	protected Field oneToManyField(Item item, Object propertyId, Component uiContext) {
-		return new OneToManyField<>(jpaContainer, item, propertyId, TransactionLine.class);
 	}
 
 	protected Container getJpaContainer(Class<?> type) {

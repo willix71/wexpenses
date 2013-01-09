@@ -128,8 +128,7 @@
 		</property>
 	</bean>
 	
-	<bean id="expenseEditor" class="w.wexpense.vaadin.view.GenericEditor" scope="prototype" >
-		<constructor-arg value="w.wexpense.model.Expense" />
+	<bean id="expenseEditor" class="w.wexpense.vaadin.view.ExpenseEditor" scope="prototype" >
 		<property name="propertyConfiguror">
 			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
 				<property name="visibleProperties" value="fullId,uid,date,amount,currency,payee,type,externalReference,transactions"/>

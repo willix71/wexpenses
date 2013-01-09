@@ -15,6 +15,7 @@ import com.vaadin.addon.jpacontainer.EntityItem;
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 
@@ -35,30 +36,44 @@ public class GenericEditor<T> extends VerticalLayout implements Button.ClickList
 	
 	public GenericEditor(Class<T> entityClass) {
 		this.entityClass = entityClass;
-		this.idProperty = PersistenceUtils.getIdName(entityClass);
-		form = new BeanValidationForm<T>(entityClass);		
-		form.setWriteThrough(false);
-		form.setImmediate(true);		
-
-		saveButton = new Button("Save", (Button.ClickListener) this);
-		cancelButton = new Button("Cancel", (Button.ClickListener) this);
-
-		addComponent(form);
+		this.idProperty = PersistenceUtils.getIdName(entityClass);			
 	}
 
 	public void setInstance(T instance, JPAContainer<T> jpaContainer) {
 		isNew = instance == null;
 		item = new BeanItem<T>(isNew?newInstance():instance);
 		
+		this.jpaContainer = jpaContainer;
+		
+		buildForm();
+		buildExtra(); 
+		buildButtons();
+	}
+	
+	public void buildForm() {
+		form = new BeanValidationForm<T>(entityClass);		
+		form.setWriteThrough(false);
+		form.setImmediate(true);
+		
 		String[] propertyIds=propertyConfiguror.getPropertyValues(PropertyConfiguror.visibleProperties);
 		
 		form.setFormFieldFactory(new RelationalFieldFactory<T>(jpaContainer));
 		form.setItemDataSource(item, Arrays.asList(propertyIds));
 		
-		form.getFooter().addComponent(saveButton);
-		form.getFooter().addComponent(cancelButton);
+		addComponent(form);
+	}
+	
+	public void buildExtra() {
 		
-		this.jpaContainer = jpaContainer;
+	}
+	
+	public void buildButtons() {
+		HorizontalLayout buttonLayout = new HorizontalLayout();
+		saveButton = new Button("Save", (Button.ClickListener) this);
+		cancelButton = new Button("Cancel", (Button.ClickListener) this);
+		buttonLayout.addComponent(saveButton);
+		buttonLayout.addComponent(cancelButton);
+		addComponent(buttonLayout);
 	}
 	
 	@Override
@@ -126,6 +141,10 @@ public class GenericEditor<T> extends VerticalLayout implements Button.ClickList
 		} catch (IllegalAccessException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public BeanItem<T> getItem() {
+		return item;
 	}
 
 	public JPAContainer<T> getJpaContainer() {
