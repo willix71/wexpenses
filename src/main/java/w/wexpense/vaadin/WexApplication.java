@@ -2,27 +2,40 @@ package w.wexpense.vaadin;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import w.wexpense.vaadin.view.GenericView;
 
 import com.vaadin.Application;
+import com.vaadin.addon.jpacontainer.util.EntityManagerPerRequestHelper;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.ui.Component;
+import com.vaadin.terminal.gwt.server.HttpServletRequestListener;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.Window;
 
-public class WexApplication extends Application {
+public class WexApplication extends Application implements HttpServletRequestListener {
 
 	private static final long serialVersionUID = 4614856229857072876L;
+		
+	private static final Logger LOGGER = LoggerFactory.getLogger(WexApplication.class);
 	
 	@Autowired
 	private List<GenericView<?>> views;
 	
+	@Autowired
+	private WexJPAContainerFactory jpaContainerFactory;
+	
 	@Override
 	public void init() {
+		LOGGER.debug(">>>>>>>>>> init");
+		
 		WexpenseMainView mainView = new WexpenseMainView();
 		
 		for(GenericView<?> c: views) {
@@ -30,7 +43,33 @@ public class WexApplication extends Application {
 		}
 
 		setMainWindow(mainView);
+		
+		LOGGER.debug("<<<<<<<<<< inited");
 	}
+	
+	
+
+	@Override
+   public void onRequestStart(HttpServletRequest request, HttpServletResponse response) {
+		EntityManagerPerRequestHelper helper = jpaContainerFactory.getHelper();		
+		if (helper != null) {
+			LOGGER.debug("Request started with EntityManagerPerRequestHelper");
+			helper.requestStart();
+		} else {
+			LOGGER.debug("Request started");
+		}
+   }
+
+	@Override
+   public void onRequestEnd(HttpServletRequest request, HttpServletResponse response) {
+		EntityManagerPerRequestHelper helper = jpaContainerFactory.getHelper();
+		if (helper != null) {
+			LOGGER.debug("Request ended with EntityManagerPerRequestHelper");
+			helper.requestEnd();
+		}  else {
+			LOGGER.debug("Request ended");
+		}
+   }
 
 	class WexpenseMainView extends Window {
       private static final long serialVersionUID = 6406409460600093055L;

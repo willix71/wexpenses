@@ -44,7 +44,6 @@ class ExpenseTransactionLineView<P extends DBable,C extends DBable> extends Vert
 		private final String parentPropertyId;
 		private final String childPropertyId;
 		
-		//private JPAContainer<C> childJpaContainer;
 		private JPAContainer<P> parentJpaContainer;
 		private RelationalFieldFactory<C> fieldFactory;
 		

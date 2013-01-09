@@ -15,7 +15,11 @@
 	<context:component-scan base-package="w.wexpense.persistence" />
 	
 		
-	<bean class="w.wexpense.vaadin.WexJPAContainerFactory" 	/>
+	<bean class="w.wexpense.vaadin.WexJPAContainerFactory" >
+		<property name="helper">
+			<bean class="com.vaadin.addon.jpacontainer.util.EntityManagerPerRequestHelper"/>
+		</property>
+	</bean>
 	
 	<!-- currency and country -->
 			
@@ -131,7 +135,18 @@
 	<bean id="expenseEditor" class="w.wexpense.vaadin.view.ExpenseEditor" scope="prototype" >
 		<property name="propertyConfiguror">
 			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
-				<property name="visibleProperties" value="fullId,uid,date,amount,currency,payee,type,externalReference,transactions"/>
+				<property name="visibleProperties" value="fullId,uid,date,amount,currency,payee,type,externalReference,description"/>
+			</bean>
+		</property>
+		<property name="transactionLinesEditor">
+			<bean class="w.wexpense.vaadin.fieldfactory.OneToManyView" scope="prototype" >
+				<constructor-arg value="transactions" />
+				<constructor-arg value="w.wexpense.model.TransactionLine" />
+				<property name="propertyConfiguror">
+					<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
+						<property name="visibleProperties" value="factor,amount,account,description"/>
+					</bean>
+				</property>
 			</bean>
 		</property>
 	</bean>

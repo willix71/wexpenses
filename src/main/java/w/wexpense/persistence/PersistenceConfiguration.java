@@ -2,6 +2,8 @@ package w.wexpense.persistence;
 
 import java.util.Properties;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -14,7 +16,7 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 
 @Configuration
 public class PersistenceConfiguration {
-
+	
 	@Value( "${jdbc.driverClassName}" ) 
 	private String driverClassName;
 	
@@ -29,22 +31,13 @@ public class PersistenceConfiguration {
 	
 	@Value( "${jdbc.jpa.adapter}" ) 
 	private String jpaAdapter;
-//	
-//	@Autowired
-//	private EntityManagerFactory entityManagerFactory;
 	
-//	@Bean
-//	public EntityManager getEntityManager() throws Exception {
-//		return Persistence.createEntityManagerFactory("w.vaadin.jpacontainer").createEntityManager();
-//	}
 	
 //	@PersistenceContext(type=PersistenceContextType.EXTENDED)
 //	private EntityManager entityManager;
 
 	@Bean
-	public LocalContainerEntityManagerFactoryBean getEntityManagerFactoryBean() throws Exception {
-		//return Persistence.createEntityManagerFactory("w.vaadin.jpacontainer");
-		
+	public LocalContainerEntityManagerFactoryBean getEntityManagerFactoryBean() throws Exception {	
 		final LocalContainerEntityManagerFactoryBean factoryBean = new LocalContainerEntityManagerFactoryBean();
 		factoryBean.setDataSource( wxDataSource() );
 		factoryBean.setPackagesToScan( new String[ ] { "w.wexpense.model" } );

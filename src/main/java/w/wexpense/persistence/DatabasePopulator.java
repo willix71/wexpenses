@@ -11,7 +11,6 @@ import javax.persistence.EntityManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import w.wexpense.model.Account;
@@ -24,15 +23,18 @@ import w.wexpense.model.Payee;
 import w.wexpense.model.PayeeType;
 import w.wexpense.model.TransactionLine;
 import w.wexpense.model.enums.TransactionLineEnum;
+import w.wexpense.vaadin.WexJPAContainerFactory;
+
+import com.vaadin.addon.jpacontainer.JPAContainerFactory;
 
 public class DatabasePopulator {
-
-	@Autowired	
-	private EntityManager em;
+	
+	EntityManager em;
 	
 	@PostConstruct
 	public void populate() {
-	
+		em = JPAContainerFactory.createEntityManagerForPersistenceUnit(WexJPAContainerFactory.PERSISTENCE_UNIT);
+		
 		long size = (Long) em.createQuery("SELECT COUNT(p) FROM Currency p").getSingleResult();
 		if (size == 0) {
 			// create test data

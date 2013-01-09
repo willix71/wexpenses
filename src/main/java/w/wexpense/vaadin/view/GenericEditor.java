@@ -3,7 +3,9 @@ package w.wexpense.vaadin.view;
 import java.util.Arrays;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Persistence;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import w.wexpense.persistence.PersistenceUtils;
 import w.wexpense.vaadin.CloseViewEvent;
@@ -11,16 +13,17 @@ import w.wexpense.vaadin.PropertyConfiguror;
 import w.wexpense.vaadin.fieldfactory.RelationalFieldFactory;
 
 import com.vaadin.addon.beanvalidation.BeanValidationForm;
-import com.vaadin.addon.jpacontainer.EntityItem;
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Button.ClickEvent;
 
 public class GenericEditor<T> extends VerticalLayout implements Button.ClickListener {
 	private static final long serialVersionUID = 5282517667310057582L;
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(GenericEditor.class);
 	
 	private Class<T> entityClass;
 	private String idProperty;
@@ -99,23 +102,40 @@ public class GenericEditor<T> extends VerticalLayout implements Button.ClickList
 
 	public T save() {
 		form.commit();
-		T t;
-		if (isNew) {
-			Object tid = jpaContainer.addEntity(item.getBean());
-			EntityItem<T> et = jpaContainer.getItem(tid);
-			t = et.getEntity();
-		} else {
-			EntityManager em = jpaContainer.getEntityProvider().getEntityManager();
-			em.getTransaction().begin();
-			t = em.merge(item.getBean());				
+		
+		EntityManager em = jpaContainer.getEntityProvider().getEntityManager();
+		em.getTransaction().begin();
+		T t = null;
+		try {
+			t = isNew ? insert(em) : update(em);
 			em.getTransaction().commit();
-			
-			Object o = item.getItemProperty(idProperty).getValue();
+		} catch (Exception e) {
+			LOGGER.error("Failed to save entity", e);
+			em.getTransaction().rollback();
+		}
+
+		if (t!=null && !isNew) {
+			Object o = new BeanItem<>(t).getItemProperty(idProperty).getValue();
 			jpaContainer.refreshItem(o);
 		}
 		return t;
 	}
 	
+	protected T insert(EntityManager em) {
+		LOGGER.debug("Inserting {}", item.getBean());		
+		
+		T t = item.getBean();
+		em.persist(t);
+		return t;
+	}
+
+	protected T update(EntityManager em) {
+		LOGGER.debug("Merging {}", item.getBean());
+		
+		T t = em.merge(item.getBean());
+		return t;
+	}
+
 	public void cancel() {
 		form.discard();
 	}

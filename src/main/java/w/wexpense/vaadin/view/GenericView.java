@@ -119,18 +119,18 @@ public class GenericView<T> extends VerticalLayout implements Button.ClickListen
 	private void buildToolbar() {
 		HorizontalLayout toolbar = new HorizontalLayout();
 
-		if (newEditor() != null) {
-			newButton = new Button("Add");
-			newButton.addListener(this);
+		newButton = new Button("Add");
+		newButton.addListener(this);
 
-			editButton = new Button("Edit");
-			editButton.addListener(this);
-			editButton.setEnabled(false);
-			
-			deleteButton = new Button("Delete");
-			deleteButton.addListener(this);
-			deleteButton.setEnabled(false);
-			
+		editButton = new Button("Edit");
+		editButton.addListener(this);
+		editButton.setEnabled(false);
+		
+		deleteButton = new Button("Delete");
+		deleteButton.addListener(this);
+		deleteButton.setEnabled(false);
+
+		if (newEditor() != null) {
 			toolbar.addComponent(newButton);
 			toolbar.addComponent(editButton);
 			toolbar.addComponent(deleteButton);

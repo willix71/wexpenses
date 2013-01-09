@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import w.wexpense.vaadin.PropertyConfiguror;
+
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
 import com.vaadin.ui.AbstractSelect;
@@ -39,10 +41,14 @@ public class SimpleFieldFactory extends DefaultFieldFactory {
 			field = createField(item, type, propertyId, uiContext);
 		}
 
-		if (FieldFactoryHelper.isSystemProperty(propertyId)) {
-			field.setReadOnly(true);
+		// system properties are always read-only
+		for(String o: PropertyConfiguror.systemProperties) { 
+			if (o.equals(propertyId)) {
+				field.setReadOnly(true);
+				break;
+			}
 		}
-
+			
 		field.setCaption(createCaptionByPropertyId(propertyId));
 
 		return field;
