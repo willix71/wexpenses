@@ -3,8 +3,6 @@ package w.wexpense.vaadin;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Window;
 
-
-
 public class ClosableWindow extends Window {
 	private static final long serialVersionUID = 8121179082149508634L;
 

@@ -19,6 +19,7 @@ import w.wexpense.model.City;
 import w.wexpense.model.Country;
 import w.wexpense.model.Currency;
 import w.wexpense.model.Expense;
+import w.wexpense.model.ExpenseType;
 import w.wexpense.model.Payee;
 import w.wexpense.model.PayeeType;
 import w.wexpense.model.TransactionLine;
@@ -46,9 +47,9 @@ public class DatabasePopulator {
 			save(new Country("FR", "France", euro));
 			save(new Country("IT", "Italie", euro));
 			save(new Country("DE", "Germany", euro));
-			
-			City prangins = save(new City("1197", "Prangins", ch));
+						
 			City nyon = save(new City("1260", "Nyon", ch));
+			save(new City("1197", "Prangins", ch));
 			
 			Account assetAcc = save(new Account(null, 1, "asset", ASSET, null));			
 			Account cashAcc = save(new Account(assetAcc, 1, "cash", ASSET, chf));			
@@ -64,16 +65,21 @@ public class DatabasePopulator {
 			
 			Payee payee = new Payee();
 			payee.setType(garage);
-			payee.setPrefix("L'");
+			payee.setPrefix("Garage de l'");
 			payee.setName("Etraz");
 			payee.setCity(nyon);
 			save(payee);
+						
+			ExpenseType recu = save(new ExpenseType("garage"));
+			save(new ExpenseType("BVR"));
+			save(new ExpenseType("BVO"));
 			
 			Expense expense = new Expense();
 			expense.setAmount(22.50);
 			expense.setCurrency(chf);
 			expense.setDate(new GregorianCalendar().getTime());
 			expense.setPayee(payee);
+			expense.setType(recu);
 			save(expense);
 			
 			TransactionLine line = new TransactionLine();

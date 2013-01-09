@@ -13,72 +13,164 @@
 	<context:property-placeholder location="classpath:persistence.properties" />
 	
 	<context:component-scan base-package="w.wexpense.persistence" />
+	
 		
-	<bean class="w.wexpense.vaadin.GenericViewFactory">
-		<constructor-arg value="w.wexpense.model.Currency" />		
-		<constructor-arg>
-				<bean class="w.wexpense.vaadin.GenericEditorFactory">
-					<constructor-arg value="w.wexpense.model.Currency" />				
-				</bean>
-		</constructor-arg>
+	<bean class="w.wexpense.vaadin.WexJPAContainerFactory" 	/>
+	
+	<!-- currency and country -->
+			
+	<bean class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
+		<constructor-arg value="w.wexpense.model.Currency" />
+		<lookup-method name="newEditor" bean="currencyEditor"/>
+		<property name="propertyConfiguror">
+			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
+				<property name="visibleProperties" value="code,name"/>
+			</bean>
+		</property>
 	</bean>
 	
-	<bean class="w.wexpense.vaadin.GenericViewFactory">
-		<constructor-arg value="w.wexpense.model.Country" />		
-		<constructor-arg>
-				<bean class="w.wexpense.vaadin.GenericEditorFactory">
-					<constructor-arg value="w.wexpense.model.Country" />				
-				</bean>
-		</constructor-arg>
-	</bean>
-
-	<bean class="w.wexpense.vaadin.GenericViewFactory">
-		<constructor-arg value="w.wexpense.model.City" />		
-		<constructor-arg>
-				<bean class="w.wexpense.vaadin.GenericEditorFactory">
-					<constructor-arg value="w.wexpense.model.City" />				
-				</bean>
-		</constructor-arg>
-	</bean>
-
-	<bean class="w.wexpense.vaadin.GenericViewFactory">
-		<constructor-arg value="w.wexpense.model.Payee" />		
-		<constructor-arg>
-				<bean class="w.wexpense.vaadin.GenericEditorFactory">
-					<constructor-arg value="w.wexpense.model.Payee" />				
-				</bean>
-		</constructor-arg>
-	</bean>
-
-	<bean class="w.wexpense.vaadin.GenericViewFactory">
-		<constructor-arg value="w.wexpense.model.PayeeType" />		
-		<constructor-arg>
-				<bean class="w.wexpense.vaadin.GenericEditorFactory">
-					<constructor-arg value="w.wexpense.model.PayeeType" />				
-				</bean>
-		</constructor-arg>
-	</bean>	
-		
-	<bean class="w.wexpense.vaadin.GenericViewFactory">
-		<constructor-arg value="w.wexpense.model.Expense" />		
-		<constructor-arg>
-				<bean class="w.wexpense.vaadin.GenericEditorFactory">
-					<constructor-arg value="w.wexpense.model.Expense" />						
-				</bean>
-		</constructor-arg>
-	</bean>
-
-	<bean class="w.wexpense.vaadin.GenericViewFactory">
-		<constructor-arg value="w.wexpense.model.ExpenseType" />		
-		<constructor-arg>
-				<bean class="w.wexpense.vaadin.GenericEditorFactory">
-					<constructor-arg value="w.wexpense.model.ExpenseType" />				
-				</bean>
-		</constructor-arg>
+	<bean id="currencyEditor" class="w.wexpense.vaadin.view.GenericEditor" scope="prototype" >
+		<constructor-arg value="w.wexpense.model.Currency" />
+		<property name="propertyConfiguror">
+			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
+				<property name="visibleProperties" value="code,name"/>
+			</bean>
+		</property>
 	</bean>
 	
-	<bean class="w.wexpense.vaadin.GenericViewFactory">
-		<constructor-arg value="w.wexpense.model.TransactionLine" />		
-	</bean>	
+	<bean class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
+		<constructor-arg value="w.wexpense.model.Country" />
+		<lookup-method name="newEditor" bean="countryEditor"/>
+		<property name="propertyConfiguror">
+			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
+				<property name="visibleProperties" value="code,name,currency"/>
+			</bean>
+		</property>
+	</bean>
 	
+	<bean id="countryEditor" class="w.wexpense.vaadin.view.GenericEditor" scope="prototype" >
+		<constructor-arg value="w.wexpense.model.Country" />
+		<property name="propertyConfiguror">
+			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
+				<property name="visibleProperties" value="code,name,currency"/>
+			</bean>
+		</property>
+	</bean>
+	
+	<!-- city -->
+	
+	<bean class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
+		<constructor-arg value="w.wexpense.model.City" />
+		<lookup-method name="newEditor" bean="cityEditor"/>
+		<property name="propertyConfiguror">
+			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
+				<property name="visibleProperties" value="name,zip,country"/>
+			</bean>
+		</property>
+	</bean>
+	
+	<bean id="cityEditor" class="w.wexpense.vaadin.view.GenericEditor" scope="prototype" >
+		<constructor-arg value="w.wexpense.model.City" />
+		<property name="propertyConfiguror">
+			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
+				<property name="visibleProperties" value="fullId,uid,name,zip,country"/>
+			</bean>
+		</property>
+	</bean>
+	
+	<!-- payee -->
+	<bean class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
+		<constructor-arg value="w.wexpense.model.Payee" />
+		<lookup-method name="newEditor" bean="payeeEditor"/>
+		<property name="propertyConfiguror">
+			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
+				<property name="visibleProperties" value="type,prefix,name,city"/>
+			</bean>
+		</property>
+	</bean>
+	
+	<bean id="payeeEditor" class="w.wexpense.vaadin.view.GenericEditor" scope="prototype" >
+		<constructor-arg value="w.wexpense.model.Payee" />
+		<property name="propertyConfiguror">
+			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
+				<property name="visibleProperties" value="fullId,uid,type,prefix,name,location,city,externalReference"/>
+			</bean>
+		</property>
+	</bean>
+	
+	<bean class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
+		<constructor-arg value="w.wexpense.model.PayeeType" />
+		<lookup-method name="newEditor" bean="payeeTypeEditor"/>
+		<property name="propertyConfiguror">
+			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
+				<property name="visibleProperties" value="name,selectable"/>
+			</bean>
+		</property>
+	</bean>
+	
+	<bean id="payeeTypeEditor" class="w.wexpense.vaadin.view.GenericEditor" scope="prototype" >
+		<constructor-arg value="w.wexpense.model.PayeeType" />
+		<property name="propertyConfiguror">
+			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
+				<property name="visibleProperties" value="fullId,uid,name,selectable"/>
+			</bean>
+		</property>
+	</bean>
+	
+	<!-- expense -->
+	<bean class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
+		<constructor-arg value="w.wexpense.model.Expense" />
+		<lookup-method name="newEditor" bean="expenseEditor"/>
+		<property name="propertyConfiguror">
+			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
+				<property name="visibleProperties" value="date,amount,currency,payee,type"/>
+			</bean>
+		</property>
+	</bean>
+	
+	<bean id="expenseEditor" class="w.wexpense.vaadin.view.GenericEditor" scope="prototype" >
+		<constructor-arg value="w.wexpense.model.Expense" />
+		<property name="propertyConfiguror">
+			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
+				<property name="visibleProperties" value="fullId,uid,date,amount,currency,payee,type,externalReference,transactions"/>
+			</bean>
+		</property>
+	</bean>
+	
+	<bean class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
+		<constructor-arg value="w.wexpense.model.ExpenseType" />
+		<lookup-method name="newEditor" bean="expenseTypeEditor"/>
+		<property name="propertyConfiguror">
+			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
+				<property name="visibleProperties" value="name,selectable"/>
+			</bean>
+		</property>
+	</bean>
+	
+	<bean id="expenseTypeEditor" class="w.wexpense.vaadin.view.GenericEditor" scope="prototype" >
+		<constructor-arg value="w.wexpense.model.ExpenseType" />
+		<property name="propertyConfiguror">
+			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
+				<property name="visibleProperties" value="fullId,uid,name,selectable"/>
+			</bean>
+		</property>
+	</bean>
+	
+	<bean class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
+		<constructor-arg value="w.wexpense.model.TransactionLine" />
+		<property name="propertyConfiguror">
+			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
+				<property name="nestedProperties" value="expense.date,expense.payee"/>
+				<property name="visibleProperties" value="expense.date,expense.payee,account,inAmount,outAmount"/>
+				<property name="otherProperies">
+					<props>
+						<prop key="inAmount.alignement">e</prop>
+						<prop key="outAmount.alignement">e</prop>
+						<prop key="account.expandRatio">.2</prop>
+						<prop key="expense.payee.expandRatio">.8</prop>
+					</props>
+				</property>
+			</bean>
+		</property>
+	</bean>
 </beans>

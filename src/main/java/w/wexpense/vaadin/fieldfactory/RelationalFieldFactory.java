@@ -1,14 +1,9 @@
 package w.wexpense.vaadin.fieldfactory;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.persistence.EntityManager;
-import javax.persistence.OneToMany;
 
 import w.wexpense.model.Codable;
 import w.wexpense.model.TransactionLine;
-import w.wexpense.persistence.PersistenceUtils;
 
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.JPAContainerFactory;
@@ -19,7 +14,6 @@ import com.vaadin.data.Item;
 import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.DateField;
 import com.vaadin.ui.Field;
 import com.vaadin.ui.NativeSelect;
 

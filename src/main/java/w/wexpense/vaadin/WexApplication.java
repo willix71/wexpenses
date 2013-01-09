@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import w.wexpense.vaadin.view.GenericView;
+
 import com.vaadin.Application;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
@@ -17,13 +19,13 @@ public class WexApplication extends Application {
 	private static final long serialVersionUID = 4614856229857072876L;
 	
 	@Autowired
-	private List<GenericViewFactory<?>> views;
+	private List<GenericView<?>> views;
 	
 	@Override
 	public void init() {
 		WexpenseMainView mainView = new WexpenseMainView();
 		
-		for(GenericViewFactory<?> c: views) {
+		for(GenericView<?> c: views) {
 			mainView.addView(c);
 		}
 
@@ -41,7 +43,7 @@ public class WexApplication extends Application {
 			navTree.addListener(new Property.ValueChangeListener() {
 				@Override
 				public void valueChange(ValueChangeEvent event) {
-					GenericViewFactory<?>.GenericView cv = (GenericViewFactory<?>.GenericView) event.getProperty().getValue();
+					GenericView<?> cv = (GenericView<?>) event.getProperty().getValue();
 					cv.refreshContainer();
 					horizontalSplitPanel.setSecondComponent(cv);
 				}
@@ -57,19 +59,10 @@ public class WexApplication extends Application {
 			setContent(horizontalSplitPanel);
 		}
 
-		public Object addView(GenericViewFactory<?> view) {
-			Component c = view.newInstance();
-			Object componentId = navTree.addItem(c);
-			navTree.setItemCaption(c, c.getCaption());
-			if (view.getSubViews() == null) {
-				navTree.setChildrenAllowed(c, false);
-			} else {
-				navTree.setChildrenAllowed(c, true);
-				for(GenericViewFactory<?> subview: view.getSubViews()) {
-					Object subId = addView(subview);
-					navTree.setParent(subId, componentId);					
-				}
-			}
+		public Object addView(GenericView<?> view) {
+			Object componentId = navTree.addItem(view);
+			navTree.setItemCaption(view, view.getCaption());
+			navTree.setChildrenAllowed(view, false);
 			return componentId;
 		}
 	}

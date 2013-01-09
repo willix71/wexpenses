@@ -2,12 +2,8 @@ package w.wexpense.persistence;
 
 import java.util.Properties;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import javax.sql.DataSource;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,12 +33,15 @@ public class PersistenceConfiguration {
 //	@Autowired
 //	private EntityManagerFactory entityManagerFactory;
 	
-	@Bean
-	public EntityManager getEntityManager() throws Exception {
-		return Persistence.createEntityManagerFactory("w.vaadin.jpacontainer").createEntityManager();
-	}
+//	@Bean
+//	public EntityManager getEntityManager() throws Exception {
+//		return Persistence.createEntityManagerFactory("w.vaadin.jpacontainer").createEntityManager();
+//	}
 	
-	//@Bean
+//	@PersistenceContext(type=PersistenceContextType.EXTENDED)
+//	private EntityManager entityManager;
+
+	@Bean
 	public LocalContainerEntityManagerFactoryBean getEntityManagerFactoryBean() throws Exception {
 		//return Persistence.createEntityManagerFactory("w.vaadin.jpacontainer");
 		
