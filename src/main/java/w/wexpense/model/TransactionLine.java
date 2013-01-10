@@ -4,6 +4,7 @@ import java.text.MessageFormat;
 import java.util.Date;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -22,11 +23,11 @@ public class TransactionLine extends DBable {
 		
 	private Integer period;
 	
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.EAGER)
 	private Expense expense;
 	
 	@NotNull
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.EAGER)
 	private Account account;
 	
 	@NotNull
@@ -34,6 +35,11 @@ public class TransactionLine extends DBable {
 	
 	private Double amount;
 	    
+	@ManyToOne(fetch = FetchType.EAGER)
+	private ExchangeRate exchangeRate;
+	
+	private Double value;
+	
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date consolidatedDate;
 	
@@ -66,12 +72,28 @@ public class TransactionLine extends DBable {
 		this.amount = amount;
 	}
 
-	public Double getInAmount() {
-		return TransactionLineEnum.IN==factor?amount:null;
+	public ExchangeRate getExchangeRate() {
+		return exchangeRate;
 	}
 
-	public Double getOutAmount() {
-		return TransactionLineEnum.OUT==factor?amount:null;
+	public void setExchangeRate(ExchangeRate exchangeRate) {
+		this.exchangeRate = exchangeRate;
+	}
+
+	public Double getValue() {
+		return value;
+	}
+
+	public void setValue(Double value) {
+		this.value = value;
+	}
+
+	public Double getInValue() {
+		return TransactionLineEnum.IN==factor?value:null;
+	}
+
+	public Double getOutValue() {
+		return TransactionLineEnum.OUT==factor?value:null;
 	}
 	
 	public TransactionLineEnum getFactor() {

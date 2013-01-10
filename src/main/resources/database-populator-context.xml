@@ -12,7 +12,11 @@
 	
 	<context:property-placeholder location="classpath:persistence.properties" />
 	
-	<context:component-scan base-package="w.wexpense.persistence" />
+	<!-- 
+	<bean class="w.wexpense.persistence.PersistenceConfiguration" />
+	 -->
+	 
+	<bean class="w.wexpense.vaadin.WexJPAContainerFactory" />
 	
 	<bean class="w.wexpense.persistence.DatabasePopulator" />
 		

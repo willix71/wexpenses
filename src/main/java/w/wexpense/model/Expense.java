@@ -22,22 +22,28 @@ public class Expense extends DBable {
 	
 	private Double amount;
 	
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.EAGER)
 	private Currency currency;
 	
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.EAGER)
+	private ExchangeRate defaultExchangeRate;
+	
+	@ManyToOne(fetch = FetchType.EAGER)
 	//@JoinColumn(name="PAYEE_OID")
 	private Payee payee;
 	
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.EAGER)
 	//@JoinColumn(name="TYPE_OID")
 	private ExpenseType type;
 	
 	private String externalReference;
 	
 	private String description;
-
-   @OneToMany(fetch = FetchType.EAGER, mappedBy="expense")
+	
+	@ManyToOne
+	private Payment payment;
+	
+   @OneToMany(mappedBy="expense")
    private List<TransactionLine> transactions = new ArrayList<>();
    
 	public Date getDate() {
@@ -62,6 +68,14 @@ public class Expense extends DBable {
 
 	public void setCurrency(Currency currency) {
 		this.currency = currency;
+	}
+
+	public ExchangeRate getDefaultExchangeRate() {
+		return defaultExchangeRate;
+	}
+
+	public void setDefaultExchangeRate(ExchangeRate defaultExchangeRate) {
+		this.defaultExchangeRate = defaultExchangeRate;
 	}
 
 	public Payee getPayee() {
@@ -102,6 +116,14 @@ public class Expense extends DBable {
 
 	public void setTransactions(List<TransactionLine> transactions) {
 		this.transactions = transactions;
+	}
+
+	public Payment getPayment() {
+		return payment;
+	}
+
+	public void setPayment(Payment payment) {
+		this.payment = payment;
 	}
 
 	@Override

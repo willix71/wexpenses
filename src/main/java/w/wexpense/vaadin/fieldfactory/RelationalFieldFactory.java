@@ -1,15 +1,16 @@
 package w.wexpense.vaadin.fieldfactory;
 
-import javax.persistence.EntityManager;
-
 import w.wexpense.model.Codable;
+import w.wexpense.model.Selectable;
+import w.wexpense.vaadin.WexJPAContainerFactory;
 
 import com.vaadin.addon.jpacontainer.JPAContainer;
-import com.vaadin.addon.jpacontainer.JPAContainerFactory;
 import com.vaadin.addon.jpacontainer.fieldfactory.SingleSelectTranslator;
 import com.vaadin.addon.jpacontainer.metadata.PropertyKind;
 import com.vaadin.data.Container;
+import com.vaadin.data.Container.Filter;
 import com.vaadin.data.Item;
+import com.vaadin.data.util.filter.Compare;
 import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
@@ -19,13 +20,16 @@ import com.vaadin.ui.NativeSelect;
 public class RelationalFieldFactory<T> extends SimpleFieldFactory {
 
 	private static final long serialVersionUID = -2122739273213720235L;
-
+	
+	private WexJPAContainerFactory jpaContainerFactory;
+	
 	private final JPAContainer<T> jpaContainer;
 
-	public RelationalFieldFactory(JPAContainer<T> jpaContainer) {
+	public RelationalFieldFactory(JPAContainer<T> jpaContainer, WexJPAContainerFactory jpaContainerFactory) {
 		super();
 
 		this.jpaContainer = jpaContainer;
+		this.jpaContainerFactory = jpaContainerFactory;
 	}
 
 	@Override
@@ -62,7 +66,11 @@ public class RelationalFieldFactory<T> extends SimpleFieldFactory {
 	}
 
 	protected Container getJpaContainer(Class<?> type) {
-		EntityManager em = jpaContainer.getEntityProvider().getEntityManager();
-		return JPAContainerFactory.make(type, em);
+		JPAContainer<?> container = jpaContainerFactory.getJPAContainer(type);
+		if (Selectable.class.isAssignableFrom(type)) {
+			Filter filter = new Compare.Equal("selectable", true);
+			container.addContainerFilter(filter);
+		}
+		return container;
 	}
 }

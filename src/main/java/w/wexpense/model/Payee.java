@@ -1,6 +1,7 @@
 package w.wexpense.model;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
@@ -11,7 +12,7 @@ public class Payee extends DBable {
 
 	private static final long serialVersionUID = 2482940442245899869L;
 	
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     //@JoinColumn(name="TYPE_OID")
     private PayeeType type;
 
@@ -22,7 +23,7 @@ public class Payee extends DBable {
 
     private String location;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     //@JoinColumn(name="CITY_OID")
     private City city;
 
