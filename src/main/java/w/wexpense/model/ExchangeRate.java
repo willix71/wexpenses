@@ -4,7 +4,6 @@ import java.text.MessageFormat;
 import java.util.Date;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -15,7 +14,7 @@ public class ExchangeRate extends DBable {
 
 	private static final long serialVersionUID = 2482940442245899869L;
 	
-    @ManyToOne(fetch = FetchType.LAZY) 
+    @ManyToOne 
     //@JoinColumn(name="PAYEE_OID")
     private Payee institution;
     

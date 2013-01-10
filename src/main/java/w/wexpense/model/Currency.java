@@ -17,14 +17,17 @@ public class Currency implements Codable {
 	@NotNull
 	private String name;
 
+	private Integer roundingFactor;
+	
 	public Currency() {
 		super();
 	}
 		
-	public Currency(String code, String name) {
+	public Currency(String code, String name, Integer roundingFactor) {
 		super();
 		this.code = code;
 		this.name = name;
+		this.roundingFactor = roundingFactor;
 	}
 
 	public String getCode() {
@@ -41,6 +44,14 @@ public class Currency implements Codable {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public Integer getRoundingFactor() {
+		return roundingFactor;
+	}
+
+	public void setRoundingFactor(Integer roundingFactor) {
+		this.roundingFactor = roundingFactor;
 	}
 
 	@Override

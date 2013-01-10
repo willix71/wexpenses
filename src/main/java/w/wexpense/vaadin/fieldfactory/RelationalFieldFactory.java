@@ -1,16 +1,16 @@
 package w.wexpense.vaadin.fieldfactory;
 
-import javax.persistence.EntityManager;
-
 import w.wexpense.model.Codable;
+import w.wexpense.model.Selectable;
 import w.wexpense.vaadin.WexJPAContainerFactory;
 
 import com.vaadin.addon.jpacontainer.JPAContainer;
-import com.vaadin.addon.jpacontainer.JPAContainerFactory;
 import com.vaadin.addon.jpacontainer.fieldfactory.SingleSelectTranslator;
 import com.vaadin.addon.jpacontainer.metadata.PropertyKind;
 import com.vaadin.data.Container;
+import com.vaadin.data.Container.Filter;
 import com.vaadin.data.Item;
+import com.vaadin.data.util.filter.Compare;
 import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
@@ -66,6 +66,11 @@ public class RelationalFieldFactory<T> extends SimpleFieldFactory {
 	}
 
 	protected Container getJpaContainer(Class<?> type) {
-		return jpaContainerFactory.getJPAContainer(type);
+		JPAContainer<?> container = jpaContainerFactory.getJPAContainer(type);
+		if (Selectable.class.isAssignableFrom(type)) {
+			Filter filter = new Compare.Equal("selectable", true);
+			container.addContainerFilter(filter);
+		}
+		return container;
 	}
 }

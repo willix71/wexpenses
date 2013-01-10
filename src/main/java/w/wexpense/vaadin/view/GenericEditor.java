@@ -17,6 +17,7 @@ import w.wexpense.vaadin.fieldfactory.RelationalFieldFactory;
 import com.vaadin.addon.beanvalidation.BeanValidationForm;
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.data.util.BeanItem;
+import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.HorizontalLayout;
@@ -53,35 +54,38 @@ public class GenericEditor<T> extends VerticalLayout implements Button.ClickList
 		
 		this.jpaContainer = jpaContainer;
 		
-		buildForm();
+		form = buildForm();
 		buildExtra(); 
 		buildButtons();
 	}
 	
-	public void buildForm() {
-		form = new BeanValidationForm<T>(entityClass);		
-		form.setWriteThrough(false);
-		form.setImmediate(true);
+	public BeanValidationForm<T> buildForm() {
+		BeanValidationForm<T> f = new BeanValidationForm<T>(entityClass);		
+		f.setWriteThrough(false);
+		f.setImmediate(true);
 		
 		String[] propertyIds=propertyConfiguror.getPropertyValues(PropertyConfiguror.visibleProperties);
 		
-		form.setFormFieldFactory(new RelationalFieldFactory<T>(jpaContainer, jpaContainerFactory));
-		form.setItemDataSource(item, Arrays.asList(propertyIds));
+		f.setFormFieldFactory(new RelationalFieldFactory<T>(jpaContainer, jpaContainerFactory));
+		f.setItemDataSource(item, Arrays.asList(propertyIds));
 		
-		addComponent(form);
+		addComponent(f);
+		
+		return f;
 	}
 	
 	public void buildExtra() {
 		
 	}
 	
-	public void buildButtons() {
+	public AbstractOrderedLayout buildButtons() {
 		HorizontalLayout buttonLayout = new HorizontalLayout();
 		saveButton = new Button("Save", (Button.ClickListener) this);
 		cancelButton = new Button("Cancel", (Button.ClickListener) this);
 		buttonLayout.addComponent(saveButton);
 		buttonLayout.addComponent(cancelButton);
 		addComponent(buttonLayout);
+		return buttonLayout;
 	}
 	
 	@Override

@@ -34,9 +34,11 @@
 		<class>w.wexpense.model.PayeeType</class>
 		<class>w.wexpense.model.Expense</class>
 		<class>w.wexpense.model.ExpenseType</class>
-		<class>w.wexpense.model.TransactionLine</class>
+		<class>w.wexpense.model.TransactionLine</class>		
+		<class>w.wexpense.model.ExchangeRate</class>
 		<class>w.wexpense.model.Account</class>
 		<class>w.wexpense.model.Consolidation</class>
+		<class>w.wexpense.model.Payment</class>
 		<exclude-unlisted-classes>false</exclude-unlisted-classes>		
 		<properties>
 			
