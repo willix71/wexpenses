@@ -1,10 +1,6 @@
 package w.wexpense.vaadin.fieldfactory;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import javax.persistence.EntityManager;
 
@@ -17,14 +13,10 @@ import w.wexpense.persistence.PersistenceUtils;
 import w.wexpense.vaadin.PropertyConfiguror;
 import w.wexpense.vaadin.WexJPAContainerFactory;
 
-import com.vaadin.addon.jpacontainer.EntityItem;
-import com.vaadin.addon.jpacontainer.EntityItemProperty;
 import com.vaadin.addon.jpacontainer.JPAContainer;
-import com.vaadin.data.Buffered.SourceException;
 import com.vaadin.data.Container;
 import com.vaadin.data.Container.Filter;
 import com.vaadin.data.Item;
-import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.util.BeanContainer;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.filter.Compare;
@@ -72,7 +64,7 @@ public class OneToManyView<P extends DBable,C extends DBable> extends VerticalLa
 			this.childPropertyId = PersistenceUtils.getMappedByProperty(parentType, parentPropertyId);
 
 			JPAContainer<C> childJpaContainer = jpaContainerFactory.getJPAContainerFrom(parentJpaContainer.getEntityProvider(), this.childType);			
-			this.fieldFactory = new RelationalFieldFactory<C>(childJpaContainer);
+			this.fieldFactory = new RelationalFieldFactory<C>(childJpaContainer, jpaContainerFactory);
 			
 			if (parentEntity.isNew()) {
 				BeanContainer<String, C> bContainer = new BeanContainer<String, C>(this.childType);

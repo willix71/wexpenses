@@ -3,6 +3,7 @@ package w.wexpense.vaadin.fieldfactory;
 import javax.persistence.EntityManager;
 
 import w.wexpense.model.Codable;
+import w.wexpense.vaadin.WexJPAContainerFactory;
 
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.JPAContainerFactory;
@@ -19,13 +20,16 @@ import com.vaadin.ui.NativeSelect;
 public class RelationalFieldFactory<T> extends SimpleFieldFactory {
 
 	private static final long serialVersionUID = -2122739273213720235L;
-
+	
+	private WexJPAContainerFactory jpaContainerFactory;
+	
 	private final JPAContainer<T> jpaContainer;
 
-	public RelationalFieldFactory(JPAContainer<T> jpaContainer) {
+	public RelationalFieldFactory(JPAContainer<T> jpaContainer, WexJPAContainerFactory jpaContainerFactory) {
 		super();
 
 		this.jpaContainer = jpaContainer;
+		this.jpaContainerFactory = jpaContainerFactory;
 	}
 
 	@Override
@@ -62,7 +66,6 @@ public class RelationalFieldFactory<T> extends SimpleFieldFactory {
 	}
 
 	protected Container getJpaContainer(Class<?> type) {
-		EntityManager em = jpaContainer.getEntityProvider().getEntityManager();
-		return JPAContainerFactory.make(type, em);
+		return jpaContainerFactory.getJPAContainer(type);
 	}
 }

@@ -12,9 +12,10 @@
 	
 	<context:property-placeholder location="classpath:persistence.properties" />
 	
+	<!-- 
 	<context:component-scan base-package="w.wexpense.persistence" />
+	-->	
 	
-		
 	<bean class="w.wexpense.vaadin.WexJPAContainerFactory" >
 		<property name="helper">
 			<bean class="com.vaadin.addon.jpacontainer.util.EntityManagerPerRequestHelper"/>

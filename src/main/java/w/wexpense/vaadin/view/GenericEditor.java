@@ -6,10 +6,12 @@ import javax.persistence.EntityManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import w.wexpense.persistence.PersistenceUtils;
 import w.wexpense.vaadin.CloseViewEvent;
 import w.wexpense.vaadin.PropertyConfiguror;
+import w.wexpense.vaadin.WexJPAContainerFactory;
 import w.wexpense.vaadin.fieldfactory.RelationalFieldFactory;
 
 import com.vaadin.addon.beanvalidation.BeanValidationForm;
@@ -24,7 +26,10 @@ public class GenericEditor<T> extends VerticalLayout implements Button.ClickList
 	private static final long serialVersionUID = 5282517667310057582L;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(GenericEditor.class);
-	
+
+	@Autowired
+	private WexJPAContainerFactory jpaContainerFactory;
+
 	private Class<T> entityClass;
 	private String idProperty;
 	private JPAContainer<T> jpaContainer;
@@ -60,7 +65,7 @@ public class GenericEditor<T> extends VerticalLayout implements Button.ClickList
 		
 		String[] propertyIds=propertyConfiguror.getPropertyValues(PropertyConfiguror.visibleProperties);
 		
-		form.setFormFieldFactory(new RelationalFieldFactory<T>(jpaContainer));
+		form.setFormFieldFactory(new RelationalFieldFactory<T>(jpaContainer, jpaContainerFactory));
 		form.setItemDataSource(item, Arrays.asList(propertyIds));
 		
 		addComponent(form);

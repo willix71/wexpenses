@@ -8,10 +8,13 @@ import java.util.GregorianCalendar;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.transaction.annotation.Transactional;
 
 import w.wexpense.model.Account;
 import w.wexpense.model.City;
@@ -25,15 +28,18 @@ import w.wexpense.model.TransactionLine;
 import w.wexpense.model.enums.TransactionLineEnum;
 import w.wexpense.vaadin.WexJPAContainerFactory;
 
-import com.vaadin.addon.jpacontainer.JPAContainerFactory;
-
 public class DatabasePopulator {
 	
-	EntityManager em;
+	@Autowired
+	private WexJPAContainerFactory jpaContainerFactory;
+	
+	//@PersistenceContext
+	private EntityManager em;
 	
 	@PostConstruct
+	//@Transactional
 	public void populate() {
-		em = JPAContainerFactory.createEntityManagerForPersistenceUnit(WexJPAContainerFactory.PERSISTENCE_UNIT);
+		em = jpaContainerFactory.getEntityManager();
 		
 		long size = (Long) em.createQuery("SELECT COUNT(p) FROM Currency p").getSingleResult();
 		if (size == 0) {
@@ -120,6 +126,5 @@ public class DatabasePopulator {
 		
 		// Start the Spring container
 		new ClassPathXmlApplicationContext(args);
-
 	}
 }
