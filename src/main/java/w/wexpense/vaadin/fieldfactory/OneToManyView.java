@@ -26,6 +26,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.Table;
+import com.vaadin.ui.TableFieldFactory;
 import com.vaadin.ui.VerticalLayout;
 
 public class OneToManyView<P extends DBable,C extends DBable> extends VerticalLayout implements Action.Handler {
@@ -44,7 +45,7 @@ public class OneToManyView<P extends DBable,C extends DBable> extends VerticalLa
 	private String parentPropertyId;
 	private String childPropertyId;
 	
-	private RelationalFieldFactory<C> fieldFactory;
+	private TableFieldFactory fieldFactory;
 	
 	private final Action add = new Action("Add");
 	private final Action remove = new Action("Remove");
@@ -64,7 +65,7 @@ public class OneToManyView<P extends DBable,C extends DBable> extends VerticalLa
 		this.childPropertyId = PersistenceUtils.getMappedByProperty(parentType, parentPropertyId);
 
 		JPAContainer<C> childJpaContainer = jpaContainerFactory.getJPAContainerFrom(parentJpaContainer.getEntityProvider(), this.childType);			
-		this.fieldFactory = new RelationalFieldFactory<C>(childJpaContainer, jpaContainerFactory);
+		this.fieldFactory = getTableFieldFactory(childJpaContainer, jpaContainerFactory);
 		
 		if (parentEntity.isNew()) {
 			BeanContainer<String, C> bContainer = new BeanContainer<String, C>(this.childType);
@@ -120,6 +121,10 @@ public class OneToManyView<P extends DBable,C extends DBable> extends VerticalLa
 		tbl.setSelectable(true);
 		
 		return tbl;
+	}
+	
+	protected TableFieldFactory getTableFieldFactory(JPAContainer<C> childJpaContainer, WexJPAContainerFactory jpaContainerFactory) {
+		return new RelationalFieldFactory<C>(childJpaContainer, jpaContainerFactory);
 	}
 	
 	public void handleAction(Action action, Object sender, Object target) {
