@@ -37,6 +37,7 @@
 		<class>w.wexpense.model.TransactionLine</class>		
 		<class>w.wexpense.model.ExchangeRate</class>
 		<class>w.wexpense.model.Account</class>
+		<class>w.wexpense.model.Discriminator</class>
 		<class>w.wexpense.model.Consolidation</class>
 		<class>w.wexpense.model.Payment</class>
 		<exclude-unlisted-classes>false</exclude-unlisted-classes>		

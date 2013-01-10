@@ -26,6 +26,9 @@ public class TransactionLine extends DBable {
 	@ManyToOne(fetch = FetchType.EAGER)
 	private Expense expense;
 	
+	@ManyToOne(fetch = FetchType.EAGER)
+	private Discriminator discriminator;
+	
 	@NotNull
 	@ManyToOne(fetch = FetchType.EAGER)
 	private Account account;
@@ -54,6 +57,14 @@ public class TransactionLine extends DBable {
 
 	public void setExpense(Expense expense) {
 		this.expense = expense;
+	}
+
+	public Discriminator getDiscriminator() {
+		return discriminator;
+	}
+
+	public void setDiscriminator(Discriminator discriminator) {
+		this.discriminator = discriminator;
 	}
 
 	public Account getAccount() {
