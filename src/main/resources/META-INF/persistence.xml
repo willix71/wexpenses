@@ -4,7 +4,7 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
 	version="2.0">
 
-	<persistence-unit name="w.wexpense.eclipselink">
+	<persistence-unit name="w.wexpense.EclipseLink">
 		<provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
 		<exclude-unlisted-classes>false</exclude-unlisted-classes>
 		<properties>
@@ -25,18 +25,31 @@
 		</properties>
 	</persistence-unit>
 
-	<persistence-unit name="w.wexpense.hibernate">
-		<provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
-		<exclude-unlisted-classes>false</exclude-unlisted-classes>
-		<properties>	
-			<property name="hibernate.jdbc.driver" value="org.h2.Driver" />
-			<!-- 
-			<property name="hibernate.jdbc.url" value="jdbc:h2:mem:wexpensedb"  /> 
-			-->
-			<property name="hibernate.jdbc.url" value="jdbc:h2:~/temp/w.wexpense.hibernate.1.db;AUTO_SERVER=TRUE" />
+	<persistence-unit name="w.wexpense.Hibernate">
+		<provider>org.hibernate.ejb.HibernatePersistence</provider>
+		<class>w.wexpense.model.Currency</class>
+		<class>w.wexpense.model.Country</class>
+		<class>w.wexpense.model.City</class>
+		<class>w.wexpense.model.Payee</class>
+		<class>w.wexpense.model.PayeeType</class>
+		<class>w.wexpense.model.Expense</class>
+		<class>w.wexpense.model.ExpenseType</class>
+		<class>w.wexpense.model.TransactionLine</class>		
+		<class>w.wexpense.model.ExchangeRate</class>
+		<class>w.wexpense.model.Account</class>
+		<class>w.wexpense.model.Consolidation</class>
+		<class>w.wexpense.model.Payment</class>
+		<exclude-unlisted-classes>false</exclude-unlisted-classes>		
+		<properties>
 			
-			<property name="hibernate.jdbc.username" value="sa"/>
-			<property name="hibernate.jdbc.password" value="sa"/>			
+			<property name="hibernate.connection.driver_class" value="org.h2.Driver" />
+			<!-- 
+			<property name="hibernate.connection.url" value="jdbc:h2:mem:wexpensedb"  /> 
+			-->
+			<property name="hibernate.connection.url" value="jdbc:h2:~/temp/w.wexpense.hibernate.1.db;AUTO_SERVER=TRUE" />
+			
+			<property name="hibernate.connection.username" value="sa"/>
+			<property name="hibernate.connection.password" value="sa"/>			
 
 			<property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect" />
 
@@ -46,8 +59,9 @@
 				* create: creates the schema, destroying previous data. 
 				* create-drop: drop the schema at the END of the session. 
 				Executes import.sql if set to "create" or "create-drop". 
+				<property name="hibernate.hbm2ddl.auto" value="create" />
 			-->
-			<property name="hibernate.hbm2ddl.auto" value="create" />
+			
 			<property name="hibernate.show_sql" value="true" />
 			<property name="hibernate.cache.use_query_cache" value="false" />
 			<property name="hibernate.cache.use_second_level_cache" value="false" />

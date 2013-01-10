@@ -3,6 +3,7 @@ package w.wexpense.model;
 import java.text.MessageFormat;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.ManyToOne;
@@ -19,7 +20,7 @@ public class City extends DBable {
 
 	private String name;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.EAGER)
 	private Country country;
 
 	private String display;

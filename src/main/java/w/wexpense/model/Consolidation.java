@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
@@ -28,7 +27,7 @@ public class Consolidation extends DBable {
 	
 	private Double closingBalance;
 	
-    @OneToMany(fetch = FetchType.EAGER, mappedBy="consolidation")
+    @OneToMany(mappedBy="consolidation")
     private List<TransactionLine> transactions;
 
 	public Payee getInstitution() {
