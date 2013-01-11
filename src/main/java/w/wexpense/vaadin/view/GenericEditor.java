@@ -15,6 +15,7 @@ import w.wexpense.vaadin.WexJPAContainerFactory;
 import w.wexpense.vaadin.fieldfactory.RelationalFieldFactory;
 
 import com.vaadin.addon.beanvalidation.BeanValidationForm;
+import com.vaadin.addon.jpacontainer.EntityItem;
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.ui.AbstractOrderedLayout;
@@ -116,7 +117,7 @@ public class GenericEditor<T> extends VerticalLayout implements Button.ClickList
 		EntityManager em = jpaContainer.getEntityProvider().getEntityManager();
 		em.getTransaction().begin();
 		T t = null;
-		try {
+		try {			
 			t = isNew ? insert(em) : update(em);
 			em.getTransaction().commit();
 		} catch (Exception e) {
@@ -133,9 +134,14 @@ public class GenericEditor<T> extends VerticalLayout implements Button.ClickList
 	
 	protected T insert(EntityManager em) {
 		LOGGER.debug("Inserting {}", item.getBean());		
-		
-		T t = item.getBean();
-		em.persist(t);
+
+		Object tid = jpaContainer.addEntity(item.getBean());
+		EntityItem<T> et = jpaContainer.getItem(tid);
+		T t = et.getEntity();
+
+		// actually the above works and refreshes the list
+		// T t = item.getBean();
+		// em.persist(t);
 		return t;
 	}
 

@@ -66,20 +66,32 @@ public class GenericView<T> extends VerticalLayout implements Button.ClickListen
 	}
 	
 	private void buildTable() {
-		table = new Table(null, jpaContainer) {
-		    protected String formatPropertyValue(Object rowId, Object colId, Property property) {
-		        if (property == null || property.getValue() == null) {
-		            return "";
-		        }
-		        if (Date.class.isAssignableFrom(property.getType())) {
-		      	  return new SimpleDateFormat("dd/MM/yyyy").format(property.getValue());			      	  
-		        }
-		        if (Number.class.isAssignableFrom(property.getType())) {
-		      	  return MessageFormat.format("{0,number,0.00}", property.getValue());
-		        }
-		        return property.toString();
-		    }
-		};
+//		table = new Table(null, jpaContainer) {
+//		    protected String formatPropertyValue(Object rowId, Object colId, Property property) {
+//		        if (property == null || property.getValue() == null) {
+//		            return "";
+//		        }
+//		        if (Date.class.isAssignableFrom(property.getType())) {
+//		      	  return new SimpleDateFormat("dd/MM/yyyy").format(property.getValue());			      	  
+//		        }
+//		        if (Number.class.isAssignableFrom(property.getType())) {
+//		      	  return MessageFormat.format("{0,number,0.00}", property.getValue());
+//		        }
+//		        return property.toString();
+//		    }
+//		};
+//
+//		String[] propertyIds=propertyConfiguror.getPropertyValues(PropertyConfiguror.visibleProperties);
+//		table.setVisibleColumns(propertyIds);
+//		for(String pid: propertyIds) {
+//			String p = propertyConfiguror.getPropertyValue(pid + PropertyConfiguror.propertyAlignement);
+//			if (p!=null) table.setColumnAlignment(pid, p);
+//			p = propertyConfiguror.getPropertyValue(pid + PropertyConfiguror.propertyExpandRatio);
+//			if (p!=null) table.setColumnExpandRatio(pid, Float.valueOf(p));
+//		}
+//		
+		table = new WexTable(jpaContainer, propertyConfiguror);
+		
 		table.setSelectable(true);
 		table.setImmediate(true);
 		table.setSizeFull();
@@ -105,14 +117,6 @@ public class GenericView<T> extends VerticalLayout implements Button.ClickListen
 			}
 		});
 
-		String[] propertyIds=propertyConfiguror.getPropertyValues(PropertyConfiguror.visibleProperties);
-		table.setVisibleColumns(propertyIds);
-		for(String pid: propertyIds) {
-			String p = propertyConfiguror.getPropertyValue(pid + PropertyConfiguror.propertyAlignement);
-			if (p!=null) table.setColumnAlignment(pid, p);
-			p = propertyConfiguror.getPropertyValue(pid + PropertyConfiguror.propertyExpandRatio);
-			if (p!=null) table.setColumnExpandRatio(pid, Float.valueOf(p));
-		}
 		
 	}
 

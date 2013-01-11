@@ -148,6 +148,14 @@
 		<property name="propertyConfiguror">
 			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
 				<property name="visibleProperties" value="date,amount,currency,payee,type"/>
+				<property name="otherProperies">
+					<props>
+						<prop key="amount.alignement">e</prop>
+						<prop key="amount.format">{0,number,0.00}</prop>
+						<prop key="payee.expandRatio">.8</prop>
+						<prop key="date.format">{0,date,dd.MM.yyyy}</prop>
+					</props>
+				</property>
 			</bean>
 		</property>
 	</bean>
@@ -210,8 +218,34 @@
 						<prop key="inValue.alignement">e</prop>
 						<prop key="account.expandRatio">.2</prop>
 						<prop key="expense.payee.expandRatio">.8</prop>
+						<prop key="expense.date.format">{0,date,dd.MM.yyyy}</prop>
+						<prop key="amount.format">{0,number,0.00}</prop>
+						<prop key="outValue.format">{0,number,0.00}</prop>
+						<prop key="inValue.format">{0,number,0.00}</prop>
+						<prop key="expense.payee.header">Payee</prop>
+						<prop key="expense.date.header">Date</prop>
+						<prop key="expense.currency.header">Currency</prop>
 					</props>
 				</property>
+			</bean>
+		</property>
+	</bean>
+	
+	<bean class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
+		<constructor-arg value="w.wexpense.model.Account" />
+		<lookup-method name="newEditor" bean="accountEditor"/>
+		<property name="propertyConfiguror">
+			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
+				<property name="visibleProperties" value="name,number,fullName,fullNumber"/>
+			</bean>
+		</property>
+	</bean>
+	
+	<bean id="accountEditor" class="w.wexpense.vaadin.view.GenericEditor" scope="prototype" >
+		<constructor-arg value="w.wexpense.model.Account" />
+		<property name="propertyConfiguror">
+			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
+				<property name="visibleProperties" value="fullId,uid,name,number,fullName,fullNumber,parent"/>
 			</bean>
 		</property>
 	</bean>
