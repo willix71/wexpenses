@@ -11,6 +11,10 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 public class Expense extends DBable {
@@ -20,8 +24,10 @@ public class Expense extends DBable {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date date;
 	
+	@NotNull
 	private Double amount;
 	
+	@NotNull
 	@ManyToOne(fetch = FetchType.EAGER)
 	private Currency currency;
 	
@@ -44,6 +50,7 @@ public class Expense extends DBable {
 	private Payment payment;
 	
    @OneToMany(mappedBy="expense")
+   @OnDelete(action=OnDeleteAction.CASCADE)
    private List<TransactionLine> transactions = new ArrayList<>();
    
 	public Date getDate() {

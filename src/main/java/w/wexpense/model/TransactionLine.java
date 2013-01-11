@@ -36,11 +36,13 @@ public class TransactionLine extends DBable {
 	@NotNull
 	private TransactionLineEnum factor = TransactionLineEnum.OUT;
 	
+	@NotNull
 	private Double amount;
 	    
 	@ManyToOne(fetch = FetchType.EAGER)
 	private ExchangeRate exchangeRate;
 	
+	@NotNull
 	private Double value;
 	
 	@Temporal(TemporalType.TIMESTAMP)

@@ -1,7 +1,5 @@
 package w.wexpense.model;
 
-import java.text.MessageFormat;
-
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Inheritance;

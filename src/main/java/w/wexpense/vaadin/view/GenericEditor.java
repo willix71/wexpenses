@@ -20,6 +20,7 @@ import com.vaadin.data.util.BeanItem;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Form;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
@@ -109,7 +110,7 @@ public class GenericEditor<T> extends VerticalLayout implements Button.ClickList
 		close();
 	}
 
-	public T save() {
+	protected T save() {
 		form.commit();
 		
 		EntityManager em = jpaContainer.getEntityProvider().getEntityManager();
@@ -145,11 +146,11 @@ public class GenericEditor<T> extends VerticalLayout implements Button.ClickList
 		return t;
 	}
 
-	public void cancel() {
+	protected void cancel() {
 		form.discard();
 	}
 	
-	public void close() {
+	protected void close() {
 		fireEvent(new CloseViewEvent(this));
 	}
 	
@@ -172,6 +173,10 @@ public class GenericEditor<T> extends VerticalLayout implements Button.ClickList
 		}
 	}
 
+	public Form getForm() {
+		return form;
+	}
+	
 	public BeanItem<T> getItem() {
 		return item;
 	}

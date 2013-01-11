@@ -164,7 +164,14 @@
 				<constructor-arg value="w.wexpense.model.TransactionLine" />
 				<property name="propertyConfiguror">
 					<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
-						<property name="visibleProperties" value="factor,amount,exchangeRate,value,account,description"/>
+						<property name="visibleProperties" value="account,factor,amount,exchangeRate,value,description"/>
+						<property name="otherProperies">
+							<props>
+								<prop key="amount.alignement">e</prop>
+								<prop key="value.alignement">e</prop>
+								<prop key="description.expandRatio">.5</prop>
+							</props>
+						</property>
 					</bean>
 				</property>
 			</bean>

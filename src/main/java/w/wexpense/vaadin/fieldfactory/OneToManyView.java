@@ -61,11 +61,13 @@ public class OneToManyView<P extends DBable,C extends DBable> extends VerticalLa
 	}
 
 	public void setInstance(P parentEntity, JPAContainer<P> parentJpaContainer) {
+		this.parentEntity = parentEntity;
 		this.parentType = parentJpaContainer.getEntityClass(); 						
 		this.childPropertyId = PersistenceUtils.getMappedByProperty(parentType, parentPropertyId);
 
 		JPAContainer<C> childJpaContainer = jpaContainerFactory.getJPAContainerFrom(parentJpaContainer.getEntityProvider(), this.childType);			
 		this.fieldFactory = getTableFieldFactory(childJpaContainer, jpaContainerFactory);
+		
 		
 		if (parentEntity.isNew()) {
 			BeanContainer<String, C> bContainer = new BeanContainer<String, C>(this.childType);
@@ -108,9 +110,16 @@ public class OneToManyView<P extends DBable,C extends DBable> extends VerticalLa
 	protected Table buildTable() {
 		Table tbl = new Table(null, container);
 		
-		Object[] visibleProperties = propertyConfiguror.getPropertyValues(PropertyConfiguror.visibleProperties);
+		String[] visibleProperties = propertyConfiguror.getPropertyValues(PropertyConfiguror.visibleProperties);
 		if (visibleProperties != null) {
 			tbl.setVisibleColumns(visibleProperties);
+		}
+
+		for(String pid: visibleProperties) {
+			String p = propertyConfiguror.getPropertyValue(pid + PropertyConfiguror.propertyAlignement);
+			if (p!=null) tbl.setColumnAlignment(pid, p);
+			p = propertyConfiguror.getPropertyValue(pid + PropertyConfiguror.propertyExpandRatio);
+			if (p!=null) tbl.setColumnExpandRatio(pid, Float.valueOf(p));
 		}
 		
 		tbl.setPageLength(5);			
@@ -153,12 +162,14 @@ public class OneToManyView<P extends DBable,C extends DBable> extends VerticalLa
 			BeanItem<C> beanItem = new BeanItem<C>(newInstance);
 			beanItem.getItemProperty(this.childPropertyId).setValue(parentEntity);
 			
+			Object o=null;
 			if (container instanceof JPAContainer) {
-				((JPAContainer) container).addEntity(newInstance);
+				o = ((JPAContainer) container).addEntity(newInstance);
 			} else {
-				((BeanContainer) container).addItem(((DBable) newInstance).getUid(), newInstance);
+				o = ((BeanContainer) container).addItem(((DBable) newInstance).getUid(), newInstance);
 			}
 
+			LOGGER.info("NewInstance is {}", o.getClass());
 		} catch (Exception e) {
 			LOGGER.warn("Could not instantiate detail instance " + this.childType.getName(), e);
 			e.printStackTrace();

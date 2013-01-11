@@ -5,19 +5,21 @@ import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.NotNull;
 
 @Entity
 public class Payment extends DBable {
 
 	private static final long serialVersionUID = 2482940442245899869L;
 
+	@NotNull
 	@Temporal(TemporalType.DATE)
 	private Date date;
 	
+	@NotNull
 	private String filename;
 	
     @OneToMany(mappedBy="payment")
