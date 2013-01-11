@@ -66,6 +66,7 @@ class ExpenseTransactionLineEditor extends OneToManyView<Expense, TransactionLin
 					((TextField) f).setImmediate(true);
 					f.addListener(updateValuesListener);
 				}
+//	TODO hock up the combobox				
 //				if ("exchangeRate".equals(propertyId)) {
 //					Property p = f.getPropertyDataSource();
 //				}
