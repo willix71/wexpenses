@@ -34,34 +34,37 @@ public class ExpenseEditor extends GenericEditor<Expense> {
 
 	@Override
 	public BeanValidationForm<Expense> buildForm() {
-		BeanValidationForm<Expense> f = super.buildForm();
-		Field amountField = f.getField("amount");
+		BeanValidationForm<Expense> form = super.buildForm();
 
-		amountField.addListener(new Property.ValueChangeListener() {
+		form.getField("amount").addListener(new Property.ValueChangeListener() {
 			@Override
 			public void valueChange(ValueChangeEvent event) {
-
 				Container tlc = transactionLinesEditor.getContainer();
+				
+				// get new value
 				Object newObject = event.getProperty().getValue();
-				Double newAmount = newObject instanceof Number ? ((Number) newObject)
-						.doubleValue() : Double.valueOf(newObject.toString());
+				Double newAmount = newObject instanceof Number ? 
+						((Number) newObject).doubleValue() : 
+							Double.valueOf(newObject.toString());
+						
 				if (amount != null) {
+					// loop threw the transaction lines
 					for (Object id : tlc.getItemIds()) {
-						Item i = tlc.getItem(id);
-						Property p = i.getItemProperty("amount");
-						Double a = (Double) p.getValue();
-						if (amount.equals(a)) {
+						// get the item property
+						Property p = tlc.getItem(id).getItemProperty("amount");
+						if (amount.equals(p.getValue())) {
 							p.setValue(newAmount);
 						}
 					}
 				}
+				// set the new value
 				amount = newAmount;
 
-				((ExpenseTransactionLineEditor) transactionLinesEditor).table
-						.requestRepaintAll();
+				((ExpenseTransactionLineEditor) transactionLinesEditor).updateValues();
 			}
 		});
-		return f;
+		
+		return form;
 	}
 
 	public void setInstance(Expense instance, JPAContainer<Expense> jpaContainer) {

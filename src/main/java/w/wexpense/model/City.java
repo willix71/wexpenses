@@ -9,6 +9,7 @@ import javax.persistence.InheritanceType;
 import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
@@ -18,6 +19,7 @@ public class City extends DBable {
 
 	private String zip;
 
+	@NotNull
 	private String name;
 
 	@ManyToOne(fetch = FetchType.EAGER)
@@ -72,10 +74,14 @@ public class City extends DBable {
 
 	@Override
 	public String toString() {
-		if (country == null) {
-			return name;
-		} else {
-			return MessageFormat.format("{0} {1} ({2})", zip, name, country);
+		StringBuilder sb = new StringBuilder();
+		if (zip != null) {
+			sb.append(zip).append(" ");
 		}
+		sb.append(name);	
+		if (country != null) {
+			sb.append(" (").append(country).append(")");	
+		}
+		return sb.toString();
 	}
 }
