@@ -9,7 +9,9 @@ import org.springframework.beans.factory.annotation.Value;
 import com.vaadin.addon.jpacontainer.EntityProvider;
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.JPAContainerFactory;
+//import com.vaadin.addon.jpacontainer.LazyLoadingDelegate;
 import com.vaadin.addon.jpacontainer.util.EntityManagerPerRequestHelper;
+//import com.vaadin.addon.jpacontainer.util.HibernateLazyLoadingDelegate;
 
 public class WexJPAContainerFactory {
 	
@@ -19,6 +21,8 @@ public class WexJPAContainerFactory {
 	private String jpaAdapter;
 	
 	private EntityManagerPerRequestHelper helper;
+	
+	// private LazyLoadingDelegate lazyLoader = new HibernateLazyLoadingDelegate();
 	
 	public String getPersistenceUnit() {
 		return "w.wexpense." + jpaAdapter;
@@ -38,6 +42,8 @@ public class WexJPAContainerFactory {
 		
 		if (helper != null) helper.addContainer(jpac);
 
+		//if (lazyLoader != null) jpac.getEntityProvider().setLazyLoadingDelegate(lazyLoader);
+		
 		if (nestedProperties != null) {
 			for (String nestedProperty : nestedProperties) {
 				jpac.addNestedContainerProperty(nestedProperty);
@@ -58,7 +64,7 @@ public class WexJPAContainerFactory {
 		}
 		
 		// Set the lazy loading delegate to the same as the parent.
-		jpac.getEntityProvider().setLazyLoadingDelegate(entityProvider.getLazyLoadingDelegate());
+		//jpac.getEntityProvider().setLazyLoadingDelegate(entityProvider.getLazyLoadingDelegate());
 		return jpac;
 	}
 

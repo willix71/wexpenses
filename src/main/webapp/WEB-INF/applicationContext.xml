@@ -62,7 +62,7 @@
 		</property>
 	</bean>
 	
-	<!-- city -->
+	<!-- ========== city ========== -->
 	
 	<bean class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
 		<constructor-arg value="w.wexpense.model.City" />
@@ -83,7 +83,8 @@
 		</property>
 	</bean>
 	
-	<!-- payee -->
+	<!-- ========== payee ========== -->
+	
 	<bean class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
 		<constructor-arg value="w.wexpense.model.Payee" />
 		<lookup-method name="newEditor" bean="payeeEditor"/>
@@ -122,12 +123,22 @@
 		</property>
 	</bean>
 	
+	<!-- ========== echange rate ========== -->
+	
 	<bean class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
 		<constructor-arg value="w.wexpense.model.ExchangeRate" />
 		<lookup-method name="newEditor" bean="exchangeRateEditor"/>
 		<property name="propertyConfiguror">
 			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
 				<property name="visibleProperties" value="date,institution,buyCurrency,sellCurrency,rate"/>
+				<property name="otherProperies">
+					<props>
+						<prop key="date.format">{0,date,dd.MM.yyyy}</prop>
+						<prop key="institution.expandRatio">.8</prop>
+						<prop key="rate.alignement">e</prop>						
+						<prop key="rate.format">{0,number,0.00000}</prop>
+					</props>
+				</property>				
 			</bean>
 		</property>
 	</bean>
@@ -137,11 +148,13 @@
 		<property name="propertyConfiguror">
 			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
 				<property name="visibleProperties" value="fullId,uid,date,institution,buyCurrency,sellCurrency,rate"/>
+
 			</bean>
 		</property>
 	</bean>
 	
-	<!-- expense -->
+	<!-- ========== expense ========== -->
+
 	<bean class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
 		<constructor-arg value="w.wexpense.model.Expense" />
 		<lookup-method name="newEditor" bean="expenseEditor"/>
@@ -150,10 +163,10 @@
 				<property name="visibleProperties" value="date,amount,currency,payee,type"/>
 				<property name="otherProperies">
 					<props>
+						<prop key="date.format">{0,date,dd.MM.yyyy}</prop>
 						<prop key="amount.alignement">e</prop>
 						<prop key="amount.format">{0,number,0.00}</prop>
 						<prop key="payee.expandRatio">.8</prop>
-						<prop key="date.format">{0,date,dd.MM.yyyy}</prop>
 					</props>
 				</property>
 			</bean>
@@ -163,7 +176,7 @@
 	<bean id="expenseEditor" class="w.wexpense.vaadin.view.ExpenseEditor" scope="prototype" >
 		<property name="propertyConfiguror">
 			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
-				<property name="visibleProperties" value="fullId,uid,date,amount,currency,defaultExchangeRate,payee,type,externalReference,description"/>
+				<property name="visibleProperties" value="fullId,uid,date,amount,currency,payee,type,externalReference,description"/>
 			</bean>
 		</property>
 		<property name="transactionLinesEditor">
@@ -177,6 +190,7 @@
 							<props>
 								<prop key="amount.alignement">e</prop>
 								<prop key="value.alignement">e</prop>
+								<prop key="value.format">{0,number,0.00}</prop>
 								<prop key="description.expandRatio">.5</prop>
 							</props>
 						</property>
@@ -213,30 +227,31 @@
 				<property name="visibleProperties" value="expense.date,expense.payee,account,amount,expense.currency,inValue,outValue"/>
 				<property name="otherProperies">
 					<props>
-						<prop key="amount.alignement">e</prop>
-						<prop key="outValue.alignement">e</prop>
-						<prop key="inValue.alignement">e</prop>
-						<prop key="account.expandRatio">.2</prop>
-						<prop key="expense.payee.expandRatio">.8</prop>
-						<prop key="expense.date.format">{0,date,dd.MM.yyyy}</prop>
-						<prop key="amount.format">{0,number,0.00}</prop>
-						<prop key="outValue.format">{0,number,0.00}</prop>
-						<prop key="inValue.format">{0,number,0.00}</prop>
-						<prop key="expense.payee.header">Payee</prop>
 						<prop key="expense.date.header">Date</prop>
+						<prop key="expense.date.format">{0,date,dd.MM.yyyy}</prop>
+						<prop key="expense.payee.header">Payee</prop>
+						<prop key="expense.payee.expandRatio">.8</prop>
+						<prop key="account.expandRatio">.2</prop>
+						<prop key="amount.alignement">e</prop>
+						<prop key="amount.format">{0,number,0.00}</prop>
 						<prop key="expense.currency.header">Currency</prop>
+						<prop key="inValue.alignement">e</prop>
+						<prop key="inValue.format">{0,number,0.00}</prop>						
+						<prop key="outValue.alignement">e</prop>
+						<prop key="outValue.format">{0,number,0.00}</prop>
 					</props>
 				</property>
 			</bean>
 		</property>
 	</bean>
 	
-	<bean class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
-		<constructor-arg value="w.wexpense.model.Account" />
+	<!-- ========== account ========== -->
+		
+	<bean class="w.wexpense.vaadin.view.AccountView" scope="prototype" >
 		<lookup-method name="newEditor" bean="accountEditor"/>
 		<property name="propertyConfiguror">
 			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
-				<property name="visibleProperties" value="name,number,fullName,fullNumber"/>
+				<property name="visibleProperties" value="name,fullName,number,fullNumber,type,currency"/>
 			</bean>
 		</property>
 	</bean>
@@ -245,7 +260,13 @@
 		<constructor-arg value="w.wexpense.model.Account" />
 		<property name="propertyConfiguror">
 			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
-				<property name="visibleProperties" value="fullId,uid,name,number,fullName,fullNumber,parent"/>
+			
+				<property name="visibleProperties" value="fullId,uid,parent,number,fullName,name,fullNumber,type,currency,selectable"/>
+				<property name="otherProperies">
+					<props>
+						<prop key="parent.includeNonSelectable">true</prop>
+					</props>
+				</property>
 			</bean>
 		</property>
 	</bean>

@@ -23,11 +23,18 @@ import com.vaadin.ui.TextField;
 public class SimpleFieldFactory extends DefaultFieldFactory {
 
 	private static final long serialVersionUID = -2122739273213720235L;
-
+	
+	private static final String  DEFAULT_DATE_RESOLUTION = String.valueOf(DateField.RESOLUTION_DAY);
+	private static final String DEFAULT_DATE_FORMAT = "dd/MM/yyyy";
+	
 	private Map<Object, CustomFieldFactory> customFieldFactories = new HashMap<Object, CustomFieldFactory>();
+	private PropertyConfiguror propertyConfiguror;
 
-	private int dateResolution = DateField.RESOLUTION_DAY;
-	private String dateFormat = "dd/MM/yyyy";
+
+	public SimpleFieldFactory(PropertyConfiguror propertyConfiguror) {
+	   super();
+	   this.propertyConfiguror = propertyConfiguror;
+   }
 
 	@Override
 	public Field createField(Item item, Object propertyId, Component uiContext) {
@@ -73,10 +80,10 @@ public class SimpleFieldFactory extends DefaultFieldFactory {
 	}
 
 	protected Field createField(Item item, Class<?> type, Object propertyId, Component uiContext) {
-		return createSimpleField(type);
+		return createSimpleField(type, propertyId);
 	}
 		
-	protected Field createSimpleField(Class<?> type) {
+	protected Field createSimpleField(Class<?> type, Object propertyId) {
 		// Null typed properties can not be edited
 		if (type == null) {
 			return null;
@@ -90,8 +97,13 @@ public class SimpleFieldFactory extends DefaultFieldFactory {
 		// Date field
 		if (Date.class.isAssignableFrom(type)) {
 			final DateField dateField = new DateField();
-			dateField.setResolution(dateResolution);
+			String dateFormat = propertyConfiguror.getPropertyValue(
+					propertyId.toString() + PropertyConfiguror.propertyDateFormat, DEFAULT_DATE_FORMAT);			
 			dateField.setDateFormat(dateFormat);
+			
+			String dateResolution = propertyConfiguror.getPropertyValue(
+					propertyId.toString() + PropertyConfiguror.propertyDateResolution, DEFAULT_DATE_RESOLUTION);			
+			dateField.setResolution(Integer.valueOf(dateResolution));
 			return dateField;
 		}
 
@@ -117,7 +129,6 @@ public class SimpleFieldFactory extends DefaultFieldFactory {
 		return field;
 	}
 
-
 	public void addCustomFieldFactory(Object propertyId, CustomFieldFactory customFieldFactory) {
 		this.customFieldFactories.put(propertyId, customFieldFactory);
 	}
@@ -125,13 +136,12 @@ public class SimpleFieldFactory extends DefaultFieldFactory {
 	public void setCustomFieldFactories(Map<Object, CustomFieldFactory> customFieldFactories) {
 		this.customFieldFactories = customFieldFactories;
 	}
-
-	public void setDateResolution(int dateResolution) {
-		this.dateResolution = dateResolution;
+	
+	public PropertyConfiguror getPropertyConfiguror() {
+		return propertyConfiguror;
 	}
 
-	public void setDateFormat(String dateFormat) {
-		this.dateFormat = dateFormat;
+	public void setPropertyConfiguror(PropertyConfiguror propertyConfiguror) {
+		this.propertyConfiguror = propertyConfiguror;
 	}
-
 }

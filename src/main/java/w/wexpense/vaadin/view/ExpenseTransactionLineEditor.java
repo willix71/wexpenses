@@ -16,7 +16,6 @@ import w.wexpense.model.Expense;
 import w.wexpense.model.TransactionLine;
 import w.wexpense.model.enums.TransactionLineEnum;
 import w.wexpense.vaadin.WexJPAContainerFactory;
-import w.wexpense.vaadin.fieldfactory.OneToManyView;
 import w.wexpense.vaadin.fieldfactory.RelationalFieldFactory;
 
 import com.vaadin.addon.jpacontainer.JPAContainer;
@@ -37,7 +36,6 @@ class ExpenseTransactionLineEditor extends OneToManyView<Expense, TransactionLin
 	private Table table;	
 	private boolean fireUpdateValues = false;
 	private Double currentExpenseAmount = null;
-	private Map<Object, Field> amountFields = new HashMap<Object, Field>();
 	
 	public ExpenseTransactionLineEditor(String parentPropertyId, Class<TransactionLine> childType) {
 		super(parentPropertyId, childType);
@@ -46,7 +44,6 @@ class ExpenseTransactionLineEditor extends OneToManyView<Expense, TransactionLin
 	@Override
 	protected Table buildTable() {
 		table = super.buildTable();
-		table.setPageLength(3);
 		table.setFooterVisible(true);
 		table.setImmediate(true);	
 		return table;
@@ -54,19 +51,13 @@ class ExpenseTransactionLineEditor extends OneToManyView<Expense, TransactionLin
 
 	@Override
 	protected TableFieldFactory getTableFieldFactory(JPAContainer<TransactionLine> childJpaContainer, WexJPAContainerFactory jpaContainerFactory) {
-		return new RelationalFieldFactory<TransactionLine>(childJpaContainer, jpaContainerFactory) {
+		return new RelationalFieldFactory<TransactionLine>(getPropertyConfiguror(), childJpaContainer, jpaContainerFactory) {
 			@Override
 			public Field createField(Container container, Object itemId, Object propertyId, Component uiContext) {
 				Field f = super.createField(container, itemId, propertyId, uiContext);
 				if ("amount".equals(propertyId)) {
 					((TextField) f).setImmediate(true);
-					if (fireUpdateValues) {
-						// if already firing events, add a listener now
-						f.addListener(new AmountListener(itemId));
-					} else {
-						// defer the registering to later
-						amountFields.put(itemId, f);
-					}
+					f.addListener(new AmountListener(itemId));
 				}
 				return f;
 			}
@@ -91,16 +82,6 @@ class ExpenseTransactionLineEditor extends OneToManyView<Expense, TransactionLin
 			updateValue(rowId, newAmount, true);
 		}
 	};
-	
-	@Override
-	public void attach() {
-		super.attach();
-
-		// register the listeners
-		for(Map.Entry<Object, Field> entry: amountFields.entrySet()) {
-			entry.getValue().addListener(new AmountListener(entry.getKey()));
-		}
-	}
 
 	public void enableUpdateValues(boolean enable) {
 		fireUpdateValues = enable;
@@ -114,58 +95,56 @@ class ExpenseTransactionLineEditor extends OneToManyView<Expense, TransactionLin
 	private void updateValue(Object rowId, Double newRowAmount, boolean refresh) {
 		LOGGER.debug("Updating transaction line value {}", fireUpdateValues);
 		
-		if (!fireUpdateValues) return;
-		
-		Container container = getContainer();
-		Property rateProp = container.getItem(rowId).getItemProperty("exchangeRate");
-		Property accountProp = container.getItem(rowId).getItemProperty("account");
-		Property valueProp = container.getItem(rowId).getItemProperty("value");
-		
-		double newValue = newRowAmount;
-		
-		Currency currency = null;
-		if (rateProp.getValue()!=null) {
-			ExchangeRate rate = (ExchangeRate) rateProp.getValue();				
-			newValue *= rate.getRate();
-			
-			// get the currency of the exchange rate
-			currency = rate.getBuyCurrency();
-		}
-		if (currency==null && accountProp.getValue()!=null) {
-			// fall back on the currency of the account
-			currency = ((Account) accountProp.getValue()).getCurrency();
-		}
-		if (currency != null && currency.getRoundingFactor()!=null) {
-			// perform rounding
-			newValue = Math.rint(newValue*currency.getRoundingFactor())/currency.getRoundingFactor();
-		}
-		valueProp.setValue(newValue);
-		
-		if (refresh) {
-			updateTotalValue();
+		if (fireUpdateValues) {
+			Container container = getContainer();
+			Property rateProp = container.getItem(rowId).getItemProperty("exchangeRate");
+			Property accountProp = container.getItem(rowId).getItemProperty("account");
+			Property valueProp = container.getItem(rowId).getItemProperty("value");
+
+			double newValue = newRowAmount == null ? 0 : newRowAmount;
+
+			Currency currency = null;
+			if (rateProp.getValue() != null) {
+				ExchangeRate rate = (ExchangeRate) rateProp.getValue();
+				newValue *= rate.getRate();
+
+				// get the currency of the exchange rate
+				currency = rate.getBuyCurrency();
+			}
+			if (currency == null && accountProp.getValue() != null) {
+				// fall back on the currency of the account
+				currency = ((Account) accountProp.getValue()).getCurrency();
+			}
+			if (currency != null && currency.getRoundingFactor() != null) {
+				// perform rounding
+				newValue = Math.rint(newValue * currency.getRoundingFactor()) / currency.getRoundingFactor();
+			}
+			valueProp.setValue(newValue);
+
+			if (refresh) {
+				updateTotalValue();
+			}
 		}
 	}
 	
 	private void updateValues(Double newExpenseAmount) {
 		LOGGER.debug("Updating transaction lines amount {}", fireUpdateValues);
 				
-		if (!fireUpdateValues) return;
-		if (newExpenseAmount == null) return;
-		
-		Container container = getContainer();
-		for(Object id: container.getItemIds()) {
-			// get the item property
-			Property amountProp = container.getItem(id).getItemProperty("amount");
-			if (currentExpenseAmount.equals(amountProp.getValue())) {
-				amountProp.setValue(newExpenseAmount);
-				updateValue(id, newExpenseAmount, false);
+		if (fireUpdateValues) {
+			Container container = getContainer();
+			for (Object id : container.getItemIds()) {
+				// get the item property
+				Property amountProp = container.getItem(id).getItemProperty("amount");
+				if (currentExpenseAmount.equals(amountProp.getValue())) {
+					amountProp.setValue(newExpenseAmount);
+					updateValue(id, newExpenseAmount, false);
+				}
 			}
 		}
-		
 		updateTotalValue();
 	}
 	
-	private void updateTotalValue() {
+	public void updateTotalValue() {
 		double total = 0;
 		double totalIn = 0;
 		

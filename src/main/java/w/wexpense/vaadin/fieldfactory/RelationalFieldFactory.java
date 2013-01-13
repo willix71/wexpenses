@@ -2,6 +2,7 @@ package w.wexpense.vaadin.fieldfactory;
 
 import w.wexpense.model.Codable;
 import w.wexpense.model.Selectable;
+import w.wexpense.vaadin.PropertyConfiguror;
 import w.wexpense.vaadin.WexJPAContainerFactory;
 
 import com.vaadin.addon.jpacontainer.JPAContainer;
@@ -25,8 +26,8 @@ public class RelationalFieldFactory<T> extends SimpleFieldFactory {
 	
 	private final JPAContainer<T> jpaContainer;
 
-	public RelationalFieldFactory(JPAContainer<T> jpaContainer, WexJPAContainerFactory jpaContainerFactory) {
-		super();
+	public RelationalFieldFactory(PropertyConfiguror propertyConfiguror, JPAContainer<T> jpaContainer, WexJPAContainerFactory jpaContainerFactory) {
+		super(propertyConfiguror);
 
 		this.jpaContainer = jpaContainer;
 		this.jpaContainerFactory = jpaContainerFactory;
@@ -36,7 +37,7 @@ public class RelationalFieldFactory<T> extends SimpleFieldFactory {
 	protected Field createField(Item item, Class<?> type, Object propertyId, Component uiContext) {
 		Field f = createRelationalField(item, type, propertyId, uiContext);
 		if (f == null) {
-			f = createSimpleField(type);
+			f = createSimpleField(type, propertyId);
 		}
 		return f;
 	}
@@ -58,16 +59,20 @@ public class RelationalFieldFactory<T> extends SimpleFieldFactory {
 	protected Field createManyToOneField(Item item, Class<?> type, Object propertyId, Component uiContext) {
 		ComboBox select = new ComboBox();
 		select.setMultiSelect(false);
-		select.setContainerDataSource(getJpaContainer(type));
+		select.setContainerDataSource(getJpaContainer(type, propertyId));
 		select.setPropertyDataSource(new SingleSelectTranslator(select));
 		select.setItemCaptionMode(NativeSelect.ITEM_CAPTION_MODE_ITEM);
 		select.setFilteringMode(AbstractSelect.Filtering.FILTERINGMODE_CONTAINS);
 		return select;
 	}
 
-	protected Container getJpaContainer(Class<?> type) {
+	protected Container getJpaContainer(Class<?> type, Object propertyId) {
 		JPAContainer<?> container = jpaContainerFactory.getJPAContainer(type);
-		if (Selectable.class.isAssignableFrom(type)) {
+		
+		
+		if (Selectable.class.isAssignableFrom(type) &&
+				! Boolean.valueOf(getPropertyConfiguror().getPropertyValue(
+						propertyId.toString() + PropertyConfiguror.propertyIncludeNonSelectable, "false"))) {
 			Filter filter = new Compare.Equal("selectable", true);
 			container.addContainerFilter(filter);
 		}

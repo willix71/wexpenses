@@ -1,9 +1,5 @@
 package w.wexpense.vaadin.view;
 
-import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,32 +28,33 @@ public class GenericView<T> extends VerticalLayout implements Button.ClickListen
 	private static final long serialVersionUID = 5282517667310057582L;
 	
 	@Autowired
-	private WexJPAContainerFactory jpaContainerFactory;
+	protected WexJPAContainerFactory jpaContainerFactory;
 	
-	private JPAContainer<T> jpaContainer;
-	private Class<T> entityClass;
+	protected JPAContainer<T> jpaContainer;
+	protected Class<T> entityClass;
 	
-	private AbstractLayout toolbar;
-	private Button newButton;
-	private Button deleteButton;
-	private Button editButton;
-	private Button refreshButton;
-	private Table table;
+	protected AbstractLayout toolbar;
+	protected Button newButton;
+	protected Button deleteButton;
+	protected Button editButton;
+	protected Button refreshButton;
+	protected Table table;
 
-	private Component filter;
+	protected Component filter;
 
-	private PropertyConfiguror propertyConfiguror;
+	protected PropertyConfiguror propertyConfiguror;
 	
 	public GenericView(Class<T> entityClass) {
 		this.entityClass = entityClass;		
+		setCaption();
 	}
 	
 	@PostConstruct
-	public void init() {
+	protected void init() {
 		this.jpaContainer = jpaContainerFactory.getJPAContainer(entityClass, propertyConfiguror.getPropertyValues(PropertyConfiguror.nestedProperties));
 		
-		buildTable();
-		buildToolbar();
+		table = buildTable();
+		toolbar = buildToolbar();
 
 		addComponent(toolbar);
 		addComponent(table);
@@ -65,38 +62,14 @@ public class GenericView<T> extends VerticalLayout implements Button.ClickListen
 		setSizeFull();
 	}
 	
-	private void buildTable() {
-//		table = new Table(null, jpaContainer) {
-//		    protected String formatPropertyValue(Object rowId, Object colId, Property property) {
-//		        if (property == null || property.getValue() == null) {
-//		            return "";
-//		        }
-//		        if (Date.class.isAssignableFrom(property.getType())) {
-//		      	  return new SimpleDateFormat("dd/MM/yyyy").format(property.getValue());			      	  
-//		        }
-//		        if (Number.class.isAssignableFrom(property.getType())) {
-//		      	  return MessageFormat.format("{0,number,0.00}", property.getValue());
-//		        }
-//		        return property.toString();
-//		    }
-//		};
-//
-//		String[] propertyIds=propertyConfiguror.getPropertyValues(PropertyConfiguror.visibleProperties);
-//		table.setVisibleColumns(propertyIds);
-//		for(String pid: propertyIds) {
-//			String p = propertyConfiguror.getPropertyValue(pid + PropertyConfiguror.propertyAlignement);
-//			if (p!=null) table.setColumnAlignment(pid, p);
-//			p = propertyConfiguror.getPropertyValue(pid + PropertyConfiguror.propertyExpandRatio);
-//			if (p!=null) table.setColumnExpandRatio(pid, Float.valueOf(p));
-//		}
-//		
-		table = new WexTable(jpaContainer, propertyConfiguror);
+	protected Table buildTable() {	
+		Table tbl = new WexTable(jpaContainer, propertyConfiguror);
 		
-		table.setSelectable(true);
-		table.setImmediate(true);
-		table.setSizeFull();
+		tbl.setSelectable(true);
+		tbl.setImmediate(true);
+		tbl.setSizeFull();
 		
-		table.addListener(new Property.ValueChangeListener() {
+		tbl.addListener(new Property.ValueChangeListener() {
 			@Override
 			public void valueChange(ValueChangeEvent event) {
 				boolean modificationEnabled = event.getProperty().getValue() != null;
@@ -105,7 +78,7 @@ public class GenericView<T> extends VerticalLayout implements Button.ClickListen
 				editButton.setEnabled(modificationEnabled);
 			}
 		});
-		table.addListener(new ItemClickListener() {
+		tbl.addListener(new ItemClickListener() {
 			@Override
 			public void itemClick(ItemClickEvent event) {
 				if (event.isDoubleClick()) {
@@ -116,11 +89,11 @@ public class GenericView<T> extends VerticalLayout implements Button.ClickListen
 				}
 			}
 		});
-
 		
+		return tbl;
 	}
 
-	private void buildToolbar() {
+	protected AbstractLayout buildToolbar() {
 		HorizontalLayout toolbar = new HorizontalLayout();
 
 		newButton = new Button("Add");
@@ -142,7 +115,6 @@ public class GenericView<T> extends VerticalLayout implements Button.ClickListen
 		
 		refreshButton = new Button("Refresh");
 		refreshButton.addListener(this);
-		toolbar.addComponent(refreshButton);
 	
 		if (filter !=null) {
 			toolbar.addComponent(filter);
@@ -151,14 +123,14 @@ public class GenericView<T> extends VerticalLayout implements Button.ClickListen
 			toolbar.setComponentAlignment(filter, Alignment.TOP_RIGHT);
 		}
 		
-		this.toolbar = toolbar;
+		return toolbar;
+	}
+
+	protected void setCaption() {
+		setCaption( entityClass.getSimpleName() );
 	}
 
 	@Override
-	public String getCaption() {
-		return entityClass.getSimpleName();
-	}
-
 	public void buttonClick(ClickEvent event) {
 		if (event.getButton() == editButton) {
 			EntityItem<T> item = (EntityItem<T>) table.getItem(table.getValue());
@@ -172,17 +144,17 @@ public class GenericView<T> extends VerticalLayout implements Button.ClickListen
 		}
 	}
 
-	protected void editEntity(T t) {		
+	public void editEntity(T t) {		
 		GenericEditor<T> editor = newEditor();
 		editor.setInstance(t, jpaContainer);
 		newWindow(editor);			
 	}
 	
-	protected void deleteEntity() {
+	public void deleteEntity() {
 		jpaContainer.removeItem(table.getValue());
 	}
 
-	protected void newWindow(Component component) {
+	public void newWindow(Component component) {
 		getApplication().getMainWindow().addWindow(new ClosableWindow(component));
 	}
 

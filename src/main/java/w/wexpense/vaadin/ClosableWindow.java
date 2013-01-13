@@ -10,6 +10,8 @@ public class ClosableWindow extends Window {
 		getContent().setSizeUndefined();
 		
 		setCaption(component.getCaption());
+		component.setCaption(null);
+		
 		addComponent(component);
 		
 		component.addListener(new Component.Listener() {

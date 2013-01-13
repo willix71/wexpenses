@@ -2,6 +2,7 @@ package w.wexpense.vaadin.view;
 
 import java.util.Arrays;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 
 import org.slf4j.Logger;
@@ -47,40 +48,35 @@ public class GenericEditor<T> extends VerticalLayout implements Button.ClickList
 	
 	public GenericEditor(Class<T> entityClass) {
 		this.entityClass = entityClass;
-		this.idProperty = PersistenceUtils.getIdName(entityClass);			
+		this.idProperty = PersistenceUtils.getIdName(entityClass);
 	}
 
-	public void setInstance(T instance, JPAContainer<T> jpaContainer) {
-		isNew = instance == null;
-		item = new BeanItem<T>(isNew?newInstance():instance);
-		
-		this.jpaContainer = jpaContainer;
-		
-		form = buildForm();
-		buildExtra(); 
+	@PostConstruct
+	public void buildLayout() {
+		buildForm();
 		buildButtons();
 	}
 	
-	public BeanValidationForm<T> buildForm() {
-		BeanValidationForm<T> f = new BeanValidationForm<T>(entityClass);		
-		f.setWriteThrough(false);
-		f.setImmediate(true);
+	public void setInstance(T instance, JPAContainer<T> jpaContainer) {		
+		this.item = new BeanItem<T>(isNew?newInstance():instance);
+		this.isNew = instance == null;
+		this.jpaContainer = jpaContainer;
 		
-		String[] propertyIds=propertyConfiguror.getPropertyValues(PropertyConfiguror.visibleProperties);
+		form.setFormFieldFactory(new RelationalFieldFactory<T>(this.propertyConfiguror, jpaContainer, jpaContainerFactory));				
+		String[] propertyIds=propertyConfiguror.getPropertyValues(PropertyConfiguror.visibleProperties);		
+		form.setItemDataSource(item, Arrays.asList(propertyIds));
 		
-		f.setFormFieldFactory(new RelationalFieldFactory<T>(jpaContainer, jpaContainerFactory));
-		f.setItemDataSource(item, Arrays.asList(propertyIds));
-		
-		addComponent(f);
-		
-		return f;
+		setCaption();
 	}
 	
-	public void buildExtra() {
-		
+	protected void buildForm() {
+		form = new BeanValidationForm<T>(entityClass);		
+		form.setWriteThrough(false);
+		form.setImmediate(true);				
+		addComponent(form);		
 	}
 	
-	public AbstractOrderedLayout buildButtons() {
+	protected AbstractOrderedLayout buildButtons() {
 		HorizontalLayout buttonLayout = new HorizontalLayout();
 		saveButton = new Button("Save", (Button.ClickListener) this);
 		cancelButton = new Button("Cancel", (Button.ClickListener) this);
@@ -90,15 +86,16 @@ public class GenericEditor<T> extends VerticalLayout implements Button.ClickList
 		return buttonLayout;
 	}
 	
-	@Override
-	public String getCaption() {
+
+	protected void setCaption() {
+		String caption = entityClass.getSimpleName();
 		if (!isNew) {
 			Object o = item.getBean();
 			if (o != null) {
-				return o.toString();
+				caption = o.toString();
 			}
 		}
-		return entityClass.getSimpleName();
+		setCaption(caption);
 	}
 	
 	@Override
@@ -112,6 +109,8 @@ public class GenericEditor<T> extends VerticalLayout implements Button.ClickList
 	}
 
 	protected T save() {
+		LOGGER.debug("Saving entity {}", item.getBean());
+		
 		form.commit();
 		
 		EntityManager em = jpaContainer.getEntityProvider().getEntityManager();
@@ -139,7 +138,7 @@ public class GenericEditor<T> extends VerticalLayout implements Button.ClickList
 		EntityItem<T> et = jpaContainer.getItem(tid);
 		T t = et.getEntity();
 
-		// actually the above works and refreshes the list
+		// actually the above works and refreshes the list :-)
 		// T t = item.getBean();
 		// em.persist(t);
 		return t;

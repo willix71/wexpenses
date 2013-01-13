@@ -1,4 +1,4 @@
-package w.wexpense.vaadin.fieldfactory;
+package w.wexpense.vaadin.view;
 
 import java.util.Collection;
 
@@ -12,6 +12,7 @@ import w.wexpense.model.DBable;
 import w.wexpense.persistence.PersistenceUtils;
 import w.wexpense.vaadin.PropertyConfiguror;
 import w.wexpense.vaadin.WexJPAContainerFactory;
+import w.wexpense.vaadin.fieldfactory.RelationalFieldFactory;
 
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.data.Container;
@@ -45,15 +46,14 @@ public class OneToManyView<P extends DBable,C extends DBable> extends VerticalLa
 	private String parentPropertyId;
 	private String childPropertyId;
 	
-	private TableFieldFactory fieldFactory;
-	
-	private final Action add = new Action("Add");
-	private final Action remove = new Action("Remove");
-	private final Action[] actions = new Action[] { add, remove };
+	private Action add = new Action("Add");
+	private Action remove = new Action("Remove");
+	private Action[] actions = new Action[] { add, remove };
 
 	private P parentEntity;
 	private Container container;
-	private Table table;
+	private Table table;	
+	private TableFieldFactory fieldFactory;
 	
 	public OneToManyView(String parentPropertyId, Class<C> childType) {
 		this.childType = childType;
@@ -67,7 +67,6 @@ public class OneToManyView<P extends DBable,C extends DBable> extends VerticalLa
 
 		JPAContainer<C> childJpaContainer = jpaContainerFactory.getJPAContainerFrom(parentJpaContainer.getEntityProvider(), this.childType);			
 		this.fieldFactory = getTableFieldFactory(childJpaContainer, jpaContainerFactory);
-		
 		
 		if (parentEntity.isNew()) {
 			BeanContainer<String, C> bContainer = new BeanContainer<String, C>(this.childType);
@@ -86,9 +85,12 @@ public class OneToManyView<P extends DBable,C extends DBable> extends VerticalLa
 
 	protected void buildLayout() {
 		CssLayout vl = new CssLayout();
+		
+		// build the table
 		table = buildTable();
 		vl.addComponent(table);
 
+		// build buttons
 		CssLayout buttons = new CssLayout();
 		buttons.addComponent(new Button(add.getCaption(), new ClickListener() {
 			private static final long serialVersionUID = 1L;
@@ -102,40 +104,25 @@ public class OneToManyView<P extends DBable,C extends DBable> extends VerticalLa
 				remove(table.getValue());
 			}
 		}));
-		vl.addComponent(buttons);
-		
+		vl.addComponent(buttons);		
 		addComponent(vl);
 	}
 
 	protected Table buildTable() {
-		Table tbl = new Table(null, container);
-		
-		String[] visibleProperties = propertyConfiguror.getPropertyValues(PropertyConfiguror.visibleProperties);
-		if (visibleProperties != null) {
-			tbl.setVisibleColumns(visibleProperties);
-		}
-
-		for(String pid: visibleProperties) {
-			String p = propertyConfiguror.getPropertyValue(pid + PropertyConfiguror.propertyAlignement);
-			if (p!=null) tbl.setColumnAlignment(pid, p);
-			p = propertyConfiguror.getPropertyValue(pid + PropertyConfiguror.propertyExpandRatio);
-			if (p!=null) tbl.setColumnExpandRatio(pid, Float.valueOf(p));
-		}
-		
+		Table tbl = new WexTable(container, propertyConfiguror);
 		tbl.setPageLength(5);			
-		tbl.addActionHandler(this);
-
-		tbl.setTableFieldFactory(this.fieldFactory);
 		tbl.setEditable(true);
 		tbl.setSelectable(true);
-		
+		tbl.addActionHandler(this);
+		tbl.setTableFieldFactory(this.fieldFactory);		
 		return tbl;
 	}
 	
 	protected TableFieldFactory getTableFieldFactory(JPAContainer<C> childJpaContainer, WexJPAContainerFactory jpaContainerFactory) {
-		return new RelationalFieldFactory<C>(childJpaContainer, jpaContainerFactory);
+		return new RelationalFieldFactory<C>(this.propertyConfiguror, childJpaContainer, jpaContainerFactory);
 	}
-	
+
+	@Override
 	public void handleAction(Action action, Object sender, Object target) {
 		if (action == add) {
 			addNew();
@@ -144,11 +131,12 @@ public class OneToManyView<P extends DBable,C extends DBable> extends VerticalLa
 		}
 	}
 
+	@Override
 	public Action[] getActions(Object target, Object sender) {
 		return actions;
 	}
 
-	private void remove(Object itemId) {
+	public void remove(Object itemId) {
 		if (itemId != null) {
 			Item item = container.getItem(itemId);
 			item.getItemProperty(this.childPropertyId).setValue(null);				
@@ -156,7 +144,7 @@ public class OneToManyView<P extends DBable,C extends DBable> extends VerticalLa
 		}
 	}
 
-	private void addNew() {
+	public void addNew() {
 		try {
 			C newInstance = this.childType.newInstance();
 			BeanItem<C> beanItem = new BeanItem<C>(newInstance);
@@ -194,9 +182,17 @@ public class OneToManyView<P extends DBable,C extends DBable> extends VerticalLa
 		jpaContainer.commit();
 	}
 	
+	public Container getContainer() { 
+		return container; 
+	}
+	
+	public PropertyConfiguror getPropertyConfiguror() {
+		return propertyConfiguror;
+	}
+
 	public void setPropertyConfiguror(PropertyConfiguror propertyConfiguror) {
 		this.propertyConfiguror = propertyConfiguror;
 	}
 
-	public Container getContainer() { return container; }
+
 }

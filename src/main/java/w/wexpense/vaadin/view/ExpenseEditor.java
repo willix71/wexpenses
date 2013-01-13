@@ -1,5 +1,6 @@
 package w.wexpense.vaadin.view;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 
 import org.slf4j.Logger;
@@ -7,10 +8,8 @@ import org.slf4j.LoggerFactory;
 
 import w.wexpense.model.Expense;
 import w.wexpense.model.TransactionLine;
-import w.wexpense.vaadin.fieldfactory.OneToManyView;
 
 import com.vaadin.addon.jpacontainer.JPAContainer;
-import com.vaadin.data.Container;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 
@@ -26,24 +25,34 @@ public class ExpenseEditor extends GenericEditor<Expense> {
 		super(Expense.class);
 	}
 
+	@PostConstruct
 	@Override
-	public void setInstance(Expense instance, JPAContainer<Expense> jpaContainer) {
-		super.setInstance(instance, jpaContainer);
-		if (instance != null) {
-			((ExpenseTransactionLineEditor) transactionLinesEditor).setCurrentAmount(instance.getAmount());
-		}
+	public void buildLayout() {
+		buildForm();
+		addComponent(transactionLinesEditor);
+		buildButtons();
 	}
 	
 	@Override
-	public void buildExtra() {
+	public void setInstance(Expense instance, JPAContainer<Expense> jpaContainer) {
+		super.setInstance(instance, jpaContainer);
+		
 		transactionLinesEditor.setInstance(getItem().getBean(), getJpaContainer());
-		addComponent(transactionLinesEditor);
-	}
+		if (instance != null) {
+			((ExpenseTransactionLineEditor) transactionLinesEditor).setCurrentAmount(instance.getAmount());
+		}
 
+	}
+	
 	@Override
 	public void attach() {
 		super.attach();
-
+		
+		addListener();
+		((ExpenseTransactionLineEditor) transactionLinesEditor).enableUpdateValues(true);
+	}
+	
+	protected void addListener() {
 		// attach user interaction listener
 		getForm().getField("amount").addListener(new Property.ValueChangeListener() {
 			@Override
@@ -67,18 +76,12 @@ public class ExpenseEditor extends GenericEditor<Expense> {
 				LOGGER.debug("Updating transaction lines with new amount {}", newAmount);
 				
 				((ExpenseTransactionLineEditor) transactionLinesEditor).setCurrentAmount(newAmount);
-				
-//				// set the new value
-//				currentAmount = newAmount;				
-//				((ExpenseTransactionLineEditor) transactionLinesEditor).updateValues();
 			}
 		});
-		
-		((ExpenseTransactionLineEditor) transactionLinesEditor).enableUpdateValues(true);
-
 	}
 
-	protected Expense save() {
+	@Override
+	protected Expense save() {	
 		((ExpenseTransactionLineEditor) transactionLinesEditor).enableUpdateValues(false);
 		return super.save();
 	}

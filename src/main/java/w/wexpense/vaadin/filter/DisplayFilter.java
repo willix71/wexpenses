@@ -1,4 +1,4 @@
-package w.wexpense.vaadin.view;
+package w.wexpense.vaadin.filter;
 
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.data.Container.Filter;
