@@ -11,10 +11,8 @@
 	<context:annotation-config />
 	
 	<context:property-placeholder location="classpath:persistence.properties" />
-	
-	<!-- 
-	<context:component-scan base-package="w.wexpense.persistence" />
-	-->	
+
+	<bean class="w.wexpense.persistence.PersistenceConfiguration" />
 	
 	<bean class="w.wexpense.vaadin.WexJPAContainerFactory" >
 		<property name="helper">
@@ -176,13 +174,11 @@
 	<bean id="expenseEditor" class="w.wexpense.vaadin.view.ExpenseEditor" scope="prototype" >
 		<property name="propertyConfiguror">
 			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
-				<property name="visibleProperties" value="fullId,uid,date,amount,currency,payee,type,externalReference,description"/>
+				<property name="visibleProperties" value="fullId,uid,date,amount,currency,payee,type,externalReference,description,payment"/>
 			</bean>
 		</property>
-		<property name="transactionLinesEditor">
+		<property name="subEditor">
 			<bean class="w.wexpense.vaadin.view.ExpenseTransactionLineEditor" scope="prototype" >
-				<constructor-arg value="transactions" />
-				<constructor-arg value="w.wexpense.model.TransactionLine" />
 				<property name="propertyConfiguror">
 					<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
 						<property name="visibleProperties" value="account,factor,amount,exchangeRate,value,description"/>
@@ -251,7 +247,7 @@
 		<lookup-method name="newEditor" bean="accountEditor"/>
 		<property name="propertyConfiguror">
 			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
-				<property name="visibleProperties" value="name,fullName,number,fullNumber,type,currency"/>
+				<property name="visibleProperties" value="name,fullName,number,fullNumber,type,currency,selectable"/>
 			</bean>
 		</property>
 	</bean>
@@ -261,11 +257,58 @@
 		<property name="propertyConfiguror">
 			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
 			
-				<property name="visibleProperties" value="fullId,uid,parent,number,fullName,name,fullNumber,type,currency,selectable"/>
+				<property name="visibleProperties" value="fullId,uid,parent,name,fullName,number,fullNumber,type,currency,selectable"/>
 				<property name="otherProperies">
 					<props>
 						<prop key="parent.includeNonSelectable">true</prop>
 					</props>
+				</property>
+			</bean>
+		</property>
+	</bean>
+	
+	<!-- ========== Payments ========== -->	
+	
+	<bean class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
+		<constructor-arg value="w.wexpense.model.Payment" />
+		<lookup-method name="newEditor" bean="paymentEditor"/>
+		<property name="propertyConfiguror">
+			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
+				<property name="visibleProperties" value="date,filename"/>
+				<property name="otherProperies">
+					<props>
+						<prop key="date.format">{0,date,dd.MM.yyyy}</prop>
+						<prop key="filename.expandRatio">.8</prop>
+					</props>
+				</property>
+			</bean>
+		</property>
+	</bean>
+	
+	<bean id="paymentEditor" class="w.wexpense.vaadin.view.OneToManyEditor" scope="prototype" >
+		<constructor-arg value="w.wexpense.model.Payment" />
+		<property name="propertyConfiguror">
+			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
+				<property name="visibleProperties" value="fullId,uid,date,filename"/>
+			</bean>
+		</property>
+		<property name="subEditor">
+			<bean class="w.wexpense.vaadin.view.OneToManySubEditor" scope="prototype" >
+				<constructor-arg value="w.wexpense.model.Expense" />
+				<constructor-arg value="expenses" />
+				<property name="editable" value="false" />
+				<property name="propertyConfiguror">
+					<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
+						<property name="visibleProperties" value="date,amount,currency,payee"/>
+						<property name="otherProperies">
+							<props>
+								<prop key="date.format">{0,date,dd.MM.yyyy}</prop>
+								<prop key="amount.alignement">e</prop>
+								<prop key="amount.format">{0,number,0.00}</prop>
+								
+							</props>
+						</property>
+					</bean>
 				</property>
 			</bean>
 		</property>

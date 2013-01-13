@@ -29,6 +29,13 @@
 				<entry key="/*" value-ref="vasphi" />
 			</map>
 		</property>
+		<property name="interceptors">
+			<list>
+				 <bean class="org.springframework.orm.jpa.support.OpenEntityManagerInViewInterceptor" >
+				 	<property name="entityManagerFactory" ref="entityManagerFactoryBean" />
+				 </bean>
+			</list>
+		</property>
 	</bean>
 
 </beans>

@@ -1,4 +1,4 @@
-package w.wexpense.persitence;
+package w.wexpense.persistence;
 
 import org.junit.Assert;
 import org.junit.Test;

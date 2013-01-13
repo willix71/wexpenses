@@ -6,13 +6,13 @@ import static w.wexpense.model.enums.AccountEnum.EXPENSE;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.transaction.annotation.Transactional;
 
 import w.wexpense.model.Account;
 import w.wexpense.model.City;
@@ -25,21 +25,19 @@ import w.wexpense.model.Payee;
 import w.wexpense.model.PayeeType;
 import w.wexpense.model.TransactionLine;
 import w.wexpense.model.enums.TransactionLineEnum;
-import w.wexpense.vaadin.WexJPAContainerFactory;
 
 public class DatabasePopulator {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DatabasePopulator.class);
 	
-	@Autowired
-	private WexJPAContainerFactory jpaContainerFactory;
+//	@Autowired
+//	private WexJPAContainerFactory jpaContainerFactory;
 	
-	//@PersistenceContext
+	@PersistenceContext
 	private EntityManager em;
 	
-	@PostConstruct
-	//@Transactional
+	@Transactional
 	public void populate() {
-		em = jpaContainerFactory.getEntityManager();
+		//em = jpaContainerFactory.getEntityManager();
 		
 		long size = (Long) em.createQuery("SELECT COUNT(p) FROM Currency p").getSingleResult();
 		
@@ -48,7 +46,7 @@ public class DatabasePopulator {
 		if (size == 0) {
 			// create test data
 	
-			em.getTransaction().begin();
+			//em.getTransaction().begin();
 	
 			Currency chf = save(new Currency("CHF", "Swiss Francs", 20));
 			Currency euro = save(new Currency("EUR", "Euro", 100));
@@ -175,7 +173,8 @@ public class DatabasePopulator {
 			line.setFactor(TransactionLineEnum.IN);
 			save(line);
 			
-			em.getTransaction().commit();
+			em.flush();
+			//em.getTransaction().commit();
 		}
 	}
 	
@@ -195,6 +194,6 @@ public class DatabasePopulator {
 		}
 		
 		// Start the Spring container
-		new ClassPathXmlApplicationContext(args);
+		((DatabasePopulator) new ClassPathXmlApplicationContext(args).getBean(DatabasePopulator.class)).populate();
 	}
 }

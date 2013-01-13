@@ -1,8 +1,6 @@
 package w.wexpense.vaadin.view;
 
 import java.text.MessageFormat;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.persistence.EntityManager;
 
@@ -24,34 +22,31 @@ import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Field;
-import com.vaadin.ui.Table;
 import com.vaadin.ui.TableFieldFactory;
 import com.vaadin.ui.TextField;
 
-class ExpenseTransactionLineEditor extends OneToManyView<Expense, TransactionLine> {
+class ExpenseTransactionLineEditor extends OneToManySubEditor<TransactionLine, Expense> {
 	private static final long serialVersionUID = 701758651197792890L;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(ExpenseEditor.class);
 	
-	private Table table;	
+
 	private boolean fireUpdateValues = false;
 	private Double currentExpenseAmount = null;
 	
-	public ExpenseTransactionLineEditor(String parentPropertyId, Class<TransactionLine> childType) {
-		super(parentPropertyId, childType);
+	public ExpenseTransactionLineEditor() {
+		super(TransactionLine.class, "transactions");
 	}
 	
 	@Override
-	protected Table buildTable() {
-		table = super.buildTable();
+	protected void buildTable() {
+		super.buildTable();
 		table.setFooterVisible(true);
-		table.setImmediate(true);	
-		return table;
 	}
 
 	@Override
 	protected TableFieldFactory getTableFieldFactory(JPAContainer<TransactionLine> childJpaContainer, WexJPAContainerFactory jpaContainerFactory) {
-		return new RelationalFieldFactory<TransactionLine>(getPropertyConfiguror(), childJpaContainer, jpaContainerFactory) {
+		return new RelationalFieldFactory<TransactionLine>(propertyConfiguror, childJpaContainer, jpaContainerFactory) {
 			@Override
 			public Field createField(Container container, Object itemId, Object propertyId, Component uiContext) {
 				Field f = super.createField(container, itemId, propertyId, uiContext);
@@ -96,7 +91,7 @@ class ExpenseTransactionLineEditor extends OneToManyView<Expense, TransactionLin
 		LOGGER.debug("Updating transaction line value {}", fireUpdateValues);
 		
 		if (fireUpdateValues) {
-			Container container = getContainer();
+			Container container = getChildContainer();
 			Property rateProp = container.getItem(rowId).getItemProperty("exchangeRate");
 			Property accountProp = container.getItem(rowId).getItemProperty("account");
 			Property valueProp = container.getItem(rowId).getItemProperty("value");
@@ -131,7 +126,7 @@ class ExpenseTransactionLineEditor extends OneToManyView<Expense, TransactionLin
 		LOGGER.debug("Updating transaction lines amount {}", fireUpdateValues);
 				
 		if (fireUpdateValues) {
-			Container container = getContainer();
+			Container container = getChildContainer();
 			for (Object id : container.getItemIds()) {
 				// get the item property
 				Property amountProp = container.getItem(id).getItemProperty("amount");
@@ -148,7 +143,7 @@ class ExpenseTransactionLineEditor extends OneToManyView<Expense, TransactionLin
 		double total = 0;
 		double totalIn = 0;
 		
-		Container container = getContainer();
+		Container container = getChildContainer();
 		for(Object id: container.getItemIds()) {
 			// get the item property
 			Property factorProp = container.getItem(id).getItemProperty("factor");

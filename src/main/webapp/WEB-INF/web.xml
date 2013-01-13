@@ -16,8 +16,18 @@
 	<listener>
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class> 
 	</listener>
+
+<!-- 	
+	<filter>
+		<filter-name>openSession</filter-name>
+		<filter-class>org.springframework.orm.jpa.support.OpenEntityManagerInViewFilter</filter-class>
+	</filter>
 	
-<!-- 
+	<filter-mapping>
+		<filter-name>openSession</filter-name>
+		<servlet-name>vaadin</servlet-name>		
+	</filter-mapping>
+
     <servlet>
         <servlet-name>Vaadin Application Servlet</servlet-name>
         <servlet-class>com.vaadin.terminal.gwt.server.ApplicationServlet</servlet-class>

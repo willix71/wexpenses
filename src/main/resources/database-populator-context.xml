@@ -10,14 +10,12 @@
 
 	<context:annotation-config />
 	
-	<context:property-placeholder location="classpath:persistence.properties" />
-	
-	<!-- 
-	<bean class="w.wexpense.persistence.PersistenceConfiguration" />
-	 -->
+	<context:property-placeholder location="classpath:persistence-create.properties" />
 	 
-	<bean class="w.wexpense.vaadin.WexJPAContainerFactory" />
-	
+	<bean class="w.wexpense.persistence.PersistenceConfiguration" />
+	 
 	<bean class="w.wexpense.persistence.DatabasePopulator" />
+	
+	<bean class="w.wexpense.vaadin.WexJPAContainerFactory" />
 		
 </beans>

@@ -1,9 +1,7 @@
 package w.wexpense.vaadin.view;
 
 import w.wexpense.model.Account;
-
-import com.vaadin.ui.Table;
-import com.vaadin.ui.TreeTable;
+import w.wexpense.vaadin.PropertyConfiguror;
 
 public class AccountView extends GenericView<Account> {
 
@@ -12,7 +10,10 @@ public class AccountView extends GenericView<Account> {
 	}
 	
 	@Override
-   protected Table buildTable() {
-	   return new TreeTable(null, this.jpaContainer);
-   }
+	protected void initTable() {
+		this.jpaContainer = jpaContainerFactory.getJPAContainer(entityClass, propertyConfiguror.getPropertyValues(PropertyConfiguror.nestedProperties));
+		this.jpaContainer.setParentProperty("parent");
+		
+		this.table = new WexTreeTable(jpaContainer, propertyConfiguror);
+	}
 }

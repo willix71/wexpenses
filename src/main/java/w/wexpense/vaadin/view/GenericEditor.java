@@ -1,6 +1,7 @@
 package w.wexpense.vaadin.view;
 
 import java.util.Arrays;
+import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
@@ -58,9 +59,9 @@ public class GenericEditor<T> extends VerticalLayout implements Button.ClickList
 	}
 	
 	public void setInstance(T instance, JPAContainer<T> jpaContainer) {		
-		this.item = new BeanItem<T>(isNew?newInstance():instance);
-		this.isNew = instance == null;
 		this.jpaContainer = jpaContainer;
+		this.isNew = instance == null;
+		this.item = new BeanItem<T>(isNew?newInstance():instance);
 		
 		form.setFormFieldFactory(new RelationalFieldFactory<T>(this.propertyConfiguror, jpaContainer, jpaContainerFactory));				
 		String[] propertyIds=propertyConfiguror.getPropertyValues(PropertyConfiguror.visibleProperties);		

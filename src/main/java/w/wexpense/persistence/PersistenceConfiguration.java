@@ -2,6 +2,7 @@ package w.wexpense.persistence;
 
 import java.util.Properties;
 
+import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -34,6 +35,8 @@ public class PersistenceConfiguration {
 	@Value( "${jdbc.jpa.adapter}" ) 
 	private String jpaAdapter;
 	
+	@Value( "${jdbc.jpa.adapter.properties.extension}" ) 
+	private String jpaAdapterPropertiesExtension;
 	
 //	@PersistenceContext(type=PersistenceContextType.EXTENDED)
 //	private EntityManager entityManager;
@@ -74,9 +77,9 @@ public class PersistenceConfiguration {
 		transactionManager.setEntityManagerFactory(entityManagerFactoryBean().getObject());
 		return transactionManager;
 	}
-
-	@Bean
-	public PersistenceExceptionTranslationPostProcessor persistenceExceptionTranslationPostProcessor() {
-		return new PersistenceExceptionTranslationPostProcessor();
-	}
+//
+//	@Bean
+//	public PersistenceExceptionTranslationPostProcessor persistenceExceptionTranslationPostProcessor() {
+//		return new PersistenceExceptionTranslationPostProcessor();
+//	}
 }

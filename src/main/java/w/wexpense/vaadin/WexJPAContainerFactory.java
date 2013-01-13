@@ -1,6 +1,8 @@
 package w.wexpense.vaadin;
 
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceContextType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,36 +11,40 @@ import org.springframework.beans.factory.annotation.Value;
 import com.vaadin.addon.jpacontainer.EntityProvider;
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.JPAContainerFactory;
-//import com.vaadin.addon.jpacontainer.LazyLoadingDelegate;
 import com.vaadin.addon.jpacontainer.util.EntityManagerPerRequestHelper;
+//import com.vaadin.addon.jpacontainer.LazyLoadingDelegate;
 //import com.vaadin.addon.jpacontainer.util.HibernateLazyLoadingDelegate;
 
 public class WexJPAContainerFactory {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(WexApplication.class);
 
-	@Value( "${jdbc.jpa.adapter}" ) 
-	private String jpaAdapter;
+	@PersistenceContext
+	private EntityManager entityManager;
+	
+//	@Value( "${jdbc.jpa.adapter}" ) 
+//	private String jpaAdapter;
 	
 	private EntityManagerPerRequestHelper helper;
 	
 	// private LazyLoadingDelegate lazyLoader = new HibernateLazyLoadingDelegate();
 	
-	public String getPersistenceUnit() {
-		return "w.wexpense." + jpaAdapter;
-	}
+//	public String getPersistenceUnit() {
+//		return "w.wexpense." + jpaAdapter;
+//	}
 	
 	public EntityManager getEntityManager() {
-		String persistenceUnit = getPersistenceUnit();
-		LOGGER.info("Creating EntityManager from persistence unit {}", persistenceUnit);
-		return JPAContainerFactory.createEntityManagerForPersistenceUnit(getPersistenceUnit());
+		return entityManager;
+//		String persistenceUnit = getPersistenceUnit();
+//		LOGGER.info("Creating EntityManager from persistence unit {}", persistenceUnit);
+//		return JPAContainerFactory.createEntityManagerForPersistenceUnit(getPersistenceUnit());
 	}
 	
 	public <T> JPAContainer<T> getJPAContainer(Class<T> entityClass, String... nestedProperties) {
-		String persistenceUnit = getPersistenceUnit();
-		LOGGER.info("Creating JPAContainer from persistence unit {}", persistenceUnit);
+		//String persistenceUnit = getPersistenceUnit();
+		LOGGER.info("Creating JPAContainer from persistence unit {}", getEntityManager());
 		
-		JPAContainer<T> jpac = JPAContainerFactory.make(entityClass, persistenceUnit);
+		JPAContainer<T> jpac = JPAContainerFactory.make(entityClass, getEntityManager());
 		
 		if (helper != null) helper.addContainer(jpac);
 
