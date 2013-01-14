@@ -60,8 +60,20 @@ public class GenericEditor<T> extends VerticalLayout implements Button.ClickList
 	
 	public void setInstance(T instance, JPAContainer<T> jpaContainer) {		
 		this.jpaContainer = jpaContainer;
-		this.isNew = instance == null;
-		this.item = new BeanItem<T>(isNew?newInstance():instance);
+		if (instance == null) {
+			this.isNew = true;
+			this.item = new BeanItem<T>(newInstance());
+		} else {
+			this.isNew = false;
+
+			// we need to refresh the instance else we can't follow lazy links because 
+			// the instance is not attached to the current running entity manager
+			EntityManager entityManager = jpaContainerFactory.getEntityManager();
+			Object id = new BeanItem<T>(instance).getItemProperty(idProperty).getValue();
+			T t = entityManager.find(entityClass, id);
+
+			this.item = new BeanItem<T>(t);
+		}			
 		
 		form.setFormFieldFactory(new RelationalFieldFactory<T>(this.propertyConfiguror, jpaContainer, jpaContainerFactory));				
 		String[] propertyIds=propertyConfiguror.getPropertyValues(PropertyConfiguror.visibleProperties);		
@@ -116,20 +128,24 @@ public class GenericEditor<T> extends VerticalLayout implements Button.ClickList
 		
 		EntityManager em = jpaContainer.getEntityProvider().getEntityManager();
 		em.getTransaction().begin();
-		T t = null;
+
 		try {			
-			t = isNew ? insert(em) : update(em);
+			T t = isNew ? insert(em) : update(em);
 			em.getTransaction().commit();
+			
+			if (!isNew) {
+				Object o = item.getItemProperty(idProperty).getValue();
+				jpaContainer.refreshItem(o);
+			}
+
+			return t;
 		} catch (Exception e) {
 			LOGGER.error("Failed to save entity", e);
 			em.getTransaction().rollback();
+			return null;
 		}
+		
 
-		if (t!=null && !isNew) {
-			Object o = new BeanItem<>(t).getItemProperty(idProperty).getValue();
-			jpaContainer.refreshItem(o);
-		}
-		return t;
 	}
 	
 	protected T insert(EntityManager em) {
@@ -139,16 +155,14 @@ public class GenericEditor<T> extends VerticalLayout implements Button.ClickList
 		EntityItem<T> et = jpaContainer.getItem(tid);
 		T t = et.getEntity();
 
-		// actually the above works and refreshes the list :-)
-		// T t = item.getBean();
-		// em.persist(t);
 		return t;
 	}
 
 	protected T update(EntityManager em) {
 		LOGGER.debug("Merging {}", item.getBean());
+		T t = item.getBean();
+		t = em.merge(t);
 		
-		T t = em.merge(item.getBean());
 		return t;
 	}
 

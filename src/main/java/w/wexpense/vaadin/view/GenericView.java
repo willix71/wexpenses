@@ -2,10 +2,15 @@ package w.wexpense.vaadin.view;
 
 import javax.annotation.PostConstruct;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import w.wexpense.vaadin.ClosableWindow;
 import w.wexpense.vaadin.PropertyConfiguror;
+import w.wexpense.vaadin.WexJPAContainerFactory;
 
 import com.vaadin.addon.jpacontainer.EntityItem;
+import com.vaadin.addon.jpacontainer.JPAContainer;
+import com.vaadin.event.Action;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
@@ -14,6 +19,11 @@ import com.vaadin.ui.HorizontalLayout;
 
 public class GenericView<T> extends AbstractView<T> implements ComponentContainer {
 	private static final long serialVersionUID = 5282517667310057582L;
+
+	@Autowired
+	protected WexJPAContainerFactory jpaContainerFactory;
+	
+	protected JPAContainer<T> jpaContainer;
 	
 	protected HorizontalLayout toolbar;
 
@@ -21,6 +31,8 @@ public class GenericView<T> extends AbstractView<T> implements ComponentContaine
 
 	public GenericView(Class<T> entityClass) {
 		super(entityClass);	
+		entitySelectedActions = new Action[] { addAction, editAction, deleteAction, refreshAction };
+		noEntitySelectedActions = new Action[] { addAction, refreshAction };
 	}
 	
 	@PostConstruct
@@ -59,12 +71,14 @@ public class GenericView<T> extends AbstractView<T> implements ComponentContaine
 		}
 	}
 
+	@Override
 	public void addEntity() {
 		GenericEditor<T> editor = newEditor();
 		editor.setInstance(null, jpaContainer);
 		getApplication().getMainWindow().addWindow(new ClosableWindow(editor));	
 	}
 
+	@Override
 	public void editEntity(Object target) {
 		GenericEditor<T> editor = newEditor();		
 		EntityItem<T> item = (EntityItem<T>) table.getItem(target);		
@@ -73,9 +87,21 @@ public class GenericView<T> extends AbstractView<T> implements ComponentContaine
 	}
 	
 	@Override
+	public void deleteEntity(Object target) {
+		jpaContainer.removeItem(target);		
+	}
+
+	@Override
+	public void refreshContainer() {
+		jpaContainer.refresh();
+	}
+		
+	@Override
 	public void entitySelected(ItemClickEvent event) {
+		GenericEditor<T> editor = newEditor();
 		EntityItem<T> t = (EntityItem<T>) event.getItem(); 
-		editEntity(t.getEntity());
+		editor.setInstance(t.getEntity(), jpaContainer);
+		getApplication().getMainWindow().addWindow(new ClosableWindow(editor));
 	}
 	
 	public GenericEditor<T> newEditor() {

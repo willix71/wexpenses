@@ -20,6 +20,7 @@ import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.data.Container;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.event.Action;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Field;
 import com.vaadin.ui.TableFieldFactory;
@@ -36,6 +37,9 @@ class ExpenseTransactionLineEditor extends OneToManySubEditor<TransactionLine, E
 	
 	public ExpenseTransactionLineEditor() {
 		super(TransactionLine.class, "transactions");
+		
+		super.entitySelectedActions = new Action[] { addAction, deleteAction };
+		super.noEntitySelectedActions = new Action[] { addAction };
 	}
 	
 	@Override
@@ -168,14 +172,8 @@ class ExpenseTransactionLineEditor extends OneToManySubEditor<TransactionLine, E
 	}
 
 	@Override
-	public void insert(Expense parent, EntityManager em) {
+	public void save(Expense parent, EntityManager em) {
 		fireUpdateValues = false;
-		super.insert(parent, em);
-	}
-	
-	@Override
-	public void update(Expense parent, EntityManager em) {
-		fireUpdateValues = false;
-		super.update(parent, em);
+		super.save(parent, em);
 	}
 }

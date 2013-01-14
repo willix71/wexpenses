@@ -36,14 +36,14 @@ public class OneToManyEditor<T extends DBable, C extends DBable> extends Generic
 	@Override
 	protected T insert(EntityManager em) {
 		T t = super.insert(em);
-		subEditor.insert(t, em);
+		subEditor.save(t, em);
 		return t;
 	}
 
 	@Override
 	protected T update(EntityManager em) {
 		T t = super.update(em);
-		subEditor.update(t, em);
+		subEditor.save(t, em);
 		return t;
 	}
 

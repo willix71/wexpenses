@@ -1,12 +1,15 @@
 package w.wexpense.vaadin.view;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
-import org.eclipse.persistence.annotations.ReadOnly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import w.wexpense.model.DBable;
 import w.wexpense.persistence.PersistenceUtils;
@@ -15,11 +18,9 @@ import w.wexpense.vaadin.fieldfactory.RelationalFieldFactory;
 
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.data.Container;
-import com.vaadin.data.Container.Filter;
 import com.vaadin.data.Item;
-import com.vaadin.data.util.BeanContainer;
 import com.vaadin.data.util.BeanItem;
-import com.vaadin.data.util.filter.Compare;
+import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.event.Action;
 import com.vaadin.ui.TableFieldFactory;
 
@@ -29,21 +30,29 @@ public class OneToManySubEditor<C extends DBable, P extends DBable> extends Abst
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(OneToManySubEditor.class);
 
+	@PersistenceContext
+	private EntityManager entityManager;
+	
+	@Autowired
+	protected WexJPAContainerFactory jpaContainerFactory;
+	
 	private Class<P> parentType;
 	private String parentPropertyId;
+	protected P parentEntity;
+	
 	private String childPropertyId;
-
-	private P parentEntity;
-	private Container childContainer;
+	private BeanItemContainer<C> childContainer;
 	private TableFieldFactory fieldFactory;
 	
 	private boolean editable = true;
+	
+	private Set<C> toDelete = new HashSet<C>();
 	
 	public OneToManySubEditor(Class<C> childType, String parentPropertyId) {
 		super(childType);
 		this.parentPropertyId = parentPropertyId;
 		
-		super.entitySelectedActions = new Action[] { addAction, deleteAction };
+		super.entitySelectedActions = new Action[] { addAction, removeAction };
 		super.noEntitySelectedActions = new Action[] { addAction };
 	}
 
@@ -55,19 +64,23 @@ public class OneToManySubEditor<C extends DBable, P extends DBable> extends Abst
 		JPAContainer<C> childJpaContainer = jpaContainerFactory.getJPAContainerFrom(parentJpaContainer.getEntityProvider(), this.entityClass);			
 		this.fieldFactory = getTableFieldFactory(childJpaContainer, jpaContainerFactory);
 		
-		if (parentEntity.isNew()) {
-			BeanContainer<String, C> bContainer = new BeanContainer<String, C>(this.entityClass);
-			bContainer.setBeanIdProperty("uid");
-			
-			childContainer = bContainer;
-		} else {
-			Filter filter = new Compare.Equal(this.childPropertyId, parentEntity);
-			childJpaContainer.addContainerFilter(filter);
-
-			childContainer = childJpaContainer;
-		}
+//		if (parentEntity.isNew()) {
+//			BeanContainer<String, C> bContainer = new BeanContainer<String, C>(this.entityClass);
+//			bContainer.setBeanIdProperty("uid");
+//			
+//			childContainer = bContainer;
+//		} else {
+//			Filter filter = new Compare.Equal(this.childPropertyId, parentEntity);
+//			childJpaContainer.addContainerFilter(filter);
+//
+//			childContainer = childJpaContainer;
+//		}
 		
 		buildTable();
+		
+		Collection<C> children = (Collection<C>) new BeanItem<P>(parentEntity).getItemProperty(parentPropertyId).getValue();
+		childContainer.addAll(children);
+		
 		addComponent(table);
 	}
 
@@ -87,6 +100,7 @@ public class OneToManySubEditor<C extends DBable, P extends DBable> extends Abst
 	
 	@Override
 	protected void initTable() {
+		childContainer = new BeanItemContainer<C>(entityClass);
 		table = new WexTable(childContainer, propertyConfiguror);
 	}
 	
@@ -104,15 +118,15 @@ public class OneToManySubEditor<C extends DBable, P extends DBable> extends Abst
 			C newInstance = entityClass.newInstance();
 			BeanItem<C> beanItem = new BeanItem<C>(newInstance);
 			beanItem.getItemProperty(this.childPropertyId).setValue(parentEntity);
+			childContainer.addBean(newInstance);
 			
-			Object o=null;
-			if (childContainer instanceof JPAContainer) {
-				o = ((JPAContainer) childContainer).addEntity(newInstance);
-			} else {
-				o = ((BeanContainer) childContainer).addItem(((DBable) newInstance).getUid(), newInstance);
-			}
+//			Object o=null;
+//			if (childContainer instanceof JPAContainer) {
+//				o = ((JPAContainer) childContainer).addEntity(newInstance);
+//			} else {
+//				o = ((BeanContainer) childContainer).addItem(((DBable) newInstance).getUid(), newInstance);
+//			}
 
-			LOGGER.info("NewInstance is {}", o.getClass());
 		} catch (Exception e) {
 			LOGGER.warn("Could not instantiate detail instance " + this.entityClass.getName(), e);
 			e.printStackTrace();
@@ -120,34 +134,65 @@ public class OneToManySubEditor<C extends DBable, P extends DBable> extends Abst
 	}
 	
 	@Override
-	public void deleteEntity(Object target) {
+	public void removeEntity(Object target) {
 		Item item = childContainer.getItem(table.getValue());
 		item.getItemProperty(this.childPropertyId).setValue(null);
-		if (childContainer instanceof JPAContainer) {
-			((JPAContainer) childContainer).removeItem(table.getValue());
-		} else {
-			((BeanContainer) childContainer).removeItem(table.getValue());
+		childContainer.removeItem(table.getValue());
+	}
+	
+	@Override
+	public void deleteEntity(Object target) {
+		Item item = childContainer.getItem(table.getValue());
+		C c = (C) table.getValue();
+		if (!c.isNew()) {
+			toDelete.add(c);
 		}
+		childContainer.removeItem(table.getValue());
+//		Item item = childContainer.getItem(table.getValue());
+//		item.getItemProperty(this.childPropertyId).setValue(null);
+//		if (childContainer instanceof JPAContainer) {
+//			((JPAContainer) childContainer).removeItem(table.getValue());
+//		} else {
+//			((BeanContainer) childContainer).removeItem(table.getValue());
+//		}
 	}
 
-	public void insert(P parent, EntityManager em) {
-		BeanContainer<String, C> bContainer = (BeanContainer<String, C>) childContainer;			
-		Collection<String> itemIds = bContainer.getItemIds();
+//	public void insert(P parent, EntityManager em) {
+//		BeanContainer<String, C> bContainer = (BeanContainer<String, C>) childContainer;			
+//		Collection<String> itemIds = bContainer.getItemIds();
+//		
+//		LOGGER.debug("Inserting {} children", itemIds.size());
+//		
+//		for (Object object : itemIds) {
+//			BeanItem<C> childBean =  bContainer.getItem(object);
+//			childBean.getItemProperty(this.childPropertyId).setValue(parent);
+//			em.persist(childBean.getBean());				 
+//		}
+//	}
+//	
+//	public void update(P parent, EntityManager em) {
+//		JPAContainer<C> jpaContainer = (JPAContainer<C>) childContainer;
+//		jpaContainer.commit();
+//	}
+
+	public void save(P parent, EntityManager em) {
+		LOGGER.debug("Saving {} children of ", parent);
 		
-		LOGGER.debug("Inserting {} children", itemIds.size());
-		
-		for (Object object : itemIds) {
-			BeanItem<C> childBean =  bContainer.getItem(object);
+		for (Object object : childContainer.getItemIds()) {
+			BeanItem<C> childBean =  childContainer.getItem(object);
 			childBean.getItemProperty(this.childPropertyId).setValue(parent);
-			em.persist(childBean.getBean());				 
+			C child = childBean.getBean();
+			if (child.isNew()) {
+				em.persist(child);				 
+			} else {
+				em.merge(child);
+			}
+		}
+		for(C child: toDelete) {
+			em.remove(em.merge(child));
 		}
 	}
 	
-	public void update(P parent, EntityManager em) {
-		JPAContainer<C> jpaContainer = (JPAContainer<C>) childContainer;
-		jpaContainer.commit();
-	}
-
 	public boolean isEditable() {
 		return editable;
 	}
