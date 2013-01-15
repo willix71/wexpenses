@@ -96,7 +96,7 @@ public class SimpleFieldFactory extends DefaultFieldFactory {
 
 		// Date field
 		if (Date.class.isAssignableFrom(type)) {
-			final DateField dateField = new DateField();
+			final DateField dateField = new WexDateField();
 			String dateFormat = propertyConfiguror.getPropertyValue(
 					propertyId.toString() + PropertyConfiguror.propertyDateFormat, DEFAULT_DATE_FORMAT);			
 			dateField.setDateFormat(dateFormat);

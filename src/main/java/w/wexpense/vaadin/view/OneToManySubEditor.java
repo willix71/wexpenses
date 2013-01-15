@@ -13,12 +13,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import w.wexpense.model.DBable;
 import w.wexpense.persistence.PersistenceUtils;
+import w.wexpense.vaadin.PropertyConfiguror;
 import w.wexpense.vaadin.WexJPAContainerFactory;
 import w.wexpense.vaadin.fieldfactory.RelationalFieldFactory;
 
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
+import com.vaadin.data.Property;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.event.Action;
@@ -103,7 +105,21 @@ public class OneToManySubEditor<C extends DBable, P extends DBable> extends Abst
 	
 	@Override
 	protected void initTable() {
-		childContainer = new BeanItemContainer<C>(entityClass);
+		childContainer = new BeanItemContainer<C>(entityClass) {
+			@Override
+			public Property getContainerProperty(Object itemId, Object propertyId) {
+				if (propertyId != null && propertyId.toString().contains(".")) {
+					LOGGER.info("This will fail " + propertyId);
+				}
+				return super.getContainerProperty(itemId, propertyId);
+			}
+		};
+		String[] nestedProperties = propertyConfiguror.getPropertyValues(PropertyConfiguror.visibleProperties);
+		if (nestedProperties != null) {
+			for (String nestedProperty : nestedProperties) {
+				childContainer.addNestedContainerProperty(nestedProperty);
+			}
+		}
 		table = new WexTable(childContainer, propertyConfiguror);
 	}
 	

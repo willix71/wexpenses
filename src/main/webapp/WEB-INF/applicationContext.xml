@@ -313,4 +313,58 @@
 			</bean>
 		</property>
 	</bean>
+	
+	<!-- ========== Consolidation ========== -->	
+	
+	<bean class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
+		<constructor-arg value="w.wexpense.model.Consolidation" />
+		<lookup-method name="newEditor" bean="consolidationEditor"/>
+		<property name="propertyConfiguror">
+			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
+				<property name="visibleProperties" value="date,institution,openingBalance,closingBalance"/>
+				<property name="otherProperies">
+					<props>
+						<prop key="date.format">{0,date,dd.MM.yyyy}</prop>
+						<prop key="institution.expandRatio">.8</prop>
+					</props>
+				</property>
+			</bean>
+		</property>
+	</bean>
+	
+	<bean id="consolidationEditor" class="w.wexpense.vaadin.view.OneToManyEditor" scope="prototype" >
+		<constructor-arg value="w.wexpense.model.Consolidation" />
+		<property name="propertyConfiguror">
+			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
+				<property name="visibleProperties" value="fullId,uid,date,institution,openingBalance,closingBalance"/>
+			</bean>
+		</property>
+		<property name="subEditor">
+			<bean class="w.wexpense.vaadin.view.OneToManySubEditor" scope="prototype" >
+				<constructor-arg value="w.wexpense.model.TransactionLine" />
+				<constructor-arg value="transactions" />
+				<property name="editable" value="false" />
+				<property name="propertyConfiguror">
+					<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
+						<property name="nestedProperties" value="expense.payee"/>
+						<property name="visibleProperties" value="consolidatedDate,expense.payee,amount,exchangeRate,inValue,outValue"/>
+						<property name="otherProperies">
+							<props>								
+								<prop key="consolidatedDate.header">Date</prop>
+								<prop key="consolidatedDate.format">{0,date,dd.MM.yyyy}</prop>
+								<prop key="expense.payee.header">Payee</prop>
+								<prop key="expense.payee.expandRatio">.8</prop>
+								<prop key="amount.alignement">e</prop>
+								<prop key="amount.format">{0,number,0.00}</prop>
+								<prop key="inValue.alignement">e</prop>
+								<prop key="inValue.format">{0,number,0.00}</prop>						
+								<prop key="outValue.alignement">e</prop>
+								<prop key="outValue.format">{0,number,0.00}</prop>
+							</props>
+						</property>
+					</bean>
+				</property>
+			</bean>
+		</property>
+	</bean>
 </beans>

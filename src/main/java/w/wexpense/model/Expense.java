@@ -21,6 +21,7 @@ public class Expense extends DBable {
 
 	private static final long serialVersionUID = 2482940442245899869L;
 	
+	@NotNull
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date date;
 	
@@ -34,6 +35,7 @@ public class Expense extends DBable {
 	@ManyToOne(fetch = FetchType.EAGER)
 	private ExchangeRate defaultExchangeRate;
 	
+	@NotNull
 	@ManyToOne(fetch = FetchType.EAGER)
 	//@JoinColumn(name="PAYEE_OID")
 	private Payee payee;

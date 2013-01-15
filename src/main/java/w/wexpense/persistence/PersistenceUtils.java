@@ -9,6 +9,29 @@ import javax.persistence.OneToMany;
 
 public class PersistenceUtils {
 
+	
+	/**
+	 * Finds the class's Id property.
+	 * 
+	 * @param entityClass
+	 *            the entityClass to find the id of
+	 * @return the id's property name or null if none is defined
+	 */
+	public static String getIdName(Class<?> clazz) {
+		while (clazz != null) {
+			for (Field field : clazz.getDeclaredFields()) {
+				for (Annotation annotation : field.getAnnotations()) {
+					if (Id.class.isAssignableFrom(annotation.annotationType())) {
+						return field.getName();
+					}
+				}
+			}
+			clazz = clazz.getSuperclass();
+		}
+
+		return null;
+	}
+	
 	/**
 	 * Finds the property's "mappedBy" value.
 	 * 
@@ -100,18 +123,4 @@ public class PersistenceUtils {
 		return null;
 	}
 
-	public static String getIdName(Class<?> clazz) {
-		while (clazz != null) {
-			for (Field field : clazz.getDeclaredFields()) {
-				for (Annotation annotation : field.getAnnotations()) {
-					if (Id.class.isAssignableFrom(annotation.annotationType())) {
-						return field.getName();
-					}
-				}
-			}
-			clazz = clazz.getSuperclass();
-		}
-
-		return null;
-	}
 }
