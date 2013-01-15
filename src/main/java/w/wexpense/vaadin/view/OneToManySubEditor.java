@@ -47,6 +47,7 @@ public class OneToManySubEditor<C extends DBable, P extends DBable> extends Abst
 	private boolean editable = true;
 	
 	private Set<C> toDelete = new HashSet<C>();
+	private Set<C> toRemove = new HashSet<C>();
 	
 	public OneToManySubEditor(Class<C> childType, String parentPropertyId) {
 		super(childType);
@@ -79,7 +80,9 @@ public class OneToManySubEditor<C extends DBable, P extends DBable> extends Abst
 		buildTable();
 		
 		Collection<C> children = (Collection<C>) new BeanItem<P>(parentEntity).getItemProperty(parentPropertyId).getValue();
-		childContainer.addAll(children);
+		if (children != null && !children.isEmpty()) {
+			childContainer.addAll(children);
+		}
 		
 		addComponent(table);
 	}
@@ -135,9 +138,13 @@ public class OneToManySubEditor<C extends DBable, P extends DBable> extends Abst
 	
 	@Override
 	public void removeEntity(Object target) {
-		Item item = childContainer.getItem(table.getValue());
+		C c = (C) table.getValue();
+		Item item = childContainer.getItem(c);
 		item.getItemProperty(this.childPropertyId).setValue(null);
-		childContainer.removeItem(table.getValue());
+		if (!c.isNew()) {
+			toRemove.add(c);
+		}
+		childContainer.removeItem(c);
 	}
 	
 	@Override
@@ -187,6 +194,9 @@ public class OneToManySubEditor<C extends DBable, P extends DBable> extends Abst
 			} else {
 				em.merge(child);
 			}
+		}
+		for(C child: toRemove) {
+			em.merge(child);
 		}
 		for(C child: toDelete) {
 			em.remove(em.merge(child));
