@@ -23,6 +23,8 @@ public class Payee extends DBable {
 
     private String location;
 
+    private String postalBox;
+    
     @ManyToOne(fetch = FetchType.EAGER)
     //@JoinColumn(name="CITY_OID")
     private City city;
@@ -57,6 +59,14 @@ public class Payee extends DBable {
 		this.location = location;
 	}
 
+	public String getPostalBox() {
+		return postalBox;
+	}
+
+	public void setPostalBox(String postalBox) {
+		this.postalBox = postalBox;
+	}
+
 	public City getCity() {
 		return city;
 	}
@@ -81,6 +91,7 @@ public class Payee extends DBable {
 		this.prefix = typeOf;
 	}
 
+	// ISR
 	public String getExternalReference() {
 		return externalReference;
 	}

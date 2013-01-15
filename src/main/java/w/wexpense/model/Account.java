@@ -41,6 +41,9 @@ public class Account extends AbstractType {
 
 	private String display;
 
+	// Iban
+	private String externalReference; 
+	
 	public Account() {
 		super();
 	}
@@ -124,7 +127,15 @@ public class Account extends AbstractType {
 	public void setCurrency(Currency currency) {
 		this.currency = currency;
 	}
+	
+	public String getExternalReference() {
+		return externalReference;
+	}
 
+	public void setExternalReference(String externalReference) {
+		this.externalReference = externalReference;
+	}
+	
 	@Override
 	public String toString() {
 		return fullName;
