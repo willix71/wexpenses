@@ -53,16 +53,33 @@ public class GenericEditor<T> extends VerticalLayout implements Button.ClickList
 	}
 
 	@PostConstruct
-	public void buildLayout() {
+	protected void buildLayout() {
 		buildForm();
 		buildButtons();
+	}
+		
+	protected void buildForm() {
+		form = new BeanValidationForm<T>(entityClass);		
+		form.setWriteThrough(false);
+		form.setImmediate(true);				
+		addComponent(form);		
+	}
+	
+	protected AbstractOrderedLayout buildButtons() {
+		HorizontalLayout buttonLayout = new HorizontalLayout();
+		saveButton = new Button("Save", (Button.ClickListener) this);
+		cancelButton = new Button("Cancel", (Button.ClickListener) this);
+		buttonLayout.addComponent(saveButton);
+		buttonLayout.addComponent(cancelButton);
+		addComponent(buttonLayout);
+		return buttonLayout;
 	}
 	
 	public void setInstance(T instance, JPAContainer<T> jpaContainer) {		
 		this.jpaContainer = jpaContainer;
 		if (instance == null) {
 			this.isNew = true;
-			this.item = new BeanItem<T>(newInstance());
+			this.item = new BeanItem<T>(PersistenceUtils.newInstance(entityClass));
 		} else {
 			this.isNew = false;
 
@@ -81,24 +98,6 @@ public class GenericEditor<T> extends VerticalLayout implements Button.ClickList
 		
 		setCaption();
 	}
-	
-	protected void buildForm() {
-		form = new BeanValidationForm<T>(entityClass);		
-		form.setWriteThrough(false);
-		form.setImmediate(true);				
-		addComponent(form);		
-	}
-	
-	protected AbstractOrderedLayout buildButtons() {
-		HorizontalLayout buttonLayout = new HorizontalLayout();
-		saveButton = new Button("Save", (Button.ClickListener) this);
-		cancelButton = new Button("Cancel", (Button.ClickListener) this);
-		buttonLayout.addComponent(saveButton);
-		buttonLayout.addComponent(cancelButton);
-		addComponent(buttonLayout);
-		return buttonLayout;
-	}
-	
 
 	protected void setCaption() {
 		String caption = entityClass.getSimpleName();
@@ -172,25 +171,6 @@ public class GenericEditor<T> extends VerticalLayout implements Button.ClickList
 	
 	protected void close() {
 		fireEvent(new CloseViewEvent(this));
-	}
-	
-	/**
-	 * This method creates a new instance of the main entity type.
-	 * 
-	 * @return a new instance of the main entity type
-	 * @throws InstantiationException
-	 * @throws IllegalAccessException
-	 */
-	protected T newInstance() {
-		T newInstance;
-		try {
-			newInstance = entityClass.newInstance();
-			return newInstance;
-		} catch (InstantiationException e) {
-			throw new RuntimeException(e);
-		} catch (IllegalAccessException e) {
-			throw new RuntimeException(e);
-		}
 	}
 
 	public Form getForm() {

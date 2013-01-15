@@ -67,20 +67,9 @@ public class OneToManySubEditor<C extends DBable, P extends DBable> extends Abst
 		JPAContainer<C> childJpaContainer = jpaContainerFactory.getJPAContainerFrom(parentJpaContainer.getEntityProvider(), this.entityClass);			
 		this.fieldFactory = getTableFieldFactory(childJpaContainer, jpaContainerFactory);
 		
-//		if (parentEntity.isNew()) {
-//			BeanContainer<String, C> bContainer = new BeanContainer<String, C>(this.entityClass);
-//			bContainer.setBeanIdProperty("uid");
-//			
-//			childContainer = bContainer;
-//		} else {
-//			Filter filter = new Compare.Equal(this.childPropertyId, parentEntity);
-//			childJpaContainer.addContainerFilter(filter);
-//
-//			childContainer = childJpaContainer;
-//		}
-		
 		buildTable();
-		
+
+		// populate the container
 		Collection<C> children = (Collection<C>) new BeanItem<P>(parentEntity).getItemProperty(parentPropertyId).getValue();
 		if (children != null && !children.isEmpty()) {
 			childContainer.addAll(children);
@@ -108,9 +97,14 @@ public class OneToManySubEditor<C extends DBable, P extends DBable> extends Abst
 		childContainer = new BeanItemContainer<C>(entityClass) {
 			@Override
 			public Property getContainerProperty(Object itemId, Object propertyId) {
+				// TODO figure a way to get Nested properties out of a BeanItemContainer
 				if (propertyId != null && propertyId.toString().contains(".")) {
+					// int index = propertyId.toString().indexOf(".");
+					// Property p = super.getContainerProperty(itemId, propertyId.toString().substring(0, index));
+					// BeanItem.getPropertyDescriptors(p.getType() );
 					LOGGER.info("This will fail " + propertyId);
 				}
+				
 				return super.getContainerProperty(itemId, propertyId);
 			}
 		};
@@ -133,23 +127,10 @@ public class OneToManySubEditor<C extends DBable, P extends DBable> extends Abst
 
 	@Override
 	public void addEntity() {
-		try {
-			C newInstance = entityClass.newInstance();
-			BeanItem<C> beanItem = new BeanItem<C>(newInstance);
-			beanItem.getItemProperty(this.childPropertyId).setValue(parentEntity);
-			childContainer.addBean(newInstance);
-			
-//			Object o=null;
-//			if (childContainer instanceof JPAContainer) {
-//				o = ((JPAContainer) childContainer).addEntity(newInstance);
-//			} else {
-//				o = ((BeanContainer) childContainer).addItem(((DBable) newInstance).getUid(), newInstance);
-//			}
-
-		} catch (Exception e) {
-			LOGGER.warn("Could not instantiate detail instance " + this.entityClass.getName(), e);
-			e.printStackTrace();
-		}
+		C newInstance = PersistenceUtils.newInstance(entityClass);
+		BeanItem<C> beanItem = new BeanItem<C>(newInstance);
+		beanItem.getItemProperty(this.childPropertyId).setValue(parentEntity);
+		childContainer.addBean(newInstance); 
 	}
 	
 	@Override
@@ -165,38 +146,12 @@ public class OneToManySubEditor<C extends DBable, P extends DBable> extends Abst
 	
 	@Override
 	public void deleteEntity(Object target) {
-		Item item = childContainer.getItem(table.getValue());
 		C c = (C) table.getValue();
 		if (!c.isNew()) {
 			toDelete.add(c);
 		}
 		childContainer.removeItem(table.getValue());
-//		Item item = childContainer.getItem(table.getValue());
-//		item.getItemProperty(this.childPropertyId).setValue(null);
-//		if (childContainer instanceof JPAContainer) {
-//			((JPAContainer) childContainer).removeItem(table.getValue());
-//		} else {
-//			((BeanContainer) childContainer).removeItem(table.getValue());
-//		}
 	}
-
-//	public void insert(P parent, EntityManager em) {
-//		BeanContainer<String, C> bContainer = (BeanContainer<String, C>) childContainer;			
-//		Collection<String> itemIds = bContainer.getItemIds();
-//		
-//		LOGGER.debug("Inserting {} children", itemIds.size());
-//		
-//		for (Object object : itemIds) {
-//			BeanItem<C> childBean =  bContainer.getItem(object);
-//			childBean.getItemProperty(this.childPropertyId).setValue(parent);
-//			em.persist(childBean.getBean());				 
-//		}
-//	}
-//	
-//	public void update(P parent, EntityManager em) {
-//		JPAContainer<C> jpaContainer = (JPAContainer<C>) childContainer;
-//		jpaContainer.commit();
-//	}
 
 	public void save(P parent, EntityManager em) {
 		LOGGER.debug("Saving {} children of ", parent);

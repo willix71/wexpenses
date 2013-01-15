@@ -31,8 +31,7 @@ public class OneToManyEditor<T extends DBable, C extends DBable> extends Generic
 		
 		subEditor.setInstance(getItem().getBean(), getJpaContainer());
 	}
-	
-	
+		
 	@Override
 	protected T insert(EntityManager em) {
 		T t = super.insert(em);

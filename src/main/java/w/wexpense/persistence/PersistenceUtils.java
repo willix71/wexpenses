@@ -7,8 +7,30 @@ import java.lang.reflect.Method;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class PersistenceUtils {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(PersistenceUtils.class);
+	
+	/**
+	 * This method creates a new instance of the class type.
+	 * 
+	 * @return a new instance of the class type
+	 * @throws RuntimeException
+	 */
+	public static <T> T newInstance(Class<T> clazz) {
+		T newInstance;
+		try {
+			newInstance = clazz.newInstance();
+			return newInstance;
+		} catch (InstantiationException  | IllegalAccessException e) {
+			LOGGER.warn("Could not create new instance of {}", clazz);
+			
+			throw new RuntimeException(e);
+		}
+	}
 	
 	/**
 	 * Finds the class's Id property.

@@ -61,6 +61,11 @@ public class TransactionLine extends DBable {
 		this.expense = expense;
 	}
 
+	// TODO figure a way to get Nested properties out of a BeanItemContainer
+	public Payee getPayee() {
+		return expense==null?null:expense.getPayee();
+	}
+	
 	public Discriminator getDiscriminator() {
 		return discriminator;
 	}

@@ -346,8 +346,11 @@
 				<property name="editable" value="false" />
 				<property name="propertyConfiguror">
 					<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
+						<!-- TODO figure a way to get Nested properties out of a BeanItemContainer
 						<property name="nestedProperties" value="expense.payee"/>
 						<property name="visibleProperties" value="consolidatedDate,expense.payee,amount,exchangeRate,inValue,outValue"/>
+						 -->
+						<property name="visibleProperties" value="consolidatedDate,payee,amount,exchangeRate,inValue,outValue"/>
 						<property name="otherProperies">
 							<props>								
 								<prop key="consolidatedDate.header">Date</prop>

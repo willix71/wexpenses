@@ -15,61 +15,60 @@ import javax.validation.constraints.NotNull;
 import w.wexpense.model.enums.AccountEnum;
 
 @Entity
-public class Account  extends AbstractType {
+public class Account extends AbstractType {
 
 	private static final long serialVersionUID = 2482940442245899869L;
-	
-    @ManyToOne(fetch = FetchType.LAZY) 
-    private Account parent;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy="parent")
-    @OrderBy("number")
-    private List<Account> children;
+	@ManyToOne(fetch = FetchType.LAZY)
+	private Account parent;
 
-    private String number;      
-    
-    private String fullName;
-    
-    private String fullNumber;
- 
- 	@NotNull
- 	@Enumerated(EnumType.STRING)
- 	private AccountEnum type = AccountEnum.FILTER;
- 	
- 	@ManyToOne()
- 	private Currency currency;
- 	
-    private String display;
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "parent")
+	@OrderBy("number")
+	private List<Account> children;
 
-    public Account() {
-	   super();
-	 }
-    
-    public Account(Account parent, int number, String name, AccountEnum type, Currency currency) {
-	   super(name, currency!=null);
-	   this.number = String.valueOf(number);
-	   if (parent == null) {
-		   this.fullName = name;
-		   this.fullNumber = this.number;	   	
-	   } else {
-	   	this.parent = parent;
-		   this.fullName = parent.fullName + ":" + name;
-		   this.fullNumber = parent.fullNumber + ":" + this.number;
-	   }
-	   this.type = type;
-	   this.currency = currency;
-    }
-	   
+	private String number;
+
+	private String fullName;
+
+	private String fullNumber;
+
+	@NotNull
+	@Enumerated(EnumType.STRING)
+	private AccountEnum type = AccountEnum.FILTER;
+
+	@ManyToOne()
+	private Currency currency;
+
+	private String display;
+
+	public Account() {
+		super();
+	}
+
+	public Account(Account parent, int number, String name, AccountEnum type, Currency currency) {
+		super(name, currency != null);
+		this.number = String.valueOf(number);
+		if (parent == null) {
+			this.fullName = name;
+			this.fullNumber = this.number;
+		} else {
+			this.parent = parent;
+			this.fullName = parent.fullName + ":" + name;
+			this.fullNumber = parent.fullNumber + ":" + this.number;
+		}
+		this.type = type;
+		this.currency = currency;
+	}
 
 	@PreUpdate
-    public void preupdate() {
-    	display = fullNumber + " " + fullName;
-    }
+	public void preupdate() {
+		display = fullNumber + " " + fullName;
+	}
 
 	public String getDisplay() {
 		return display;
 	}
-	
+
 	public Account getParent() {
 		return parent;
 	}
@@ -127,8 +126,8 @@ public class Account  extends AbstractType {
 	}
 
 	@Override
-   public String toString() {
-	   return fullName;
-   }
-	
+	public String toString() {
+		return fullName;
+	}
+
 }

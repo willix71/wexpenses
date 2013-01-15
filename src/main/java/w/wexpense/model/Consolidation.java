@@ -20,6 +20,7 @@ public class Consolidation extends DBable {
 	@ManyToOne
 	private Payee institution;
 
+	@NotNull
 	@Temporal(TemporalType.DATE)
 	private Date date;
 	
