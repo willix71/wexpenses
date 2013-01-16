@@ -63,7 +63,12 @@ public class PersistenceConfiguration {
 		factoryBean.setJpaVendorAdapter( jpaAdapterClass.newInstance() );
 		
 		Properties jpaProperties = new Properties();
-		jpaProperties.load(new ClassPathResource(jpaAdapter + ".properties").getInputStream());
+		String propertiesFilename = jpaAdapter;
+		if (jpaAdapterPropertiesExtension!=null) {
+			propertiesFilename += jpaAdapterPropertiesExtension;
+		}
+		propertiesFilename += ".properties";
+		jpaProperties.load(new ClassPathResource(propertiesFilename).getInputStream());
 		
 		factoryBean.setJpaProperties( jpaProperties);
 
