@@ -1,18 +1,23 @@
 package w.wexpense.dta;
 
-import java.text.DecimalFormat;
+import static w.wexpense.dta.DtaHelper.getTransactionLine;
+import static w.wexpense.dta.DtaHelper.pad;
+import static w.wexpense.dta.DtaHelper.zeroPad;
+import static w.wexpense.model.enums.TransactionLineEnum.IN;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import w.wexpense.model.Expense;
 import w.wexpense.model.Payment;
-import static w.wexpense.dta.DtaHelper.*;
-import static w.wexpense.model.enums.TransactionLineEnum.OUT;
-import static w.wexpense.model.enums.TransactionLineEnum.IN;
 
-public class BvoDtaFormater implements DtaFormater {
+public class BvoDtaFormater extends AbstractDtaFormater {
 
 	public static final String TRANSACTION_TYPE = "826";
+	
+	public BvoDtaFormater() {
+		super(TRANSACTION_TYPE);
+	}
 	
 	@Override
 	public List<String> format(Payment payment, int index, Expense expense) {
@@ -21,30 +26,6 @@ public class BvoDtaFormater implements DtaFormater {
 		lines.add(formatLine02(payment, index, expense));
 		lines.add(formatLine03(payment, index, expense));
 		return lines;
-	}
-
-	protected String formatLine01(Payment payment, int index, Expense expense) {
-		StringBuilder line01 = new StringBuilder();
-		line01.append("01");
-		line01.append(DtaHelper.getHeader(TRANSACTION_TYPE, payment, index, expense));
-		line01.append(pad(DtaHelper.APPLICATION_ID,5));
-		line01.append("ID");
-		line01.append(zeroPad(expense.getId().intValue(), 9));
-		
-		String iban = getTransactionLine(OUT, expense).getAccount().getExternalReference();
-		line01.append(pad(iban,24));
-		
-		// date (blank mean as indicated in the header)
-		line01.append(pad(6));
-		// currency
-		line01.append(pad(expense.getCurrency().getCode(),3));
-		// amount
-		String amount = new DecimalFormat("0.00").format(expense.getAmount()).replace(".", ",");
-		line01.append(pad(amount,12));
-		
-		// reserved
-		line01.append(pad(14));
-		return line01.toString();
 	}
 	
 	protected String formatLine02(Payment payment, int index, Expense expense) {
@@ -57,7 +38,7 @@ public class BvoDtaFormater implements DtaFormater {
 		line02.append(pad(getTransactionLine(IN, expense).getAccount().getFullName(),46));
 		return line02.toString();
 	}
-	
+		
 	protected String formatLine03(Payment payment, int index, Expense expense) {
 		StringBuilder line03 = new StringBuilder();
 		line03.append("03");
@@ -66,7 +47,7 @@ public class BvoDtaFormater implements DtaFormater {
 		line03.append("/C/");
 		
 		// ISR party number
-		line03.append(pad(expense.getPayee().getExternalReference(),9));
+		padAccountNumber(line03, expense.getPayee().getExternalReference());
 		
 		line03.append(pad(expense.getPayee().getPrefix() + expense.getPayee().getName(), 20));
 		line03.append(pad(expense.getPayee().getPostalBox(), 20));
@@ -81,5 +62,12 @@ public class BvoDtaFormater implements DtaFormater {
 		// reserved
 		line03.append(pad(5));
 		return line03.toString();
+	}
+	
+	protected void padAccountNumber(StringBuilder sb, String accountNumber) {
+		String[] parts = accountNumber.split("-");
+		sb.append(zeroPad(Integer.parseInt(parts[0]), 2));
+		sb.append(zeroPad(Integer.parseInt(parts[1]), 6));
+		sb.append(zeroPad(Integer.parseInt(parts[2]), 1));
 	}
 }

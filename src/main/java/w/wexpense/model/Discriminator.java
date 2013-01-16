@@ -11,13 +11,15 @@ import javax.persistence.OrderBy;
 @Entity
 public class Discriminator extends AbstractType {
 
-   @ManyToOne(fetch = FetchType.LAZY) 
-   private Discriminator parent;
+	private static final long serialVersionUID = -5425160349628676177L;
 
-   @OneToMany(fetch = FetchType.LAZY, mappedBy="parent")
-   @OrderBy("name")
-   private List<Discriminator> children;
-	
+	@ManyToOne(fetch = FetchType.LAZY)
+	private Discriminator parent;
+
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "parent")
+	@OrderBy("name")
+	private List<Discriminator> children;
+
 	public Discriminator() {
 	}
 

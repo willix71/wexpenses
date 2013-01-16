@@ -3,6 +3,7 @@ package w.wexpense.persistence;
 import static w.wexpense.model.enums.AccountEnum.ASSET;
 import static w.wexpense.model.enums.AccountEnum.EXPENSE;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
@@ -94,8 +95,9 @@ public class DatabasePopulator {
 			save(new ExpenseType("BVO"));
 			
 			// === Expense 1 ===
+			BigDecimal amount = new BigDecimal("22.50");
 			Expense expense = new Expense();
-			expense.setAmount(22.50);
+			expense.setAmount(amount);
 			expense.setCurrency(chf);
 			expense.setDate(new GregorianCalendar().getTime());
 			expense.setPayee(garageDeLEtraz);
@@ -106,7 +108,7 @@ public class DatabasePopulator {
 			line.setExpense(expense);
 			line.setAccount(cashAcc);
 			line.setFactor(TransactionLineEnum.OUT);
-			line.setAmount(22.50);
+			line.setAmount(amount);
 			line.setValue(22.50);
 			line.setPeriod(2012);
 			save(line);
@@ -115,7 +117,7 @@ public class DatabasePopulator {
 			line.setExpense(expense);
 			line.setAccount(gasAcc);
 			line.setFactor(TransactionLineEnum.IN);
-			line.setAmount(22.50);
+			line.setAmount(amount);
 			line.setValue(22.50);
 			save(line);
 			
@@ -143,10 +145,10 @@ public class DatabasePopulator {
 			rate.setRate(1.2);
 			rate = save(rate);
 			
+			amount = new BigDecimal("40");
 			expense = new Expense();
-			expense.setAmount(40.0);
+			expense.setAmount(amount);
 			expense.setCurrency(euro);
-			expense.setDefaultExchangeRate(rate);
 			expense.setDate(d);
 			expense.setPayee(garageDeParis);
 			expense.setType(recu);
@@ -155,7 +157,7 @@ public class DatabasePopulator {
 			line = new TransactionLine();
 			line.setExpense(expense);
 			line.setAccount(ecAcc);
-			line.setAmount(40.0);
+			line.setAmount(amount);
 			line.setExchangeRate(rate);
 			line.setValue(40 * 1.6);
 			line.setValue(40 * 1.6 * rate.getRate());
@@ -166,7 +168,7 @@ public class DatabasePopulator {
 			line = new TransactionLine();
 			line.setExpense(expense);
 			line.setAccount(gasAcc);
-			line.setAmount(40.0);
+			line.setAmount(amount);
 			line.setExchangeRate(rate);
 			line.setValue(40 * 1.6);
 			line.setValue(40 * 1.6 * rate.getRate());

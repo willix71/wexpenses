@@ -23,19 +23,21 @@ import w.wexpense.model.Payment;
 import w.wexpense.model.TransactionLine;
 import w.wexpense.model.enums.TransactionLineEnum;
 
-public class BvoDtaFormaterTest {
+public class BvrDtaFormaterTest {
 
 	@Test
 	public void testBvo() {
 		Payment payment = getPaymentData();
-		List<String> l = new BvoDtaFormater().format(payment, 1, payment.getExpenses().get(0));
-		Assert.assertEquals(3, l.size());
+		List<String> l = new BvrDtaFormater().format(payment, 1, payment.getExpenses().get(0));
+		Assert.assertEquals(4, l.size());
 		System.out.println(l.get(0) + "]]");
 		System.out.println(l.get(1) + "]]");
 		System.out.println(l.get(2) + "]]");
+		System.out.println(l.get(3) + "]]");
 		Assert.assertEquals(128, l.get(0).length());
 		Assert.assertEquals(128, l.get(1).length());		
 		Assert.assertEquals(128, l.get(2).length());
+		Assert.assertEquals(128, l.get(3).length());
 	}
 	
 	public Payment getPaymentData() {
@@ -57,7 +59,7 @@ public class BvoDtaFormaterTest {
 		garageDeLEtraz.setPrefix("Garage de l'");
 		garageDeLEtraz.setName("Etraz");
 		garageDeLEtraz.setCity(nyon);
-		garageDeLEtraz.setExternalReference("17-1288-4");
+		garageDeLEtraz.setExternalReference("17-128583-4");
 		
 		// === Payment ===
 		Payment payment = new Payment();
@@ -74,6 +76,7 @@ public class BvoDtaFormaterTest {
 		expense.setDate(new GregorianCalendar(2013,02,01).getTime());
 		expense.setPayee(garageDeLEtraz);
 		expense.setPayment(payment);
+		expense.setDescription("This is a payment;with a new line");
 		
 		TransactionLine line1 = new TransactionLine();
 		line1.setExpense(expense);

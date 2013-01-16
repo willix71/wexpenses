@@ -1,18 +1,25 @@
 package w.wexpense.dta;
 
+import static w.wexpense.model.enums.TransactionLineEnum.OUT;
+
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
+import java.util.regex.Pattern;
 
 import w.wexpense.model.Expense;
 import w.wexpense.model.Payment;
 import w.wexpense.model.TransactionLine;
 import w.wexpense.model.enums.TransactionLineEnum;
-import static w.wexpense.model.enums.TransactionLineEnum.OUT;
 
 public class DtaHelper {
 
 	public static final String APPLICATION_ID = "WEX01";
+		
+	public static final String lineSeparator = ";";	
 	
 	private static final String[] BLANK = new String[128];
 	static {
@@ -26,7 +33,6 @@ public class DtaHelper {
 	public static String pad(int size) {
 		return BLANK[size];
 	}
-
 		
 	public static String pad(String text, int size) {
 		if (text==null) {
@@ -64,7 +70,11 @@ public class DtaHelper {
 		StringBuilder sb = new StringBuilder();
 		
 		// processing date
-		sb.append(pad(expense.getDate()));
+		if (expense == null) {
+			sb.append(zeroPad(0,6));
+		} else {
+			sb.append(pad(expense.getDate()));
+		}
 		
 		// clearing of the beneficiary's bank
 		sb.append(pad(12));
@@ -76,9 +86,12 @@ public class DtaHelper {
 		sb.append(pad(payment.getDate()));
 		
 		// clearing of the beneficiary's bank
-		String iban = getTransactionLine(OUT, expense).getAccount().getExternalReference();
-		String clearing = iban.substring(6, 9);
-		sb.append(pad(clearing,7));
+		if (expense == null) {
+			sb.append(pad(7));
+		} else {String iban = getTransactionLine(OUT, expense).getAccount().getExternalReference();
+			String clearing = iban.substring(6, 9);
+			sb.append(pad(clearing,7));
+		}
 		
 		// sender id
 		sb.append(pad(APPLICATION_ID,5));
@@ -93,5 +106,23 @@ public class DtaHelper {
 		sb.append("00");
 		
 		return sb.toString();
+	}
+	
+	public static List<String> split(String text, int maxLine) {
+		List<String> lines;
+		if (text == null)  {
+			lines = new ArrayList<String>();
+		} else if (text.contains(lineSeparator)) {
+			String[] separated = text.split(Pattern.quote(lineSeparator));
+			lines = Arrays.asList(separated);
+		} else {
+			lines = new ArrayList<String>();
+			while(text.length() > 0) {
+				int index = Math.min(maxLine, text.length());
+				lines.add(text.substring(0,index));
+				text.substring(index);			
+			}
+		}
+		return lines;
 	}
 }
