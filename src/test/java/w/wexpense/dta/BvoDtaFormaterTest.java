@@ -3,6 +3,7 @@ package w.wexpense.dta;
 import static w.wexpense.model.enums.AccountEnum.ASSET;
 import static w.wexpense.model.enums.AccountEnum.EXPENSE;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -64,9 +65,11 @@ public class BvoDtaFormaterTest {
 		payment.setFilename("test.dta");
 		
 		// === Expense 1 ===
+		BigDecimal amount = new BigDecimal("22.50");
 		Expense expense = new Expense();
 		expense.setId(1234567890L);		
-		expense.setAmount(22.50);
+		//expense.setAmount(22.50);
+		expense.setAmount(amount);
 		expense.setCurrency(chf);
 		expense.setDate(new GregorianCalendar(2013,02,01).getTime());
 		expense.setPayee(garageDeLEtraz);
@@ -76,14 +79,14 @@ public class BvoDtaFormaterTest {
 		line1.setExpense(expense);
 		line1.setAccount(ecAcc);
 		line1.setFactor(TransactionLineEnum.OUT);
-		line1.setAmount(22.50);
+		line1.setAmount(amount);
 		line1.setValue(22.50);
 		
 		TransactionLine line2 = new TransactionLine();
 		line2.setExpense(expense);
 		line2.setAccount(gasAcc);
 		line2.setFactor(TransactionLineEnum.IN);
-		line2.setAmount(22.50);
+		line2.setAmount(amount);
 		line2.setValue(22.50);;
 		
 		expense.setTransactions(Arrays.asList(line1, line2));

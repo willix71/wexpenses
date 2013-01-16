@@ -1,5 +1,6 @@
 package w.wexpense.model;
 
+import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -26,14 +27,11 @@ public class Expense extends DBable {
 	private Date date;
 	
 	@NotNull
-	private Double amount;
+	private BigDecimal amount;
 	
 	@NotNull
 	@ManyToOne(fetch = FetchType.EAGER)
 	private Currency currency;
-	
-	@ManyToOne(fetch = FetchType.EAGER)
-	private ExchangeRate defaultExchangeRate;
 	
 	@NotNull
 	@ManyToOne(fetch = FetchType.EAGER)
@@ -63,11 +61,11 @@ public class Expense extends DBable {
 		this.date = date;
 	}
 
-	public Double getAmount() {
+	public BigDecimal getAmount() {
 		return amount;
 	}
 
-	public void setAmount(Double amount) {
+	public void setAmount(BigDecimal amount) {
 		this.amount = amount;
 	}
 
@@ -77,14 +75,6 @@ public class Expense extends DBable {
 
 	public void setCurrency(Currency currency) {
 		this.currency = currency;
-	}
-
-	public ExchangeRate getDefaultExchangeRate() {
-		return defaultExchangeRate;
-	}
-
-	public void setDefaultExchangeRate(ExchangeRate defaultExchangeRate) {
-		this.defaultExchangeRate = defaultExchangeRate;
 	}
 
 	public Payee getPayee() {

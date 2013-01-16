@@ -6,9 +6,9 @@ public class AmountValue extends Number implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private static final long PRECISION = 1000L;
+	private static final long PRECISION = 100L;
 	
-	private long value;
+	private long value = 0;
 	
 	private AmountValue() {}
 	

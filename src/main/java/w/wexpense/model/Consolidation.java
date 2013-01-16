@@ -1,5 +1,6 @@
 package w.wexpense.model;
 
+import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
@@ -24,9 +25,9 @@ public class Consolidation extends DBable {
 	@Temporal(TemporalType.DATE)
 	private Date date;
 	
-	private Double openingBalance;
+	private BigDecimal openingBalance;
 	
-	private Double closingBalance;
+	private BigDecimal closingBalance;
 	
     @OneToMany(mappedBy="consolidation")
     private List<TransactionLine> transactions;
@@ -47,19 +48,19 @@ public class Consolidation extends DBable {
 		this.date = date;
 	}
 
-	public Double getOpeningBalance() {
+	public BigDecimal getOpeningBalance() {
 		return openingBalance;
 	}
 
-	public void setOpeningBalance(Double openingBalance) {
+	public void setOpeningBalance(BigDecimal openingBalance) {
 		this.openingBalance = openingBalance;
 	}
 
-	public Double getClosingBalance() {
+	public BigDecimal getClosingBalance() {
 		return closingBalance;
 	}
 
-	public void setClosingBalance(Double closingBalance) {
+	public void setClosingBalance(BigDecimal closingBalance) {
 		this.closingBalance = closingBalance;
 	}
 

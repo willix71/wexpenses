@@ -25,7 +25,7 @@ public class ExpenseEditor extends OneToManyEditor<Expense, TransactionLine> {
 		super.setInstance(instance, jpaContainer);
 		
 		if (instance != null) {
-			((ExpenseTransactionLineEditor) getSubEditor()).setCurrentAmount(instance.getAmount());
+			((ExpenseTransactionLineEditor) getSubEditor()).setCurrentAmount(instance.getAmount().doubleValue());
 		}
 	}
 	

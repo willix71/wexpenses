@@ -1,5 +1,6 @@
 package w.wexpense.model;
 
+import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.Date;
 
@@ -8,15 +9,21 @@ import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.Valid;
+import javax.validation.ValidationException;
 import javax.validation.constraints.NotNull;
+
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.TypeDefs;
 
 import w.wexpense.model.enums.TransactionLineEnum;
 
 @Entity
-//@TypeDefs({
-//	@TypeDef(name = "transactionLineEnumType", typeClass = w.wexpense.persistence.dao.type.TransactionLineEnumType.class),
-//	@TypeDef(name = "amountValueType", typeClass = w.wexpense.persistence.dao.type.AmountValueType.class)
-//	})
+@TypeDefs({
+	@TypeDef(name = "transactionLineEnumType", typeClass = w.wexpense.persistence.type.TransactionLineEnumType.class),
+	@TypeDef(name = "amountValueType", typeClass = w.wexpense.persistence.type.AmountValueType.class)
+	})
 public class TransactionLine extends DBable {
 
 	private static final long serialVersionUID = 2482940442245899869L;
@@ -34,16 +41,18 @@ public class TransactionLine extends DBable {
 	private Account account;
 	
 	@NotNull
+	@Type(type="transactionLineEnumType")
 	private TransactionLineEnum factor = TransactionLineEnum.OUT;
 	
 	@NotNull
-	private Double amount;
+	private BigDecimal amount;
 	    
 	@ManyToOne(fetch = FetchType.EAGER)
 	private ExchangeRate exchangeRate;
 	
 	@NotNull
-	private Double value;
+	@Type(type="amountValueType")
+	private AmountValue amountValue;
 	
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date consolidatedDate;
@@ -82,11 +91,11 @@ public class TransactionLine extends DBable {
 		this.account = account;
 	}
 
-	public Double getAmount() {
+	public BigDecimal getAmount() {
 		return amount;
 	}
 
-	public void setAmount(Double amount) {
+	public void setAmount(BigDecimal amount) {
 		this.amount = amount;
 	}
 
@@ -98,20 +107,47 @@ public class TransactionLine extends DBable {
 		this.exchangeRate = exchangeRate;
 	}
 
+	/**
+	 * automatically calculates the amountValue based on the amount, 
+	 * the exchange rate and the currency rounding factor
+	 */
+	public void setValue() {
+		// using double because it will be rounded by the AmountValue object anyway
+		// so we don't need the precision of a BigDecimal
+		double v = amount == null?0.0:amount.doubleValue();
+			
+		Currency currency = null;
+		if (exchangeRate != null) {
+			v *= exchangeRate.getRate();
+
+			// get the currency of the exchange rate
+			currency = exchangeRate.getBuyCurrency();
+		}
+		if (currency == null && account != null) {
+			// fall back on the currency of the account
+			currency = account.getCurrency();
+		}
+		if (currency != null && currency.getRoundingFactor() != null) {
+			// perform rounding
+			v = Math.rint(v * currency.getRoundingFactor()) / currency.getRoundingFactor();
+		}
+		amountValue = AmountValue.fromRealValue(v);
+	}
+
 	public Double getValue() {
-		return value;
+		return amountValue==null?null:amountValue.getRealValue();
 	}
 
 	public void setValue(Double value) {
-		this.value = value;
+		this.amountValue = value==null?null:AmountValue.fromRealValue(value);
 	}
 
 	public Double getInValue() {
-		return TransactionLineEnum.IN==factor?value:null;
+		return TransactionLineEnum.IN==factor?getValue():null;
 	}
 
 	public Double getOutValue() {
-		return TransactionLineEnum.OUT==factor?value:null;
+		return TransactionLineEnum.OUT==factor?getValue():null;
 	}
 	
 	public TransactionLineEnum getFactor() {
@@ -157,5 +193,14 @@ public class TransactionLine extends DBable {
 	@Override
 	public String toString() {		
 		return MessageFormat.format("{0} {1,number, 0.00} [{2}]", factor, amount, account);
-	} 
+	}
+	
+	public boolean validate() {		
+		if (exchangeRate != null && account.getCurrency() != null) {
+			if (!account.getCurrency().equals(exchangeRate.getBuyCurrency())) {
+				throw new ValidationException("transaction line's account and exchange rate currencies don't match");
+			}
+		}
+		return true;
+	}
 }
