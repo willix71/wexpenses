@@ -41,7 +41,7 @@ public class Account extends AbstractType {
 
 	private String display;
 
-	// Iban
+	// Iban, card number
 	private String externalReference; 
 	
 	public Account() {

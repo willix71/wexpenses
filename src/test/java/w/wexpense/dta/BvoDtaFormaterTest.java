@@ -26,6 +26,17 @@ import w.wexpense.model.enums.TransactionLineEnum;
 public class BvoDtaFormaterTest {
 
 	@Test
+	public void testPaddedAccountNumber() {
+		Assert.assertEquals("011234561", BvoDtaFormater.paddedAccountNumber("1-123456-1"));		
+		Assert.assertEquals("120000011", BvoDtaFormater.paddedAccountNumber("12-1-1"));		
+	}
+	
+	@Test
+	public void testPaddedReferenceNumber() {
+		Assert.assertEquals("000000000000000000123456789", BvoDtaFormater.paddedReferenceNumber("00 00000 01234 56789"));		
+	}
+	
+	@Test
 	public void testBvo() {
 		Payment payment = getPaymentData();
 		List<String> l = new BvoDtaFormater().format(payment, 1, payment.getExpenses().get(0));
@@ -42,7 +53,6 @@ public class BvoDtaFormaterTest {
 		Currency chf = new Currency("CHF", "Swiss Francs", 20);		
 		Country ch = new Country("CH", "Switzerland", chf);
 		City nyon = new City("1260", "Nyon", ch);
-
 		
 		Account assetAcc = new Account(null, 1, "asset", ASSET, null);						
 		Account ecAcc = new Account(assetAcc, 2, "courant", ASSET, chf);
@@ -68,26 +78,26 @@ public class BvoDtaFormaterTest {
 		BigDecimal amount = new BigDecimal("22.50");
 		Expense expense = new Expense();
 		expense.setId(1234567890L);		
-		//expense.setAmount(22.50);
 		expense.setAmount(amount);
 		expense.setCurrency(chf);
 		expense.setDate(new GregorianCalendar(2013,02,01).getTime());
 		expense.setPayee(garageDeLEtraz);
 		expense.setPayment(payment);
-		
+		expense.setExternalReference("00 00000 00123 34567");
+
 		TransactionLine line1 = new TransactionLine();
 		line1.setExpense(expense);
 		line1.setAccount(ecAcc);
 		line1.setFactor(TransactionLineEnum.OUT);
 		line1.setAmount(amount);
-		line1.setValue(22.50);
+		line1.setValue(amount.doubleValue());
 		
 		TransactionLine line2 = new TransactionLine();
 		line2.setExpense(expense);
 		line2.setAccount(gasAcc);
 		line2.setFactor(TransactionLineEnum.IN);
 		line2.setAmount(amount);
-		line2.setValue(22.50);;
+		line2.setValue(amount.doubleValue());;
 		
 		expense.setTransactions(Arrays.asList(line1, line2));
 		payment.setExpenses(Arrays.asList(expense));

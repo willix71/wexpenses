@@ -1,0 +1,62 @@
+package w.wexpense.model;
+
+import javax.persistence.ManyToOne;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+public class PaymentDta extends DBable {
+
+	private static final long serialVersionUID = 2482940442245899869L;
+
+	@NotNull
+	private int orderBy;
+
+	@NotNull
+	@ManyToOne()
+	private Payment payment;
+	
+	@NotNull
+	@ManyToOne()
+	private Expense expense;
+	
+	@NotNull
+	@Size(min = 128, max = 128)
+	private String data;
+
+	public int getOrderBy() {
+		return orderBy;
+	}
+
+	public void setOrderBy(int orderBy) {
+		this.orderBy = orderBy;
+	}
+
+	public Payment getPayment() {
+		return payment;
+	}
+
+	public void setPayment(Payment payment) {
+		this.payment = payment;
+	}
+
+	public Expense getExpense() {
+		return expense;
+	}
+
+	public void setExpense(Expense expense) {
+		this.expense = expense;
+	}
+
+	public String getData() {
+		return data;
+	}
+
+	public void setData(String data) {
+		this.data = data;
+	}
+
+	@Override
+	public String toString() {
+		return data;
+	}
+}

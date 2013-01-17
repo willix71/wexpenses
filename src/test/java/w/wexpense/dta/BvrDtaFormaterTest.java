@@ -70,7 +70,6 @@ public class BvrDtaFormaterTest {
 		BigDecimal amount = new BigDecimal("22.50");
 		Expense expense = new Expense();
 		expense.setId(1234567890L);		
-		//expense.setAmount(22.50);
 		expense.setAmount(amount);
 		expense.setCurrency(chf);
 		expense.setDate(new GregorianCalendar(2013,02,01).getTime());
@@ -83,14 +82,14 @@ public class BvrDtaFormaterTest {
 		line1.setAccount(ecAcc);
 		line1.setFactor(TransactionLineEnum.OUT);
 		line1.setAmount(amount);
-		line1.setValue(22.50);
+		line1.setValue(amount.doubleValue());
 		
 		TransactionLine line2 = new TransactionLine();
 		line2.setExpense(expense);
 		line2.setAccount(gasAcc);
 		line2.setFactor(TransactionLineEnum.IN);
 		line2.setAmount(amount);
-		line2.setValue(22.50);;
+		line2.setValue(amount.doubleValue());;
 		
 		expense.setTransactions(Arrays.asList(line1, line2));
 		payment.setExpenses(Arrays.asList(expense));

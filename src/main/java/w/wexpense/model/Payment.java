@@ -25,6 +25,9 @@ public class Payment extends DBable {
     @OneToMany(mappedBy="payment")
     private List<Expense> expenses;
 
+    @OneToMany(mappedBy="payment")
+    private List<PaymentDta> dtaLines;
+    
 	public Date getDate() {
 		return date;
 	}
@@ -47,6 +50,14 @@ public class Payment extends DBable {
 
 	public void setExpenses(List<Expense> expenses) {
 		this.expenses = expenses;
+	}
+
+	public List<PaymentDta> getDtaLines() {
+		return dtaLines;
+	}
+
+	public void setDtaLines(List<PaymentDta> dtaLines) {
+		this.dtaLines = dtaLines;
 	}
 
 	@Override

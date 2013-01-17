@@ -11,6 +11,8 @@ import java.util.List;
 import w.wexpense.model.Expense;
 import w.wexpense.model.Payment;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 public class BvoDtaFormater extends AbstractDtaFormater {
 
 	public static final String TRANSACTION_TYPE = "826";
@@ -47,15 +49,15 @@ public class BvoDtaFormater extends AbstractDtaFormater {
 		line03.append("/C/");
 		
 		// ISR party number
-		padAccountNumber(line03, expense.getPayee().getExternalReference());
+		line03.append(paddedAccountNumber(expense.getPayee().getExternalReference()));
 		
 		line03.append(pad(expense.getPayee().getPrefix() + expense.getPayee().getName(), 20));
-		line03.append(pad(expense.getPayee().getPostalBox(), 20));
-		line03.append(pad(expense.getPayee().getLocation(), 20));
+		line03.append(pad(expense.getPayee().getAddress1(), 20));
+		line03.append(pad(expense.getPayee().getAddress2(), 20));
 		line03.append(pad(expense.getPayee().getCity().toString(), 20));
 		
 		// reason for payment
-		line03.append(pad(expense.getExternalReference(),27));
+		line03.append(paddedReferenceNumber(expense.getExternalReference()));
 		
 		// ISR check digit ???
 		line03.append(pad(2));
@@ -64,10 +66,17 @@ public class BvoDtaFormater extends AbstractDtaFormater {
 		return line03.toString();
 	}
 	
-	protected void padAccountNumber(StringBuilder sb, String accountNumber) {
+	public static String paddedAccountNumber(String accountNumber) {
 		String[] parts = accountNumber.split("-");
-		sb.append(zeroPad(Integer.parseInt(parts[0]), 2));
-		sb.append(zeroPad(Integer.parseInt(parts[1]), 6));
-		sb.append(zeroPad(Integer.parseInt(parts[2]), 1));
+		return zeroPad(Integer.parseInt(parts[0]), 2) +
+			zeroPad(Integer.parseInt(parts[1]), 6) +
+			zeroPad(Integer.parseInt(parts[2]), 1);
+	}
+	
+	public static String paddedReferenceNumber(String referenceNumber) {
+		String[] parts = referenceNumber.split(" ");
+		String spaceless = Joiner.on("").join(parts);
+		String zeroPad = Strings.padStart(spaceless, 27, '0');
+		return pad(zeroPad,27); // make sure it is no longer than 27
 	}
 }

@@ -51,8 +51,8 @@ public class BvrDtaFormater extends AbstractDtaFormater {
 		line03.append(pad(expense.getPayee().getExternalReference(),27));
 		
 		line03.append(pad(expense.getPayee().getPrefix() + expense.getPayee().getName(), 24));
-		line03.append(pad(expense.getPayee().getPostalBox(), 24));
-		line03.append(pad(expense.getPayee().getLocation(), 24));
+		line03.append(pad(expense.getPayee().getAddress1(), 24));
+		line03.append(pad(expense.getPayee().getAddress2(), 24));
 		line03.append(pad(expense.getPayee().getCity().toString(), 24));
 		
 		return line03.toString();

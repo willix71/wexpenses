@@ -97,7 +97,7 @@
 		<constructor-arg value="w.wexpense.model.Payee" />
 		<property name="propertyConfiguror">
 			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
-				<property name="visibleProperties" value="fullId,uid,type,prefix,name,location,city,externalReference"/>
+				<property name="visibleProperties" value="fullId,uid,type,prefix,name,address1,address2,city,externalReference"/>
 			</bean>
 		</property>
 	</bean>

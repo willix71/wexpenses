@@ -21,16 +21,19 @@ public class Payee extends DBable {
     @NotNull
     private String name;
 
-    private String location;
+    private String address1;
 
-    private String postalBox;
+    private String address2;
     
     @ManyToOne(fetch = FetchType.EAGER)
     //@JoinColumn(name="CITY_OID")
     private City city;
 
+	// ISR
     private String externalReference;
     
+    private Payee bankDetails;
+   
     private String display;
     
     @PrePersist
@@ -51,22 +54,22 @@ public class Payee extends DBable {
 		this.name = name;
 	}
 
-	public String getLocation() {
-		return location;
+	public String getAddress1() {
+		return address1;
 	}
 
-	public void setLocation(String location) {
-		this.location = location;
+	public void setAddress1(String address1) {
+		this.address1 = address1;
+	}
+	
+	public String getAddress2() {
+		return address2;
 	}
 
-	public String getPostalBox() {
-		return postalBox;
+	public void setAddress2(String address2) {
+		this.address2 = address2;
 	}
-
-	public void setPostalBox(String postalBox) {
-		this.postalBox = postalBox;
-	}
-
+	
 	public City getCity() {
 		return city;
 	}
@@ -91,7 +94,6 @@ public class Payee extends DBable {
 		this.prefix = typeOf;
 	}
 
-	// ISR
 	public String getExternalReference() {
 		return externalReference;
 	}
@@ -100,6 +102,14 @@ public class Payee extends DBable {
 		this.externalReference = externalReference;
 	}
 	
+	public Payee getBankDetails() {
+		return bankDetails;
+	}
+
+	public void setBankDetails(Payee bankDetails) {
+		this.bankDetails = bankDetails;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
