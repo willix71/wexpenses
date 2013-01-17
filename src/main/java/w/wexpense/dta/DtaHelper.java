@@ -54,8 +54,9 @@ public class DtaHelper {
 	
 	// size is maximum 9
 	public static String zeroPad(int i, int size) {
+		assert size < 9 : "Cannot zero pad more than 9 digits";
 		int v = i % 1000000000;
-		String s = new DecimalFormat("000000000").format(i);		
+		String s = new DecimalFormat("000000000").format(v);		
 		return s.length()>size?s.substring(s.length()-size,s.length()):s;
 	}
 	
