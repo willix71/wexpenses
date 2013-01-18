@@ -15,13 +15,22 @@ public class PaymentDta extends DBable {
 	@ManyToOne()
 	private Payment payment;
 	
-	@NotNull
 	@ManyToOne()
 	private Expense expense;
 	
 	@NotNull
 	@Size(min = 128, max = 128)
 	private String data;
+
+	public PaymentDta() {}
+		
+	public PaymentDta(Payment payment, int orderBy, Expense expense, String data) {
+		super();
+		this.orderBy = orderBy;
+		this.payment = payment;
+		this.expense = expense;
+		this.data = data;
+	}
 
 	public int getOrderBy() {
 		return orderBy;

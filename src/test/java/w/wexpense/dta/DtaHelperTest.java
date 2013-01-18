@@ -1,7 +1,5 @@
 package w.wexpense.dta;
 
-import javax.validation.ValidationException;
-
 import junit.framework.Assert;
 
 import org.junit.Test;
@@ -9,7 +7,7 @@ import org.junit.Test;
 public class DtaHelperTest {
 
 	@Test
-	public void testZeroPad() {
+	public void testZeroPadInt() {
 		Assert.assertEquals("001", DtaHelper.zeroPad(1, 3));
 		Assert.assertEquals("000002", DtaHelper.zeroPad(2, 6));
 		Assert.assertEquals("000000003", DtaHelper.zeroPad(3, 9));
@@ -17,9 +15,17 @@ public class DtaHelperTest {
 		try {
 			DtaHelper.zeroPad(4, 10);
 			Assert.fail("10 is to big a size");
-		} catch(ValidationException ve) {
+		} catch(IllegalArgumentException ve) {
 			// ok
 		}
+	}
+	
+	@Test
+	public void testZeroPadString() {
+		Assert.assertEquals("000", DtaHelper.zeroPad(null, 3));
+		Assert.assertEquals("ello", DtaHelper.zeroPad("hello", 4));
+		Assert.assertEquals("hello", DtaHelper.zeroPad("hello", 5));
+		Assert.assertEquals("0hello", DtaHelper.zeroPad("hello", 6));
 	}
 	
 	@Test

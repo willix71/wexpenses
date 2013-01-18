@@ -4,16 +4,17 @@ import static w.wexpense.dta.DtaHelper.getTransactionLine;
 import static w.wexpense.dta.DtaHelper.pad;
 import static w.wexpense.dta.DtaHelper.stripBlanks;
 import static w.wexpense.dta.DtaHelper.zeroPad;
+import static w.wexpense.dta.DtaHelper.formatLine01;
 import static w.wexpense.model.enums.TransactionLineEnum.IN;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.base.Preconditions;
+
 import w.wexpense.model.Expense;
 import w.wexpense.model.Payee;
 import w.wexpense.model.Payment;
-
-import com.google.common.base.Strings;
 public class BvoDtaFormater extends AbstractDtaFormater {
 
 	public static final String TRANSACTION_TYPE = "826";
@@ -24,12 +25,19 @@ public class BvoDtaFormater extends AbstractDtaFormater {
 	
 	@Override
 	public List<String> format(Payment payment, int index, Expense expense) {
+		check(expense); 
 		List<String> lines = new ArrayList<String>();
-		lines.add(formatLine01(payment, index, expense));
+		lines.add(formatLine01(TRANSACTION_TYPE, payment.getDate(), index, expense, true));
 		lines.add(formatLine02(payment, index, expense));
 		lines.add(formatLine03(payment, index, expense));
 		return lines;
 	}
+	
+	public void check(Expense expense) {
+		// Must have an externalReference and a payee.externalReference 
+		Preconditions.checkNotNull(expense.getExternalReference(), "External reference is mandatory for BVO payments (826)");
+		Preconditions.checkNotNull(expense.getPayee().getExternalReference(), "Payee's external reference is mandatory for BVO payments (826)");
+	}	
 	
 	protected String formatLine02(Payment payment, int index, Expense expense) {
 		StringBuilder line02 = new StringBuilder();
@@ -62,9 +70,7 @@ public class BvoDtaFormater extends AbstractDtaFormater {
 		
 		// reason for payment
 		String reference = stripBlanks(expense.getExternalReference());
-		reference = Strings.padStart(reference, 27, '0'); // make sure it is at least 27
-		reference = pad(reference,27); // make sure it is no longer than 27
-		line03.append(reference);
+		line03.append(zeroPad(reference, 27));
 		
 		// ISR check digit ???
 		line03.append(pad(2));

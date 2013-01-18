@@ -9,7 +9,6 @@ import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.validation.Valid;
 import javax.validation.ValidationException;
 import javax.validation.constraints.NotNull;
 
@@ -70,7 +69,7 @@ public class TransactionLine extends DBable {
 		this.expense = expense;
 	}
 
-	// TODO figure a way to get Nested properties out of a BeanItemContainer
+	// TODO Remove once figured out a way to get Nested properties out of a BeanItemContainer
 	public Payee getPayee() {
 		return expense==null?null:expense.getPayee();
 	}

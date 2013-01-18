@@ -1,7 +1,6 @@
 package w.wexpense.dta;
 
 import static w.wexpense.dta.DtaHelper.pad;
-import static w.wexpense.dta.DtaHelper.zeroPad;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -24,8 +23,8 @@ public class EndDtaFormater {
 	protected String formatLine01(Payment payment, int index) {
 		StringBuilder line01 = new StringBuilder();
 		line01.append("01");
-		line01.append(zeroPad(0,6));
-		line01.append(DtaHelper.getHeader(TRANSACTION_TYPE, payment, index, null));
+
+		line01.append(DtaHelper.getHeader(TRANSACTION_TYPE, payment.getDate(), index, null, false));
 		
 		double d = 0;
 		for(Expense expense: payment.getExpenses()) {

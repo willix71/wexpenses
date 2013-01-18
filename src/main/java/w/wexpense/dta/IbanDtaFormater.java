@@ -1,17 +1,17 @@
 package w.wexpense.dta;
 
+import static w.wexpense.dta.DtaHelper.formatLine01;
 import static w.wexpense.dta.DtaHelper.getTransactionLine;
 import static w.wexpense.dta.DtaHelper.lineSeparator;
 import static w.wexpense.dta.DtaHelper.pad;
-import static w.wexpense.dta.DtaHelper.zeroPad;
 import static w.wexpense.dta.DtaHelper.stripBlanks;
 import static w.wexpense.model.enums.TransactionLineEnum.IN;
-import static w.wexpense.model.enums.TransactionLineEnum.OUT;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+
+import com.google.common.base.Preconditions;
 
 import w.wexpense.model.Expense;
 import w.wexpense.model.Payee;
@@ -27,8 +27,9 @@ public class IbanDtaFormater extends AbstractDtaFormater {
 		
 	@Override
 	public List<String> format(Payment payment, int index, Expense expense) {
+		check(expense);
 		List<String> lines = new ArrayList<String>();
-		lines.add(formatLine01(payment, index, expense));
+		lines.add(formatLine01(TRANSACTION_TYPE, payment.getDate(), index, expense, false));
 		lines.add(formatLine02(payment, index, expense));
 		lines.add(formatLine03(payment, index, expense));
 		lines.add(formatLine04(payment, index, expense));
@@ -36,29 +37,11 @@ public class IbanDtaFormater extends AbstractDtaFormater {
 		return lines;
 	}
 
-	protected String formatLine01(Payment payment, int index, Expense expense) {
-		StringBuilder line01 = new StringBuilder();
-		line01.append("01");
-		line01.append(zeroPad(0, 6));
-		line01.append(DtaHelper.getHeader(transactionType, payment, index, expense));
-		line01.append(pad(DtaHelper.APPLICATION_ID,5));
-		line01.append("ID");
-		line01.append(zeroPad(expense.getId().intValue(), 9));
-		
-		String iban = getTransactionLine(OUT, expense).getAccount().getExternalReference();
-		line01.append(pad(iban,24));
-		
-		// date (blank mean as indicated in the header)
-		line01.append(pad(expense.getDate()));
-		// currency
-		line01.append(pad(expense.getCurrency().getCode(),3));
-		// amount
-		String amount = new DecimalFormat("0.00").format(expense.getAmount()).replace(".", ",");
-		line01.append(pad(amount,12));
-		
-		// reserved
-		line01.append(pad(14));
-		return line01.toString();
+	public void check(Expense expense) {
+		// Must have a payee.bankingDetail and an payee.externalReference (IBAN)
+		Preconditions.checkNotNull(expense.getPayee().getBankDetails(), "Payee's banking detail is mandatory for Iban payments (836)");
+		Preconditions.checkNotNull(expense.getPayee().getExternalReference(), "Payee's external reference is mandatory for Iban payments (836)");
+		// TODO check external reference is an Iban
 	}
 	
 	protected String formatLine02(Payment payment, int index, Expense expense) {

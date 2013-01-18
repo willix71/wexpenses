@@ -21,6 +21,11 @@ public class ExpenseType extends AbstractType {
 		super(name, selectable);
 	}
 
+	public ExpenseType(String name, boolean selectable, String paymentGeneratorClassName) {
+		super(name, selectable);
+		this.paymentGeneratorClassName = paymentGeneratorClassName;
+	}
+	
 	public String getPaymentGeneratorClassName() {
 		return paymentGeneratorClassName;
 	}

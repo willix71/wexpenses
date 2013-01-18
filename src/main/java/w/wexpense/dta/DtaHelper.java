@@ -1,5 +1,8 @@
 package w.wexpense.dta;
 
+import static w.wexpense.dta.DtaHelper.getTransactionLine;
+import static w.wexpense.dta.DtaHelper.pad;
+import static w.wexpense.dta.DtaHelper.zeroPad;
 import static w.wexpense.model.enums.TransactionLineEnum.OUT;
 
 import java.text.DecimalFormat;
@@ -19,6 +22,8 @@ import w.wexpense.model.TransactionLine;
 import w.wexpense.model.enums.TransactionLineEnum;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 
 public class DtaHelper {
 
@@ -38,7 +43,11 @@ public class DtaHelper {
 	public static String pad(int size) {
 		return BLANK[size];
 	}
-		
+
+	public static String pad(Date date) {
+		return MessageFormat.format("{0, date,yyMMdd}",date);
+	}
+	
 	public static String pad(String text, int size) {
 		if (text==null) {
 			return BLANK[size];		
@@ -53,22 +62,61 @@ public class DtaHelper {
 		}
 	}
 
-	public static String pad(Date date) {
-		return MessageFormat.format("{0, date,yyMMdd}",date);
+	/**
+	 * Right pad text with 0 (stripping leading characters if text is two long)
+	 */
+	public static String zeroPad(String text, int size) {
+		if (text==null) {
+			return Strings.padStart("",size,'0');		
+		} 
+		int l = text.length();
+		if (l == size) {
+			return text;
+		} else if (l > size) {
+			return text.substring(l-size);
+		} else {
+			return Strings.padStart(text,size,'0');
+		}
 	}
 	
-	// size is maximum 9
+	/**
+	 * Right pad int with 0 (stripping leading numbers if text is two long)
+	 * 
+	 * Note maximum's size is 9
+	 */
 	public static String zeroPad(int i, int size) {
-		assert size < 10 : "Cannot zero pad more than 9 digits";
+		Preconditions.checkArgument(size < 10, "Cannot zero pad more than 9 digits");
+		
 		int v = i % 1000000000;
 		String s = new DecimalFormat("000000000").format(v);		
 		return s.length()>size?s.substring(s.length()-size,s.length()):s;
 	}
 		
-	public static String stripBlanks(String referenceNumber) {
-		String[] parts = referenceNumber.split(" ");
+	/**
+	 * Remove any blanks in the text
+	 */
+	public static String stripBlanks(String text) {
+		String[] parts = text.split(" ");
 		String spaceless = Joiner.on("").join(parts);
 		return spaceless;		
+	}
+		
+	public static List<String> split(String text, int maxLine) {
+		List<String> lines;
+		if (text == null)  {
+			lines = new ArrayList<String>();
+		} else if (text.contains(lineSeparator)) {
+			String[] separated = text.split(Pattern.quote(lineSeparator));
+			lines = Arrays.asList(separated);
+		} else {
+			lines = new ArrayList<String>();
+			while(text.length() > 0) {
+				int index = Math.min(maxLine, text.length());
+				lines.add(text.substring(0,index));
+				text.substring(index);			
+			}
+		}
+		return lines;
 	}
 	
 	public static TransactionLine getTransactionLine(TransactionLineEnum factor, Expense expense) {
@@ -86,8 +134,14 @@ public class DtaHelper {
 		return p;
 	}
 	
-	public static String getHeader(String type, Payment payment, int index, Expense expense) {
+	public static String getHeader(String transactionType, Date paymentDate, int index, Expense expense, boolean dateInHeader) {
 		StringBuilder sb = new StringBuilder();
+		
+		if (dateInHeader) {	
+			sb.append(pad(expense.getDate()));
+		} else {
+			sb.append("000000");			
+		}
 		
 		// clearing of the beneficiary's bank
 		// TODO for 827 to bank payment, clearing of the beneficiary's bank if payment is made to a clearing bank
@@ -97,7 +151,11 @@ public class DtaHelper {
 		sb.append("00000");
 		
 		// creation date
-		sb.append(pad(payment.getDate()));
+		if (paymentDate == null) {
+			sb.append("000000");
+		} else {
+			sb.append(pad(paymentDate));
+		}
 		
 		// clearing of the beneficiary's bank
 		if (expense == null) {
@@ -116,29 +174,40 @@ public class DtaHelper {
 		sb.append(zeroPad(index, 5));
 		
 		// transaction type
-		sb.append(pad(type, 3));
+		sb.append(pad(transactionType, 3));
 		
 		// is salary and processing flag
 		sb.append("00");
 		
 		return sb.toString();
 	}
-	
-	public static List<String> split(String text, int maxLine) {
-		List<String> lines;
-		if (text == null)  {
-			lines = new ArrayList<String>();
-		} else if (text.contains(lineSeparator)) {
-			String[] separated = text.split(Pattern.quote(lineSeparator));
-			lines = Arrays.asList(separated);
+
+	public static String formatLine01(String transactionType, Date paymentDate, int index, Expense expense, boolean dateInHeader) {
+		StringBuilder line01 = new StringBuilder();
+		line01.append("01");
+		
+		line01.append(getHeader(transactionType, paymentDate, index, expense, dateInHeader));
+		line01.append(pad(APPLICATION_ID,5));
+		line01.append("ID");
+		line01.append(zeroPad(expense.getId().intValue(), 9));
+		
+		String iban = getTransactionLine(OUT, expense).getAccount().getExternalReference();
+		line01.append(pad(iban,24));
+		
+		// date (blank mean as indicated in the header)		
+		if (dateInHeader) {
+			line01.append(pad(6));
 		} else {
-			lines = new ArrayList<String>();
-			while(text.length() > 0) {
-				int index = Math.min(maxLine, text.length());
-				lines.add(text.substring(0,index));
-				text.substring(index);			
-			}
+			line01.append(pad(expense.getDate()));			
 		}
-		return lines;
+		// currency
+		line01.append(pad(expense.getCurrency().getCode(),3));
+		// amount
+		String amount = new DecimalFormat("0.00").format(expense.getAmount()).replace(".", ",");
+		line01.append(pad(amount,12));
+		
+		// reserved
+		line01.append(pad(14));
+		return line01.toString();
 	}
 }

@@ -1,5 +1,6 @@
 package w.wexpense.dta;
 
+import static w.wexpense.dta.DtaHelper.formatLine01;
 import static w.wexpense.dta.DtaHelper.getTransactionLine;
 import static w.wexpense.dta.DtaHelper.lineSeparator;
 import static w.wexpense.dta.DtaHelper.pad;
@@ -8,6 +9,8 @@ import static w.wexpense.model.enums.TransactionLineEnum.IN;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+
+import com.google.common.base.Preconditions;
 
 import w.wexpense.model.Expense;
 import w.wexpense.model.Payee;
@@ -23,12 +26,18 @@ public class BvrDtaFormater extends AbstractDtaFormater {
 		
 	@Override
 	public List<String> format(Payment payment, int index, Expense expense) {
+		check(expense);
 		List<String> lines = new ArrayList<String>();
-		lines.add(formatLine01(payment, index, expense));
+		lines.add(formatLine01(TRANSACTION_TYPE, payment.getDate(), index, expense, true));
 		lines.add(formatLine02(payment, index, expense));
 		lines.add(formatLine03(payment, index, expense));
 		lines.add(formatLine04(payment, index, expense));
 		return lines;
+	}
+	
+	public void check(Expense expense) {
+		// Must have a payee.externalReference (account number)
+		Preconditions.checkNotNull(expense.getPayee().getExternalReference(), "Payee's external reference is mandatory for BVR payments (827)");
 	}
 	
 	protected String getProcessingDate(Expense expense) {
