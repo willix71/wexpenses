@@ -21,8 +21,11 @@ public class OneToManyEditor<T extends DBable, C extends DBable> extends Generic
 	@Override
 	public void buildLayout() {
 		buildForm();
+		
 		addComponent(subEditor);
-		buildButtons();
+		
+		// build the buttons bar
+		addComponent(buildButtons());
 	}
 	
 	@Override

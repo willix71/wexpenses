@@ -1,7 +1,6 @@
 package w.wexpense.vaadin.view;
 
 import java.util.Arrays;
-import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
@@ -55,7 +54,9 @@ public class GenericEditor<T> extends VerticalLayout implements Button.ClickList
 	@PostConstruct
 	protected void buildLayout() {
 		buildForm();
-		buildButtons();
+
+		// build the buttons bar
+		addComponent(buildButtons());
 	}
 		
 	protected void buildForm() {
@@ -71,7 +72,6 @@ public class GenericEditor<T> extends VerticalLayout implements Button.ClickList
 		cancelButton = new Button("Cancel", (Button.ClickListener) this);
 		buttonLayout.addComponent(saveButton);
 		buttonLayout.addComponent(cancelButton);
-		addComponent(buttonLayout);
 		return buttonLayout;
 	}
 	
@@ -113,13 +113,17 @@ public class GenericEditor<T> extends VerticalLayout implements Button.ClickList
 	@Override
 	public void buttonClick(ClickEvent event) {
 		if (event.getButton() == saveButton) {
-			save();
+			saveAndClose();
 		} else if (event.getButton() == cancelButton) {
-			cancel();
+			cancelAndClose();
 		}
-		close();
 	}
 
+	protected void saveAndClose() {
+		save();
+		close();		
+	}
+	
 	protected T save() {
 		LOGGER.debug("Saving entity {}", item.getBean());
 		
@@ -143,8 +147,11 @@ public class GenericEditor<T> extends VerticalLayout implements Button.ClickList
 			em.getTransaction().rollback();
 			return null;
 		}
-		
-
+	}
+	
+	protected void cancelAndClose() {
+		cancel();
+		close();		
 	}
 	
 	protected T insert(EntityManager em) {

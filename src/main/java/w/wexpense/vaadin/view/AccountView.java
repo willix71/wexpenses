@@ -5,6 +5,8 @@ import w.wexpense.vaadin.PropertyConfiguror;
 
 public class AccountView extends GenericView<Account> {
 
+	private static final long serialVersionUID = 6499289439725418193L;
+
 	public AccountView() {
 		super(Account.class);
 	}

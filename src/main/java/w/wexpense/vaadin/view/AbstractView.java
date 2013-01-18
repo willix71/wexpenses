@@ -10,6 +10,8 @@ import com.vaadin.ui.VerticalLayout;
 
 public abstract class AbstractView<T> extends VerticalLayout implements Action.Handler, ItemClickListener {
 
+	private static final long serialVersionUID = 6499289439725418193L;
+	
 	protected Class<T> entityClass;
 	protected Table table;
 
