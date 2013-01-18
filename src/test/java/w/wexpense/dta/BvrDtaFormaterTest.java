@@ -26,7 +26,7 @@ import w.wexpense.model.enums.TransactionLineEnum;
 public class BvrDtaFormaterTest {
 
 	@Test
-	public void testBvo() {
+	public void testBvr() {
 		Payment payment = getPaymentData();
 		List<String> l = new BvrDtaFormater().format(payment, 1, payment.getExpenses().get(0));
 		Assert.assertEquals(4, l.size());

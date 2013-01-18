@@ -30,12 +30,7 @@ public class BvoDtaFormaterTest {
 		Assert.assertEquals("011234561", BvoDtaFormater.paddedAccountNumber("1-123456-1"));		
 		Assert.assertEquals("120000011", BvoDtaFormater.paddedAccountNumber("12-1-1"));		
 	}
-	
-	@Test
-	public void testPaddedReferenceNumber() {
-		Assert.assertEquals("000000000000000000123456789", BvoDtaFormater.paddedReferenceNumber("00 00000 01234 56789"));		
-	}
-	
+
 	@Test
 	public void testBvo() {
 		Payment payment = getPaymentData();

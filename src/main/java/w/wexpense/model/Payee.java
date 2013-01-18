@@ -86,6 +86,14 @@ public class Payee extends DBable {
 		this.type = type;
 	}
 
+	public String getPrefixedName() {
+		if (prefix == null) {
+			return name;
+		} else {
+			return prefix + name;
+		}
+	}
+	
 	public String getPrefix() {
 		return prefix;
 	}
@@ -112,15 +120,10 @@ public class Payee extends DBable {
 
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		if (prefix != null) {
-			sb.append(prefix);
+		if (city == null) {
+			return getPrefixedName();
+		} else {
+			return getPrefixedName() + ", " + city.toString();	
 		}
-		sb.append(name);	
-		if (city != null) {
-			sb.append(", ").append(city);	
-		}
-
-		return sb.toString();
 	}
 }

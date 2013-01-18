@@ -3,7 +3,6 @@ package w.wexpense.dta;
 import static w.wexpense.dta.DtaHelper.getTransactionLine;
 import static w.wexpense.dta.DtaHelper.pad;
 import static w.wexpense.dta.DtaHelper.zeroPad;
-import static w.wexpense.model.enums.TransactionLineEnum.IN;
 import static w.wexpense.model.enums.TransactionLineEnum.OUT;
 
 import java.text.DecimalFormat;
@@ -13,15 +12,16 @@ import w.wexpense.model.Payment;
 
 public abstract class AbstractDtaFormater implements DtaFormater {
 
-	private String transactionType;
+	protected String transactionType;
 	
 	public AbstractDtaFormater(String transactionType) {
 		this.transactionType = transactionType;
 	}
-
+	
 	protected String formatLine01(Payment payment, int index, Expense expense) {
 		StringBuilder line01 = new StringBuilder();
 		line01.append("01");
+		line01.append(pad(expense.getDate()));
 		line01.append(DtaHelper.getHeader(transactionType, payment, index, expense));
 		line01.append(pad(DtaHelper.APPLICATION_ID,5));
 		line01.append("ID");
@@ -42,6 +42,4 @@ public abstract class AbstractDtaFormater implements DtaFormater {
 		line01.append(pad(14));
 		return line01.toString();
 	}
-
-	
 }

@@ -10,10 +10,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import w.wexpense.model.City;
+import w.wexpense.model.Country;
 import w.wexpense.model.Expense;
+import w.wexpense.model.Payee;
 import w.wexpense.model.Payment;
 import w.wexpense.model.TransactionLine;
 import w.wexpense.model.enums.TransactionLineEnum;
+
+import com.google.common.base.Joiner;
 
 public class DtaHelper {
 
@@ -54,10 +59,16 @@ public class DtaHelper {
 	
 	// size is maximum 9
 	public static String zeroPad(int i, int size) {
-		assert size < 9 : "Cannot zero pad more than 9 digits";
+		assert size < 10 : "Cannot zero pad more than 9 digits";
 		int v = i % 1000000000;
 		String s = new DecimalFormat("000000000").format(v);		
 		return s.length()>size?s.substring(s.length()-size,s.length()):s;
+	}
+		
+	public static String stripBlanks(String referenceNumber) {
+		String[] parts = referenceNumber.split(" ");
+		String spaceless = Joiner.on("").join(parts);
+		return spaceless;		
 	}
 	
 	public static TransactionLine getTransactionLine(TransactionLineEnum factor, Expense expense) {
@@ -67,17 +78,19 @@ public class DtaHelper {
 		return null;
 	}
 	
+	public static Payee getUserDetail() {
+		Payee p = new Payee();
+		p.setName("William Keyser");
+		p.setAddress1("11 ch du Grand Noyer");
+		p.setCity(new City("1197", "Prangins", new Country("CH", null, null)));
+		return p;
+	}
+	
 	public static String getHeader(String type, Payment payment, int index, Expense expense) {
 		StringBuilder sb = new StringBuilder();
 		
-		// processing date
-		if (expense == null) {
-			sb.append(zeroPad(0,6));
-		} else {
-			sb.append(pad(expense.getDate()));
-		}
-		
 		// clearing of the beneficiary's bank
+		// TODO for 827 to bank payment, clearing of the beneficiary's bank if payment is made to a clearing bank
 		sb.append(pad(12));
 		
 		// Bank reserved sequence
@@ -90,8 +103,10 @@ public class DtaHelper {
 		if (expense == null) {
 			sb.append(pad(7));
 		} else {String iban = getTransactionLine(OUT, expense).getAccount().getExternalReference();
-			String clearing = iban.substring(6, 9);
-			sb.append(pad(clearing,7));
+			String clearing = iban.substring(4, 9);
+			// remove leading zero and the pad to 7
+			String purgedClearing = Integer.valueOf(clearing).toString();
+			sb.append(pad(purgedClearing,7));
 		}
 		
 		// sender id

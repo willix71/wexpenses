@@ -1,14 +1,16 @@
 package w.wexpense.dta;
 
-import static w.wexpense.dta.DtaHelper.*;
+import static w.wexpense.dta.DtaHelper.getTransactionLine;
+import static w.wexpense.dta.DtaHelper.lineSeparator;
+import static w.wexpense.dta.DtaHelper.pad;
 import static w.wexpense.model.enums.TransactionLineEnum.IN;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import w.wexpense.model.Expense;
+import w.wexpense.model.Payee;
 import w.wexpense.model.Payment;
 
 public class BvrDtaFormater extends AbstractDtaFormater {
@@ -29,13 +31,20 @@ public class BvrDtaFormater extends AbstractDtaFormater {
 		return lines;
 	}
 	
+	protected String getProcessingDate(Expense expense) {
+		return pad(expense.getDate());
+	}
+	
 	protected String formatLine02(Payment payment, int index, Expense expense) {
 		StringBuilder line02 = new StringBuilder();
 		line02.append("02");
-		line02.append(pad("William Keyser",24));
-		line02.append(pad("11 ch du Grand Noyer",24));
-		line02.append(pad(24));
-		line02.append(pad("1197 Prangins",24));
+		
+		Payee payee = DtaHelper.getUserDetail();
+		line02.append(pad(payee.getName(),24));
+		line02.append(pad(payee.getAddress1(),24));
+		line02.append(pad(payee.getAddress2(),24));
+		line02.append(pad(payee.getCity().toString(),24));
+
 		line02.append(pad(getTransactionLine(IN, expense).getAccount().getFullName(),30));
 		return line02.toString();
 	}
@@ -50,7 +59,7 @@ public class BvrDtaFormater extends AbstractDtaFormater {
 		// ISR party number
 		line03.append(pad(expense.getPayee().getExternalReference(),27));
 		
-		line03.append(pad(expense.getPayee().getPrefix() + expense.getPayee().getName(), 24));
+		line03.append(pad(expense.getPayee().getPrefixedName(), 24));
 		line03.append(pad(expense.getPayee().getAddress1(), 24));
 		line03.append(pad(expense.getPayee().getAddress2(), 24));
 		line03.append(pad(expense.getPayee().getCity().toString(), 24));
