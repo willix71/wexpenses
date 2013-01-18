@@ -285,8 +285,7 @@
 		</property>
 	</bean>
 	
-	<bean id="paymentEditor" class="w.wexpense.vaadin.view.OneToManyEditor" scope="prototype" >
-		<constructor-arg value="w.wexpense.model.Payment" />
+	<bean id="paymentEditor" class="w.wexpense.vaadin.view.PaymentEditor" scope="prototype" >
 		<property name="propertyConfiguror">
 			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
 				<property name="visibleProperties" value="fullId,uid,date,filename"/>
