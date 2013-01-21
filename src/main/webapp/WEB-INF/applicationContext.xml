@@ -20,6 +20,8 @@
 		</property>
 	</bean>
 	
+	<import resource="classpath:service-context.xml"/>
+	
 	<!-- currency and country -->
 			
 	<bean class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
@@ -257,7 +259,7 @@
 		<property name="propertyConfiguror">
 			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
 			
-				<property name="visibleProperties" value="fullId,uid,parent,name,fullName,number,fullNumber,type,currency,selectable"/>
+				<property name="visibleProperties" value="fullId,uid,parent,name,fullName,number,fullNumber,type,externalReference,currency,selectable"/>
 				<property name="otherProperies">
 					<props>
 						<prop key="parent.includeNonSelectable">true</prop>

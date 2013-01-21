@@ -85,9 +85,7 @@ public class GenericEditor<T> extends VerticalLayout implements Button.ClickList
 
 			// we need to refresh the instance else we can't follow lazy links because 
 			// the instance is not attached to the current running entity manager
-			EntityManager entityManager = jpaContainerFactory.getEntityManager();
-			Object id = new BeanItem<T>(instance).getItemProperty(idProperty).getValue();
-			T t = entityManager.find(entityClass, id);
+			T t = reloadInstance(instance);
 
 			this.item = new BeanItem<T>(t);
 		}			
@@ -99,6 +97,13 @@ public class GenericEditor<T> extends VerticalLayout implements Button.ClickList
 		setCaption();
 	}
 
+	public T reloadInstance(T instance) {
+		EntityManager entityManager = jpaContainerFactory.getEntityManager();
+		Object id = new BeanItem<T>(instance).getItemProperty(idProperty).getValue();
+		T t = entityManager.find(entityClass, id);
+		return t;
+	}
+	
 	protected void setCaption() {
 		String caption = entityClass.getSimpleName();
 		if (!isNew) {

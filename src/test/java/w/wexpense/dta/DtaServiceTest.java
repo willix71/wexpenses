@@ -9,6 +9,7 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 import w.wexpense.model.Payment;
+import w.wexpense.service.PaymentDtaService;
 
 public class DtaServiceTest {
 
@@ -18,7 +19,7 @@ public class DtaServiceTest {
 				BvoDtaFormaterTest.getBvoExpense(),
 				BvrDtaFormaterTest.getBvrExpense(),
 				IbanDtaFormaterTest.getIbanExpense()); 
-		DtaService service = new DtaService();
+		PaymentDtaService service = new PaymentDtaService();
 		List<String> lines = service.getPaymentDtaLines(payment);
 		Assert.assertNotNull(lines);
 		int i = 1;
