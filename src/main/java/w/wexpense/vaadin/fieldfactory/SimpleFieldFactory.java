@@ -10,6 +10,7 @@ import w.wexpense.vaadin.PropertyConfiguror;
 
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
+import com.vaadin.terminal.Sizeable;
 import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
@@ -54,8 +55,9 @@ public class SimpleFieldFactory extends DefaultFieldFactory {
 				field.setReadOnly(true);
 				break;
 			}
-		}
-			
+		}			
+		
+		field.setWidth(100, Sizeable.UNITS_PERCENTAGE);
 		field.setCaption(createCaptionByPropertyId(propertyId));
 
 		return field;
@@ -75,6 +77,7 @@ public class SimpleFieldFactory extends DefaultFieldFactory {
 			field = createField(item, type, propertyId, uiContext);
 		}
 
+		field.setWidth(100, Sizeable.UNITS_PERCENTAGE);
 		field.setCaption(createCaptionByPropertyId(propertyId));
 		return field;
 	}

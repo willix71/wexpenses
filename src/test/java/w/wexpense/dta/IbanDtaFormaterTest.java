@@ -88,14 +88,14 @@ public class IbanDtaFormaterTest {
 		line1.setAccount(ecAcc);
 		line1.setFactor(TransactionLineEnum.OUT);
 		line1.setAmount(amount);
-		line1.setValue(amount.doubleValue());
+		line1.setValue();
 		
 		TransactionLine line2 = new TransactionLine();
 		line2.setExpense(expense);
 		line2.setAccount(foot);
 		line2.setFactor(TransactionLineEnum.IN);
 		line2.setAmount(amount);
-		line2.setValue(amount.doubleValue());;
+		line2.setValue();
 		
 		expense.setTransactions(Arrays.asList(line1, line2));
 		

@@ -134,7 +134,7 @@
 				<property name="otherProperies">
 					<props>
 						<prop key="date.format">{0,date,dd.MM.yyyy}</prop>
-						<prop key="institution.expandRatio">.8</prop>
+						<prop key="institution.expandRatio">80</prop>
 						<prop key="rate.alignement">e</prop>						
 						<prop key="rate.format">{0,number,0.00000}</prop>
 					</props>
@@ -166,7 +166,7 @@
 						<prop key="date.format">{0,date,dd.MM.yyyy}</prop>
 						<prop key="amount.alignement">e</prop>
 						<prop key="amount.format">{0,number,0.00}</prop>
-						<prop key="payee.expandRatio">.8</prop>
+						<prop key="payee.expandRatio">80</prop>
 					</props>
 				</property>
 			</bean>
@@ -186,10 +186,12 @@
 						<property name="visibleProperties" value="account,factor,amount,exchangeRate,value,description"/>
 						<property name="otherProperies">
 							<props>
+								<prop key="account.expandRatio">30</prop>
 								<prop key="amount.alignement">e</prop>
-								<prop key="value.alignement">e</prop>
-								<prop key="value.format">{0,number,0.00}</prop>
-								<prop key="description.expandRatio">.5</prop>
+								<prop key="amount.width">80</prop>								
+								<prop key="value.alignement">e</prop>								
+								<prop key="value.width">80</prop>
+								<prop key="description.expandRatio">50</prop>
 							</props>
 						</property>
 					</bean>
@@ -228,8 +230,8 @@
 						<prop key="expense.date.header">Date</prop>
 						<prop key="expense.date.format">{0,date,dd.MM.yyyy}</prop>
 						<prop key="expense.payee.header">Payee</prop>
-						<prop key="expense.payee.expandRatio">.8</prop>
-						<prop key="account.expandRatio">.2</prop>
+						<prop key="expense.payee.expandRatio">80</prop>
+						<prop key="account.expandRatio">20</prop>
 						<prop key="amount.alignement">e</prop>
 						<prop key="amount.format">{0,number,0.00}</prop>
 						<prop key="expense.currency.header">Currency</prop>
@@ -280,7 +282,7 @@
 				<property name="otherProperies">
 					<props>
 						<prop key="date.format">{0,date,dd.MM.yyyy}</prop>
-						<prop key="filename.expandRatio">.8</prop>
+						<prop key="filename.expandRatio">80</prop>
 					</props>
 				</property>
 			</bean>
@@ -305,14 +307,27 @@
 							<props>
 								<prop key="date.format">{0,date,dd.MM.yyyy}</prop>
 								<prop key="amount.alignement">e</prop>
-								<prop key="amount.format">{0,number,0.00}</prop>
-								
+								<prop key="amount.format">{0,number,0.00}</prop>								
 							</props>
 						</property>
 					</bean>
 				</property>
 			</bean>
 		</property>
+		<lookup-method name="newPaymentDtaEditor" bean="paymentDtaEditor"/>
+	</bean>
+	
+	<bean id="paymentDtaEditor" class="w.wexpense.vaadin.view.PaymentDtaEditor" scope="prototype" >
+		<property name="propertyConfiguror">
+			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
+				<property name="visibleProperties" value="data"/>
+				<property name="otherProperies">
+					<props>
+						<prop key="data.expandRatio">100</prop>
+					</props>
+				</property>
+			</bean>
+		</property>		
 	</bean>
 	
 	<!-- ========== Consolidation ========== -->	
