@@ -1,14 +1,13 @@
 package w.wexpense.vaadin.view;
 
-import w.wexpense.model.Account;
 import w.wexpense.vaadin.PropertyConfiguror;
 
-public class AccountView extends GenericView<Account> {
+public class ParentableView<T> extends GenericView<T> {
 
 	private static final long serialVersionUID = 6499289439725418193L;
 
-	public AccountView() {
-		super(Account.class);
+	public ParentableView(Class<T> entityClass) {
+		super(entityClass);
 	}
 	
 	@Override

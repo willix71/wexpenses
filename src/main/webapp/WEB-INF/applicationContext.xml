@@ -183,10 +183,11 @@
 			<bean class="w.wexpense.vaadin.view.ExpenseTransactionLineEditor" scope="prototype" >
 				<property name="propertyConfiguror">
 					<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
-						<property name="visibleProperties" value="account,factor,amount,exchangeRate,value,description"/>
+						<property name="visibleProperties" value="account,discriminator,factor,amount,exchangeRate,value,description"/>
 						<property name="otherProperies">
 							<props>
 								<prop key="account.expandRatio">30</prop>
+								<prop key="discriminator.expandRatio">10</prop>
 								<prop key="amount.alignement">e</prop>
 								<prop key="amount.width">80</prop>								
 								<prop key="value.alignement">e</prop>								
@@ -224,14 +225,15 @@
 		<property name="propertyConfiguror">
 			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
 				<property name="nestedProperties" value="expense.date,expense.payee,expense.currency"/>
-				<property name="visibleProperties" value="expense.date,expense.payee,account,amount,expense.currency,inValue,outValue"/>
+				<property name="visibleProperties" value="expense.date,expense.payee,account,discriminator,amount,expense.currency,inValue,outValue"/>
 				<property name="otherProperies">
 					<props>
 						<prop key="expense.date.header">Date</prop>
 						<prop key="expense.date.format">{0,date,dd.MM.yyyy}</prop>
 						<prop key="expense.payee.header">Payee</prop>
-						<prop key="expense.payee.expandRatio">80</prop>
+						<prop key="expense.payee.expandRatio">60</prop>
 						<prop key="account.expandRatio">20</prop>
+						<prop key="discriminator.expandRatio">10</prop>
 						<prop key="amount.alignement">e</prop>
 						<prop key="amount.format">{0,number,0.00}</prop>
 						<prop key="expense.currency.header">Currency</prop>
@@ -247,7 +249,8 @@
 	
 	<!-- ========== account ========== -->
 		
-	<bean class="w.wexpense.vaadin.view.AccountView" scope="prototype" >
+	<bean class="w.wexpense.vaadin.view.ParentableView" scope="prototype" >
+		<constructor-arg value="w.wexpense.model.Account" />
 		<lookup-method name="newEditor" bean="accountEditor"/>
 		<property name="propertyConfiguror">
 			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
@@ -259,9 +262,34 @@
 	<bean id="accountEditor" class="w.wexpense.vaadin.view.GenericEditor" scope="prototype" >
 		<constructor-arg value="w.wexpense.model.Account" />
 		<property name="propertyConfiguror">
-			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
-			
+			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">			
 				<property name="visibleProperties" value="fullId,uid,parent,name,fullName,number,fullNumber,type,externalReference,currency,selectable"/>
+				<property name="otherProperies">
+					<props>
+						<prop key="parent.includeNonSelectable">true</prop>
+					</props>
+				</property>
+			</bean>
+		</property>
+	</bean>
+	
+	<!-- ========== account ========== -->
+		
+	<bean class="w.wexpense.vaadin.view.ParentableView" scope="prototype" >
+		<constructor-arg value="w.wexpense.model.Discriminator" />
+		<lookup-method name="newEditor" bean="discriminatorEditor"/>
+		<property name="propertyConfiguror">
+			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
+				<property name="visibleProperties" value="name,selectable"/>
+			</bean>
+		</property>
+	</bean>
+	
+	<bean id="discriminatorEditor" class="w.wexpense.vaadin.view.GenericEditor" scope="prototype" >
+		<constructor-arg value="w.wexpense.model.Discriminator" />
+		<property name="propertyConfiguror">
+			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">			
+				<property name="visibleProperties" value="fullId,uid,parent,name,selectable"/>
 				<property name="otherProperies">
 					<props>
 						<prop key="parent.includeNonSelectable">true</prop>
