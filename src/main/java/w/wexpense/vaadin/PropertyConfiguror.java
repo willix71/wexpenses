@@ -6,6 +6,8 @@ public interface PropertyConfiguror {
 	String propertyIncludeNonSelectable = ".includeNonSelectable";
 	String visibleProperties = "visibleProperties";
 	String nestedProperties = "nestedProperties";
+	String propertyWidth = ".width";
+	String propertyHeight = ".height";
 	String propertyAlignement = ".alignement";
 	String propertyExpandRatio = ".expandRatio";
 	String propertyDateResolution = ".dateResolution";

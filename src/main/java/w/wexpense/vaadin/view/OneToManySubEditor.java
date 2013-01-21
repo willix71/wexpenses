@@ -120,8 +120,9 @@ public class OneToManySubEditor<C extends DBable, P extends DBable> extends Abst
 	@Override
 	protected void buildTable() {
 		super.buildTable();
+		table.setSizeFull();
 		table.setPageLength(5);			
-		table.setEditable(editable);
+		table.setEditable(editable);		
 		table.setTableFieldFactory(this.fieldFactory);		
 	}
 

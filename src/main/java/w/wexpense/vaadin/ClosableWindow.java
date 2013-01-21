@@ -7,7 +7,7 @@ public class ClosableWindow extends Window {
 	private static final long serialVersionUID = 8121179082149508634L;
 
 	public ClosableWindow(final Component component) {
-		getContent().setSizeUndefined();
+		setSizeFull();
 		
 		setCaption(component.getCaption());
 		component.setCaption(null);
@@ -26,4 +26,9 @@ public class ClosableWindow extends Window {
 		});			
 	}
 	
+	public ClosableWindow(final Component component, String width, String height) {
+		this(component);
+		setWidth(width);
+		setHeight(height);
+	}
 }

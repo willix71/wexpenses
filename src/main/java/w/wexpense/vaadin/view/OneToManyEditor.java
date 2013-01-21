@@ -3,13 +3,13 @@ package w.wexpense.vaadin.view;
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 
+import w.wexpense.model.DBable;
+
 import com.vaadin.addon.jpacontainer.JPAContainer;
 
-import w.wexpense.model.DBable;
-import w.wexpense.model.Expense;
-import w.wexpense.model.TransactionLine;
-
 public class OneToManyEditor<T extends DBable, C extends DBable> extends GenericEditor<T> {
+	
+	private static final long serialVersionUID = -8909856497042109472L;
 	
 	private OneToManySubEditor<C, T> subEditor;
 

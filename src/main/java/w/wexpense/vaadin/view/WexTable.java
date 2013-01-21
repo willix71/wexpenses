@@ -28,8 +28,13 @@ public class WexTable extends Table {
 		for(String pid: visibleProperties) {
 			String p = propertyConfiguror.getPropertyValue(pid + PropertyConfiguror.propertyAlignement);
 			if (p!=null) setColumnAlignment(pid, p);
+			
 			p = propertyConfiguror.getPropertyValue(pid + PropertyConfiguror.propertyExpandRatio);
 			if (p!=null) setColumnExpandRatio(pid, Float.valueOf(p));
+			
+			p = propertyConfiguror.getPropertyValue(pid + PropertyConfiguror.propertyWidth);
+			if (p!=null) setColumnWidth(pid, Integer.valueOf(p));
+			
 			p = propertyConfiguror.getPropertyValue(pid + PropertyConfiguror.propertyHeader);
 			setColumnHeader(pid, p);
 		}		

@@ -48,9 +48,9 @@ public class GenericView<T> extends AbstractView<T> implements ComponentContaine
 	
 	protected void buildTable() {	
 		initTable();
+		table.setSizeFull();
 		table.setSelectable(true);
 		table.setImmediate(true);
-		table.setSizeFull();		
 		table.addListener(this);
 		table.addActionHandler(this);
 	}
