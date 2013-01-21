@@ -1,5 +1,7 @@
 package w.wexpense.vaadin.view;
 
+import java.math.BigDecimal;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +27,7 @@ public class ExpenseEditor extends OneToManyEditor<Expense, TransactionLine> {
 		super.setInstance(instance, jpaContainer);
 		
 		if (instance != null) {
-			((ExpenseTransactionLineEditor) getSubEditor()).setCurrentAmount(instance.getAmount().doubleValue());
+			((ExpenseTransactionLineEditor) getSubEditor()).setCurrentAmount(instance.getAmount());
 		}
 	}
 	
@@ -44,9 +46,7 @@ public class ExpenseEditor extends OneToManyEditor<Expense, TransactionLine> {
 			public void valueChange(ValueChangeEvent event) {
 				// get new value
 				Object newObject = event.getProperty().getValue();
-				Double newAmount = newObject instanceof Number ? 
-						((Number) newObject).doubleValue() : 
-							Double.valueOf(newObject.toString());
+				BigDecimal newAmount = newObject instanceof  BigDecimal? (BigDecimal) newObject: new BigDecimal(newObject.toString());
 				
 				LOGGER.debug("Updating transaction lines with new amount {}", newAmount);
 				

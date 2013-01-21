@@ -1,5 +1,6 @@
 package w.wexpense.vaadin.view;
 
+import java.math.BigDecimal;
 import java.text.MessageFormat;
 
 import javax.persistence.EntityManager;
@@ -33,7 +34,7 @@ class ExpenseTransactionLineEditor extends OneToManySubEditor<TransactionLine, E
 	
 
 	private boolean fireUpdateValues = false;
-	private Double currentExpenseAmount = null;
+	private BigDecimal currentExpenseAmount = null;
 	
 	public ExpenseTransactionLineEditor() {
 		super(TransactionLine.class, "transactions");
@@ -86,7 +87,7 @@ class ExpenseTransactionLineEditor extends OneToManySubEditor<TransactionLine, E
 		fireUpdateValues = enable;
 	}
 	
-	public void setCurrentAmount(Double currentAmount) {
+	public void setCurrentAmount(BigDecimal currentAmount) {
 		updateValues(currentAmount);
 		this.currentExpenseAmount = currentAmount;
 	}
@@ -126,7 +127,7 @@ class ExpenseTransactionLineEditor extends OneToManySubEditor<TransactionLine, E
 		}
 	}
 	
-	private void updateValues(Double newExpenseAmount) {
+	private void updateValues(BigDecimal newExpenseAmount) {
 		LOGGER.debug("Updating transaction lines amount {}", fireUpdateValues);
 				
 		if (fireUpdateValues) {
@@ -136,7 +137,7 @@ class ExpenseTransactionLineEditor extends OneToManySubEditor<TransactionLine, E
 				Property amountProp = container.getItem(id).getItemProperty("amount");
 				if (currentExpenseAmount.equals(amountProp.getValue())) {
 					amountProp.setValue(newExpenseAmount);
-					updateValue(id, newExpenseAmount, false);
+					updateValue(id, newExpenseAmount.doubleValue(), false);
 				}
 			}
 		}
@@ -153,7 +154,7 @@ class ExpenseTransactionLineEditor extends OneToManySubEditor<TransactionLine, E
 			Property factorProp = container.getItem(id).getItemProperty("factor");
 			Property amountProp = container.getItem(id).getItemProperty("amount");
 					
-			double amount = amountProp.getValue() != null? (Double) amountProp.getValue(): 0;
+			double amount = amountProp.getValue() != null? ((Number) amountProp.getValue()).doubleValue(): 0;
 			if (factorProp.getValue() != null) {
 				TransactionLineEnum factor = (TransactionLineEnum)factorProp.getValue();
 				
