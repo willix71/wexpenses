@@ -15,6 +15,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 
+import w.wexpense.dta.BvoDtaFormater;
+import w.wexpense.dta.BvrDtaFormater;
 import w.wexpense.model.Account;
 import w.wexpense.model.City;
 import w.wexpense.model.Country;
@@ -24,6 +26,7 @@ import w.wexpense.model.Expense;
 import w.wexpense.model.ExpenseType;
 import w.wexpense.model.Payee;
 import w.wexpense.model.PayeeType;
+import w.wexpense.model.Payment;
 import w.wexpense.model.TransactionLine;
 import w.wexpense.model.enums.TransactionLineEnum;
 
@@ -55,10 +58,10 @@ public class DatabasePopulator {
 			Currency gbp = save(new Currency("GBP", "British Pounds", 100));
 			
 			Country ch = save(new Country("CH", "Switzerland", chf));
-
 			Country f = save(new Country("FR", "France", euro));
 			save(new Country("IT", "Italie", euro));
 			save(new Country("DE", "Germany", euro));
+			save(new Country("US", "United States of America", usd));
 						
 			City paris = save(new City(null, "Paris", f));
 			City nyon = save(new City("1260", "Nyon", ch));
@@ -67,12 +70,16 @@ public class DatabasePopulator {
 			Account assetAcc = save(new Account(null, 1, "asset", ASSET, null));			
 			Account cashAcc = save(new Account(assetAcc, 1, "cash", ASSET, chf));			
 			Account ecAcc = save(new Account(assetAcc, 2, "courant", ASSET, chf));
+			ecAcc.setExternalReference("CH650022822851333340B");
 			save(new Account(assetAcc, 3, "epargne", ASSET, chf));
 			
 			Account vehicleAcc = save(new Account(null, 4, "vehicle", EXPENSE, null));
 			Account gasAcc = save(new Account(vehicleAcc, 1, "gas", EXPENSE, chf));			
 			save(new Account(vehicleAcc, 2, "tax", EXPENSE, chf));
 			save(new Account(vehicleAcc, 3, "insurance", EXPENSE, chf));
+			
+			Account phones = save(new Account(null, 5, "phones", EXPENSE, null));
+			Account natel = save(new Account(phones, 1, "natel", EXPENSE, chf));			
 			
 			PayeeType stationService = save(new PayeeType("Station Service"));			
 			PayeeType garage = save(new PayeeType("garage"));			
@@ -90,9 +97,18 @@ public class DatabasePopulator {
 			garageDeParis.setCity(paris);
 			garageDeParis = save(garageDeParis);
 						
+			Payee orange = new Payee();
+			orange.setName("Orange");			
+			orange.setAddress1("12 rue de la Morache");
+			orange.setCity(nyon);
+			orange.setExternalReference("10-2020-1");
+			orange = save(orange);
+			
 			ExpenseType recu = save(new ExpenseType("recu"));
-			save(new ExpenseType("BVR"));
-			save(new ExpenseType("BVO"));
+			ExpenseType bvr = save(new ExpenseType("BVR"));
+			bvr.setPaymentGeneratorClassName(BvrDtaFormater.class.getName());
+			ExpenseType bvo = save(new ExpenseType("BVO"));
+			bvo.setPaymentGeneratorClassName(BvoDtaFormater.class.getName());
 			
 			// === Expense 1 ===
 			BigDecimal amount = new BigDecimal("22.50");
@@ -109,8 +125,7 @@ public class DatabasePopulator {
 			line.setAccount(cashAcc);
 			line.setFactor(TransactionLineEnum.OUT);
 			line.setAmount(amount);
-			line.setValue(22.50);
-			line.setPeriod(2012);
+			line.setValue();
 			save(line);
 			
 			line = new TransactionLine();
@@ -118,10 +133,10 @@ public class DatabasePopulator {
 			line.setAccount(gasAcc);
 			line.setFactor(TransactionLineEnum.IN);
 			line.setAmount(amount);
-			line.setValue(22.50);
+			line.setValue();
 			save(line);
 			
-			// === Expense 2 ===
+			// === Exchange rates ===
 			ExchangeRate rate = new ExchangeRate();
 			rate.setDate(new GregorianCalendar(2000,1,1).getTime());
 			rate.setBuyCurrency(chf);
@@ -145,6 +160,7 @@ public class DatabasePopulator {
 			rate.setRate(1.2);
 			rate = save(rate);
 			
+			// === Expense 2 ===
 			amount = new BigDecimal("40");
 			expense = new Expense();
 			expense.setAmount(amount);
@@ -159,10 +175,8 @@ public class DatabasePopulator {
 			line.setAccount(ecAcc);
 			line.setAmount(amount);
 			line.setExchangeRate(rate);
-			line.setValue(40 * 1.6);
-			line.setValue(40 * 1.6 * rate.getRate());
+			line.setValue();
 			line.setFactor(TransactionLineEnum.OUT);
-			line.setPeriod(2012);
 			save(line);
 			
 			line = new TransactionLine();
@@ -170,8 +184,42 @@ public class DatabasePopulator {
 			line.setAccount(gasAcc);
 			line.setAmount(amount);
 			line.setExchangeRate(rate);
-			line.setValue(40 * 1.6);
-			line.setValue(40 * 1.6 * rate.getRate());
+			line.setValue();
+			line.setFactor(TransactionLineEnum.IN);
+			save(line);
+			
+			// === Expense 3 ===
+			Payment payment = new Payment();
+			payment.setDate(new Date());
+			payment.setFilename("TestDta.dta");
+			payment = save(payment);
+			
+			amount = new BigDecimal("123.5");
+			expense = new Expense();
+			expense.setAmount(amount);
+			expense.setCurrency(chf);
+			expense.setDate(new GregorianCalendar(2013,3,14).getTime());
+			expense.setPayee(orange);
+			expense.setType(bvr);
+			expense.setPayment(payment);
+			expense.setExternalReference("00 00000 00123 45678 99999");
+			expense.setDescription("This is a test;Dee doo doo doo");
+			save(expense);
+			
+			line = new TransactionLine();
+			line.setExpense(expense);
+			line.setAccount(ecAcc);
+			line.setAmount(amount);
+			line.setExchangeRate(rate);
+			line.setValue();
+			line.setFactor(TransactionLineEnum.OUT);
+			save(line);
+			
+			line = new TransactionLine();
+			line.setExpense(expense);
+			line.setAccount(natel);
+			line.setAmount(amount);
+			line.setValue();
 			line.setFactor(TransactionLineEnum.IN);
 			save(line);
 			

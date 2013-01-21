@@ -133,19 +133,19 @@ public class TransactionLine extends DBable {
 		amountValue = AmountValue.fromRealValue(v);
 	}
 
-	public Double getValue() {
-		return amountValue==null?null:amountValue.getRealValue();
+	public BigDecimal getValue() {
+		return amountValue==null?null:amountValue.getBigValue();
 	}
 
-	public void setValue(Double value) {
-		this.amountValue = value==null?null:AmountValue.fromRealValue(value);
+	public void setValue(BigDecimal value) {
+		this.amountValue = value==null?null:AmountValue.fromBigValue(value);
 	}
 
-	public Double getInValue() {
+	public BigDecimal getInValue() {
 		return TransactionLineEnum.IN==factor?getValue():null;
 	}
 
-	public Double getOutValue() {
+	public BigDecimal getOutValue() {
 		return TransactionLineEnum.OUT==factor?getValue():null;
 	}
 	

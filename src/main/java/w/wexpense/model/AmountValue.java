@@ -1,6 +1,8 @@
 package w.wexpense.model;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 
 public class AmountValue extends Number implements Serializable {
 
@@ -15,7 +17,7 @@ public class AmountValue extends Number implements Serializable {
 	public AmountValue(String s) {
 		setRealValue(Double.parseDouble(s));
 	}	
-	
+		
 	private void setValue(long value) {
 		this.value = value;
 	}
@@ -32,6 +34,14 @@ public class AmountValue extends Number implements Serializable {
 		return ((double) value)/PRECISION;
 	}
 	
+	private void setBigValue(BigDecimal b) {
+		setRealValue(b.doubleValue());
+	}
+	
+	public BigDecimal getBigValue() {		
+		return new BigDecimal(new DecimalFormat("0.00").format(getRealValue()));
+	}
+
 	// ===	
 
 	@Override
@@ -87,6 +97,12 @@ public class AmountValue extends Number implements Serializable {
 	public static AmountValue fromRealValue(double d) {
 		AmountValue v = new AmountValue();
 		v.setRealValue(d);
+		return v;
+	}
+	
+	public static AmountValue fromBigValue(BigDecimal d) {
+		AmountValue v = new AmountValue();
+		v.setBigValue(d);
 		return v;
 	}
 }
