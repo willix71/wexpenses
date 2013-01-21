@@ -8,6 +8,7 @@ import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
@@ -30,6 +31,7 @@ public class Consolidation extends DBable {
 	private BigDecimal closingBalance;
 	
     @OneToMany(mappedBy="consolidation")
+    @OrderBy("consolidatedDate")
     private List<TransactionLine> transactions;
 
 	public Payee getInstitution() {

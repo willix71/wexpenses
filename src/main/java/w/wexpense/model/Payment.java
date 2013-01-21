@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
@@ -23,9 +24,11 @@ public class Payment extends DBable {
 	private String filename;
 	
     @OneToMany(mappedBy="payment")
+    @OrderBy("date, amount")
     private List<Expense> expenses;
 
     @OneToMany(mappedBy="payment")
+    @OrderBy("orderBy")
     private List<PaymentDta> dtaLines;
     
 	public Date getDate() {
