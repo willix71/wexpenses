@@ -1,9 +1,16 @@
 package w.wexpense.vaadin.view;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.number.PercentFormatter;
+
 import w.wexpense.model.Payment;
 import w.wexpense.model.PaymentDta;
+import w.wexpense.vaadin.PropertyConfiguror;
+import w.wexpense.vaadin.WexJPAContainerFactory;
+import w.wexpense.vaadin.fieldfactory.SimpleFieldFactory;
 
 import com.vaadin.addon.jpacontainer.JPAContainer;
+import com.vaadin.data.util.filter.Compare.Equal;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
 
@@ -11,15 +18,37 @@ public class PaymentDtaEditor extends VerticalLayout {
 
 	private static final long serialVersionUID = -2981650003785171306L;
 	
-	protected Table table;
+	@Autowired
+	protected WexJPAContainerFactory jpaContainerFactory;
 	
 	protected JPAContainer<PaymentDta> jpaContainer;
 	
-	public PaymentDtaEditor() {
+	protected Table table;
+	
+	protected PropertyConfiguror propertyConfiguror;
+	
+	public PaymentDtaEditor() {	
+		setSizeFull();
+	}
+	
+	public void setInstance(Payment payment) {
+		this.jpaContainer = jpaContainerFactory.getJPAContainer(PaymentDta.class, propertyConfiguror.getPropertyValues(PropertyConfiguror.nestedProperties));
+		this.jpaContainer.addContainerFilter(new Equal("payment", payment));
+		this.jpaContainer.applyFilters();
+		this.jpaContainer.setAutoCommit(true);
 		
+		this.table = new WexTable(jpaContainer, propertyConfiguror);
+		this.table.setTableFieldFactory(new SimpleFieldFactory(propertyConfiguror));
+		this.table.setSizeFull();
+		this.table.setEditable(true);
+		this.table.setImmediate(true);		
+		this.table.setWriteThrough(true);
+		
+		addComponent(this.table);
 	}
-	
-	public void setInstance(Payment payment) {		
-	
+
+	public void setPropertyConfiguror(PropertyConfiguror propertyConfiguror) {
+		this.propertyConfiguror = propertyConfiguror;
 	}
+		
 }

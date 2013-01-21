@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import w.wexpense.model.Expense;
 import w.wexpense.model.Payment;
 import w.wexpense.service.PaymentDtaService;
+import w.wexpense.vaadin.ClosableWindow;
 
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Alignment;
@@ -49,21 +50,31 @@ public class PaymentEditor extends OneToManyEditor<Payment, Expense> {
 	public void buttonClick(ClickEvent event) {
 		if (event.getButton() == generateDtaButton) {
 			try {
-				generate();
+				generateDtas();
 			} catch(Exception e) {
 				e.printStackTrace();
 			}
 		} else if (event.getButton() == viewDtaButton) {
-			System.out.println("viewDta");
+			viewDtas();
 		} else {
 			super.buttonClick(event);
 		}
 	}
 
-	public void generate() throws Exception {
+	public void generateDtas() throws Exception {
 		// we need to refresh the instance else we can't follow lazy links because 
 		// the instance is not attached to the current running entity manager
 		Payment payment = reloadInstance(getItem().getBean());
 		paymentDtaService.generateDtaPayment(payment);
+	}
+	
+	public void viewDtas() {
+		PaymentDtaEditor editor = newPaymentDtaEditor();
+		editor.setInstance(getItem().getBean());
+		getApplication().getMainWindow().addWindow(new ClosableWindow(editor, "128ex",null));
+	}
+	
+	public PaymentDtaEditor newPaymentDtaEditor() {
+		return null;
 	}
 }
