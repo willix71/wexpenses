@@ -11,8 +11,6 @@ add transaction line to consolidation and expenses to payments
 
 modify consolidated date
 
-message on delete
-
 height of cells in editable sub view
 
 selective combo boxes (i.e. only display filtered values such as with discriminators)

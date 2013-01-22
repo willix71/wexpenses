@@ -3,6 +3,7 @@ package w.wexpense.vaadin.view;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.vaadin.dialogs.ConfirmDialog;
 
 import w.wexpense.vaadin.ClosableWindow;
 import w.wexpense.vaadin.PropertyConfiguror;
@@ -13,9 +14,12 @@ import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.event.Action;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Window.Notification;
 
 public class GenericView<T> extends AbstractView<T> implements ComponentContainer {
 	private static final long serialVersionUID = 5282517667310057582L;
@@ -87,8 +91,21 @@ public class GenericView<T> extends AbstractView<T> implements ComponentContaine
 	}
 	
 	@Override
-	public void deleteEntity(Object target) {
-		jpaContainer.removeItem(target);		
+	public void deleteEntity(final Object target) {
+		EntityItem<T> item = (EntityItem<T>) table.getItem(target);
+		final String text = item.getEntity().toString();
+		ConfirmDialog.show(
+			getWindow(), "Delete", text, "yes", "no", 
+			new ConfirmDialog.Listener() {            
+				public void onClose(ConfirmDialog dialog) {
+					if (dialog.isConfirmed()) {
+						jpaContainer.removeItem(target);
+						getWindow().showNotification(
+								text, "deleted...",
+				                Notification.TYPE_TRAY_NOTIFICATION);
+					}
+				}
+			});
 	}
 
 	@Override

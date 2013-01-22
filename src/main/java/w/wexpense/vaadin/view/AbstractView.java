@@ -7,6 +7,7 @@ import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window.Notification;
 
 public abstract class AbstractView<T> extends VerticalLayout implements Action.Handler, ItemClickListener {
 
@@ -58,6 +59,10 @@ public abstract class AbstractView<T> extends VerticalLayout implements Action.H
 			deleteEntity(target);
 		} else if (refreshAction == action) {
 			refreshContainer();
+			
+			getWindow().showNotification(
+					entityClass.getSimpleName(), "refreshed...",
+	                Notification.TYPE_HUMANIZED_MESSAGE);			
 		}
 	}
 
