@@ -1,6 +1,12 @@
 package w.wexpense.vaadin.view;
 
+import java.math.BigDecimal;
+import java.util.Date;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 
 import w.wexpense.model.Expense;
 import w.wexpense.model.Payment;
@@ -8,6 +14,8 @@ import w.wexpense.service.PaymentDtaService;
 import w.wexpense.vaadin.ClosableWindow;
 
 import com.vaadin.addon.jpacontainer.JPAContainer;
+import com.vaadin.data.Property;
+import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.terminal.ExternalResource;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Alignment;
@@ -20,6 +28,8 @@ public class PaymentEditor extends OneToManyEditor<Payment, Expense> {
 
 	private static final long serialVersionUID = 7495790122461487109L;
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(PaymentEditor.class);
+	
 	@Autowired
 	private PaymentDtaService paymentDtaService;
 	
@@ -57,6 +67,29 @@ public class PaymentEditor extends OneToManyEditor<Payment, Expense> {
 			dtaLayout.addComponent(viewDtaButton);
 			dtaLayout.addComponent(downloadDtaButton);
 		}
+	}
+	
+	@Override
+	public void attach() {
+		super.attach();
+		
+		addListener();
+	}
+	
+	protected void addListener() {
+		// attach user interaction listener
+		getForm().getField("date").addListener(new Property.ValueChangeListener() {
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				Property filename = getItem().getItemProperty("filename");
+				if (filename.getValue()==null ||  filename.getValue().toString().trim().length()==0) {
+					Object newObject = event.getProperty().getValue();
+					if (newObject != null && newObject instanceof  Date) {
+						filename.setValue(newObject.toString());
+					}
+				}
+			}
+		});
 	}
 	
 	@Override

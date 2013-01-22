@@ -1,0 +1,23 @@
+Login and Security
+	fetch the owner's payee details for dta from current user
+
+Refactor transaction line update values into the model itself and refresh the table rather than using the properties in the view
+
+filters on views
+
+'dynamic' combo box (i.e. being able to add a value to them)
+
+add transaction line to consolidation and expenses to payments
+
+modify consolidated date
+
+message on delete
+
+height of cells in editable sub view
+
+selective combo boxes (i.e. only display filtered values such as with discriminators)
+
+transaction line filters
+
+remove jpaContainers and use custom jpaRepository dependant containers
+
