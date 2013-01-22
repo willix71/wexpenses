@@ -14,7 +14,9 @@ public interface PropertyConfiguror {
 	String propertyDateFormat = ".dateFormat";
 	String propertyFormat = ".format";
 	String propertyHeader = ".header";
-
+	String propertyWindowHeight = "window.height";
+	String propertyWindowWidth = "window.width";
+	
 	String getPropertyValue(String property, String defaultValue);
 
 	String getPropertyValue(String property);
