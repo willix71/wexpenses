@@ -9,7 +9,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 
 @Entity
-public class Discriminator extends AbstractType {
+public class Discriminator extends AbstractType implements Parentable<Discriminator> {
 
 	private static final long serialVersionUID = -5425160349628676177L;
 

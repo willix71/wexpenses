@@ -1,15 +1,13 @@
 package w.wexpense.vaadin.view;
 
-import w.wexpense.vaadin.PropertyConfiguror;
 
 import com.vaadin.event.Action;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.ui.Table;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window.Notification;
 
-public abstract class AbstractView<T> extends VerticalLayout implements Action.Handler, ItemClickListener {
+public abstract class AbstractView<T> extends ConfigurableView implements Action.Handler, ItemClickListener {
 
 	private static final long serialVersionUID = 6499289439725418193L;
 	
@@ -24,8 +22,6 @@ public abstract class AbstractView<T> extends VerticalLayout implements Action.H
 
 	protected Action[] entitySelectedActions = null;
 	protected Action[] noEntitySelectedActions = null;
-
-	protected PropertyConfiguror propertyConfiguror;
 
 	public AbstractView(Class<T> entityClass) {
 		this.entityClass = entityClass;
@@ -95,7 +91,7 @@ public abstract class AbstractView<T> extends VerticalLayout implements Action.H
 	public void entitySelected(ItemClickEvent event) {		
 	}
 
-	public void setPropertyConfiguror(PropertyConfiguror propertyConfiguror) {
-		this.propertyConfiguror = propertyConfiguror;
+	public Class<T> getEntityClass() {
+		return entityClass;
 	}
 }

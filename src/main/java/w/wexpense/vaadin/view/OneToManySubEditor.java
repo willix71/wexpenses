@@ -89,7 +89,7 @@ public class OneToManySubEditor<C extends DBable, P extends DBable> extends Abst
 //	}
 	
 	protected TableFieldFactory getTableFieldFactory(JPAContainer<C> childJpaContainer, WexJPAContainerFactory jpaContainerFactory) {
-		return new RelationalFieldFactory<C>(this.propertyConfiguror, childJpaContainer, jpaContainerFactory);
+		return new RelationalFieldFactory<C>(this.propertyConfiguror, childJpaContainer, jpaContainerFactory, this);
 	}
 	
 	@Override

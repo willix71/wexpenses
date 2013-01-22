@@ -119,7 +119,7 @@ public class PaymentEditor extends OneToManyEditor<Payment, Expense> {
 	public void viewDtas() {
 		PaymentDtaEditor editor = newPaymentDtaEditor();
 		editor.setInstance(getItem().getBean());
-		getApplication().getMainWindow().addWindow(new ClosableWindow(editor, "128ex",null));
+		getApplication().getMainWindow().addWindow(new ClosableWindow(editor));
 	}
 	
 	public PaymentDtaEditor newPaymentDtaEditor() {

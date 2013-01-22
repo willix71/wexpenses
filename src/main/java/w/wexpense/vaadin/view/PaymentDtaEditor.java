@@ -11,9 +11,8 @@ import w.wexpense.vaadin.fieldfactory.SimpleFieldFactory;
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.data.util.filter.Compare.Equal;
 import com.vaadin.ui.Table;
-import com.vaadin.ui.VerticalLayout;
 
-public class PaymentDtaEditor extends VerticalLayout {
+public class PaymentDtaEditor extends ConfigurableView {
 
 	private static final long serialVersionUID = -2981650003785171306L;
 	
@@ -23,8 +22,6 @@ public class PaymentDtaEditor extends VerticalLayout {
 	protected JPAContainer<PaymentDta> jpaContainer;
 	
 	protected Table table;
-	
-	protected PropertyConfiguror propertyConfiguror;
 	
 	public PaymentDtaEditor() {	
 		setSizeFull();
@@ -44,10 +41,5 @@ public class PaymentDtaEditor extends VerticalLayout {
 		this.table.setWriteThrough(true);
 		
 		addComponent(this.table);
-	}
-
-	public void setPropertyConfiguror(PropertyConfiguror propertyConfiguror) {
-		this.propertyConfiguror = propertyConfiguror;
-	}
-		
+	}	
 }

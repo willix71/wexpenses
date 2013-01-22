@@ -51,7 +51,7 @@ class ExpenseTransactionLineEditor extends OneToManySubEditor<TransactionLine, E
 
 	@Override
 	protected TableFieldFactory getTableFieldFactory(JPAContainer<TransactionLine> childJpaContainer, WexJPAContainerFactory jpaContainerFactory) {
-		return new RelationalFieldFactory<TransactionLine>(propertyConfiguror, childJpaContainer, jpaContainerFactory) {
+		return new RelationalFieldFactory<TransactionLine>(propertyConfiguror, childJpaContainer, jpaContainerFactory, this) {
 			@Override
 			public Field createField(Container container, Object itemId, Object propertyId, Component uiContext) {
 				Field f = super.createField(container, itemId, propertyId, uiContext);

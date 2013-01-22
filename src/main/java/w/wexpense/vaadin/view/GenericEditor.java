@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import w.wexpense.model.DBable;
 import w.wexpense.persistence.PersistenceUtils;
 import w.wexpense.vaadin.CloseViewEvent;
 import w.wexpense.vaadin.PropertyConfiguror;
@@ -24,9 +25,8 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Form;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.VerticalLayout;
 
-public class GenericEditor<T> extends VerticalLayout implements Button.ClickListener {
+public class GenericEditor<T> extends ConfigurableView implements Button.ClickListener {
 	private static final long serialVersionUID = 5282517667310057582L;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(GenericEditor.class);
@@ -43,14 +43,17 @@ public class GenericEditor<T> extends VerticalLayout implements Button.ClickList
 	private BeanValidationForm<T> form;
 	private Button saveButton;
 	private Button cancelButton;
-
-	private PropertyConfiguror propertyConfiguror;
 	
 	public GenericEditor(Class<T> entityClass) {
 		this.entityClass = entityClass;
 		this.idProperty = PersistenceUtils.getIdName(entityClass);
 	}
 
+	public GenericEditor(Class<T> entityClass, WexJPAContainerFactory jpaContainerFactory) {
+		this(entityClass);
+		this.jpaContainerFactory = jpaContainerFactory;
+	}
+	
 	@PostConstruct
 	protected void buildLayout() {
 		buildForm();
@@ -80,6 +83,10 @@ public class GenericEditor<T> extends VerticalLayout implements Button.ClickList
 		if (instance == null) {
 			this.isNew = true;
 			this.item = new BeanItem<T>(PersistenceUtils.newInstance(entityClass));
+		} else if (DBable.class.isAssignableFrom(entityClass) && ((DBable) instance).isNew()){ 
+			// special case where the new instance was created by the caller
+			this.isNew = true;
+			this.item = new BeanItem<T>(instance);
 		} else {
 			this.isNew = false;
 
@@ -90,7 +97,7 @@ public class GenericEditor<T> extends VerticalLayout implements Button.ClickList
 			this.item = new BeanItem<T>(t);
 		}			
 		
-		form.setFormFieldFactory(new RelationalFieldFactory<T>(this.propertyConfiguror, jpaContainer, jpaContainerFactory));				
+		form.setFormFieldFactory(new RelationalFieldFactory<T>(propertyConfiguror, jpaContainer, jpaContainerFactory, this));				
 		String[] propertyIds=propertyConfiguror.getPropertyValues(PropertyConfiguror.visibleProperties);		
 		form.setItemDataSource(item, Arrays.asList(propertyIds));
 		
@@ -195,9 +202,5 @@ public class GenericEditor<T> extends VerticalLayout implements Button.ClickList
 
 	public JPAContainer<T> getJpaContainer() {
 		return jpaContainer;
-	}
-
-	public void setPropertyConfiguror(PropertyConfiguror propertyConfiguror) {
-		this.propertyConfiguror = propertyConfiguror;
 	}
 }

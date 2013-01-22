@@ -15,7 +15,7 @@ import javax.validation.constraints.NotNull;
 import w.wexpense.model.enums.AccountEnum;
 
 @Entity
-public class Account extends AbstractType {
+public class Account extends AbstractType implements Parentable<Account> {
 
 	private static final long serialVersionUID = 2482940442245899869L;
 

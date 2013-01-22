@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import w.wexpense.vaadin.view.GenericEditor;
 import w.wexpense.vaadin.view.GenericView;
 
 import com.vaadin.Application;
@@ -50,7 +51,7 @@ public class WexApplication extends Application implements HttpServletRequestLis
 	
 
 	@Override
-   public void onRequestStart(HttpServletRequest request, HttpServletResponse response) {
+	public void onRequestStart(HttpServletRequest request, HttpServletResponse response) {
 		EntityManagerPerRequestHelper helper = jpaContainerFactory.getHelper();		
 		if (helper != null) {
 			LOGGER.debug("Request started with EntityManagerPerRequestHelper");
@@ -58,10 +59,10 @@ public class WexApplication extends Application implements HttpServletRequestLis
 		} else {
 			LOGGER.debug("Request started");
 		}
-   }
+	}
 
 	@Override
-   public void onRequestEnd(HttpServletRequest request, HttpServletResponse response) {
+	public void onRequestEnd(HttpServletRequest request, HttpServletResponse response) {
 		EntityManagerPerRequestHelper helper = jpaContainerFactory.getHelper();
 		if (helper != null) {
 			LOGGER.debug("Request ended with EntityManagerPerRequestHelper");
@@ -69,8 +70,17 @@ public class WexApplication extends Application implements HttpServletRequestLis
 		}  else {
 			LOGGER.debug("Request ended");
 		}
-   }
+	}
 
+	public GenericEditor<?> getEditorFor(Class<?> entityClass) {
+		for(GenericView<?> c: views) {
+			if (c.getEntityClass().equals(entityClass)) {
+				return c.newEditor();
+			}
+		}
+		return null;
+	}
+	
 	class WexpenseMainView extends Window {
       private static final long serialVersionUID = 6406409460600093055L;
 
