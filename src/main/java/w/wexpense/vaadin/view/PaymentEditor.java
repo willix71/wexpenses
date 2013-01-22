@@ -1,6 +1,7 @@
 package w.wexpense.vaadin.view;
 
 import java.math.BigDecimal;
+import java.text.MessageFormat;
 import java.util.Date;
 
 import org.slf4j.Logger;
@@ -8,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
+import w.wexpense.dta.DtaHelper;
 import w.wexpense.model.Expense;
 import w.wexpense.model.Payment;
 import w.wexpense.service.PaymentDtaService;
@@ -21,6 +23,7 @@ import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Field;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Link;
 
@@ -81,12 +84,11 @@ public class PaymentEditor extends OneToManyEditor<Payment, Expense> {
 		getForm().getField("date").addListener(new Property.ValueChangeListener() {
 			@Override
 			public void valueChange(ValueChangeEvent event) {
-				Property filename = getItem().getItemProperty("filename");
-				if (filename.getValue()==null ||  filename.getValue().toString().trim().length()==0) {
-					Object newObject = event.getProperty().getValue();
-					if (newObject != null && newObject instanceof  Date) {
-						filename.setValue(newObject.toString());
-					}
+				Field f = getForm().getField("filename");
+				if (f.getValue() == null || f.getValue().toString().trim().length() == 0) {
+					Date newDate = (Date) event.getProperty().getValue();
+					String filename = MessageFormat.format("{0,date,yyyy-MM-dd}_{1}.DTA", newDate, DtaHelper.APPLICATION_ID);
+					f.setValue(filename);
 				}
 			}
 		});
