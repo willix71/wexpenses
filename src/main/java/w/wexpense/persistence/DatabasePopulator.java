@@ -125,7 +125,7 @@ public class DatabasePopulator {
 			line.setAccount(cashAcc);
 			line.setFactor(TransactionLineEnum.OUT);
 			line.setAmount(amount);
-			line.setValue();
+			line.updateValue();
 			save(line);
 			
 			line = new TransactionLine();
@@ -133,7 +133,7 @@ public class DatabasePopulator {
 			line.setAccount(gasAcc);
 			line.setFactor(TransactionLineEnum.IN);
 			line.setAmount(amount);
-			line.setValue();
+			line.updateValue();
 			save(line);
 			
 			// === Exchange rates ===
@@ -175,7 +175,7 @@ public class DatabasePopulator {
 			line.setAccount(ecAcc);
 			line.setAmount(amount);
 			line.setExchangeRate(rate);
-			line.setValue();
+			line.updateValue();
 			line.setFactor(TransactionLineEnum.OUT);
 			save(line);
 			
@@ -184,7 +184,7 @@ public class DatabasePopulator {
 			line.setAccount(gasAcc);
 			line.setAmount(amount);
 			line.setExchangeRate(rate);
-			line.setValue();
+			line.updateValue();
 			line.setFactor(TransactionLineEnum.IN);
 			save(line);
 			
@@ -211,7 +211,7 @@ public class DatabasePopulator {
 			line.setAccount(ecAcc);
 			line.setAmount(amount);
 			line.setExchangeRate(rate);
-			line.setValue();
+			line.updateValue();
 			line.setFactor(TransactionLineEnum.OUT);
 			save(line);
 			
@@ -219,7 +219,7 @@ public class DatabasePopulator {
 			line.setExpense(expense);
 			line.setAccount(natel);
 			line.setAmount(amount);
-			line.setValue();
+			line.updateValue();
 			line.setFactor(TransactionLineEnum.IN);
 			save(line);
 			

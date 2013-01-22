@@ -110,7 +110,7 @@ public class TransactionLine extends DBable {
 	 * automatically calculates the amountValue based on the amount, 
 	 * the exchange rate and the currency rounding factor
 	 */
-	public void setValue() {
+	public void updateValue() {
 		// using double because it will be rounded by the AmountValue object anyway
 		// so we don't need the precision of a BigDecimal
 		double v = amount == null?0.0:amount.doubleValue();
@@ -190,8 +190,12 @@ public class TransactionLine extends DBable {
 	}
 	
 	@Override
-	public String toString() {		
-		return MessageFormat.format("{0} {1,number, 0.00} [{2}]", factor, amount, account);
+	public String toString() {
+		String s = account == null ? " " : account.toString();
+		if (discriminator != null) {
+			s += "/" + discriminator.toString();
+		}
+		return MessageFormat.format("{0} {1,number, 0.00} [{2}]", factor, s );
 	}
 	
 	public boolean validate() {		
