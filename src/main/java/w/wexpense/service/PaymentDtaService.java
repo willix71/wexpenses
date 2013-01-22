@@ -28,14 +28,24 @@ public class PaymentDtaService {
 	
 	private EndDtaFormater endFormater = new EndDtaFormater();
 	
-	public List<String> getPaymentDtaLines(Payment payment) throws Exception {
-		List<String> lines = new ArrayList<String>();
-		for(PaymentDta dta : getPaymentDtas(payment)) {
-			lines.add(dta.getData());
+	@Transactional
+	public void generatePaymentDtas(Payment payment) throws Exception {
+		// delete existing dtas
+		Query query = entityManager.createQuery("DELETE PaymentDta WHERE payment = :p");
+		query.setParameter("p", payment);
+		int i = query.executeUpdate();
+		LOGGER.info("Deleted {} old payment DTAs", i);
+		
+		// generate new ones
+		List<PaymentDta> dtas = getPaymentDtas(payment);
+		
+		// save them
+		for(PaymentDta dta: dtas) {
+			entityManager.persist(dta);
 		}
-		return lines;
+		LOGGER.info("Created {} new payment DTAs", i);
 	}
-
+	
 	public List<PaymentDta> getPaymentDtas(Payment payment) throws Exception {
 		List<PaymentDta> dtas = new ArrayList<PaymentDta>();
 		int index=0;
@@ -51,23 +61,5 @@ public class PaymentDtaService {
 			dtas.add(new PaymentDta(payment, ++order, null, line));
 		}
 		return dtas;
-	}
-		
-	@Transactional
-	public void generateDtaPayment(Payment payment) throws Exception {
-		// delete existing dtas
-		Query query = entityManager.createQuery("DELETE PaymentDta WHERE payment = :p");
-		query.setParameter("p", payment);
-		int i = query.executeUpdate();
-		LOGGER.info("Deleted {} old payment DTAs", i);
-		
-		// generate new ones
-		List<PaymentDta> dtas = getPaymentDtas(payment);
-		
-		// save them
-		for(PaymentDta dta: dtas) {
-			entityManager.persist(dta);
-		}
-		LOGGER.info("Created {} new payment DTAs", i);
 	}
 }

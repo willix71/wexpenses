@@ -6,14 +6,8 @@ import javax.persistence.PersistenceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
-import w.wexpense.model.Payment;
-import w.wexpense.model.PaymentDta;
 
 @Controller
 public class WexpensesController {
@@ -31,18 +25,18 @@ public class WexpensesController {
 		String message = "Hello Wexpenses";
 		model.addAttribute("message", message);
 	}
-
-	@RequestMapping("/dta")
-	public void dta(@RequestParam(value="id") Long id, Model model) {
-		
-		LOGGER.info("Loading dta");
-		
-		Payment p = entityManager.find(Payment.class, id);
-		
-		StringBuilder sb = new StringBuilder();
-		for(PaymentDta dta: p.getDtaLines()) {
-			sb.append(dta.getData());
-		}
-		model.addAttribute("payments", sb.toString());
-	}
+	
+//	@RequestMapping(value="/dta/{filename}", produces="text/plain")
+//	@ResponseBody
+//	public String getDtaFileContent(
+//			@PathVariable String filename, 
+//			@RequestParam(value="singleLine", defaultValue="true") boolean singleLine) throws Exception {
+//		
+//		LOGGER.info("Fetching {}'s content", filename);
+//		
+//		Payment payment = paymentService.getPaymentByFilename(filename + ".dta");
+//		
+//		return getContent(payment, singleLine);
+//	}
+	
 }

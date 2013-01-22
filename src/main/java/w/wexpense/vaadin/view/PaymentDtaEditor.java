@@ -1,7 +1,6 @@
 package w.wexpense.vaadin.view;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.number.PercentFormatter;
 
 import w.wexpense.model.Payment;
 import w.wexpense.model.PaymentDta;

@@ -1,17 +1,18 @@
-package w.wexpense.dta;
+package w.wexpense.service;
 
 import static w.wexpense.dta.DtaCommonTestData.createPaymentData;
-
-import java.util.List;
-
 import junit.framework.Assert;
 
 import org.junit.Test;
 
+import w.wexpense.dta.BvoDtaFormaterTest;
+import w.wexpense.dta.BvrDtaFormaterTest;
+import w.wexpense.dta.IbanDtaFormaterTest;
 import w.wexpense.model.Payment;
+import w.wexpense.model.PaymentDta;
 import w.wexpense.service.PaymentDtaService;
 
-public class DtaServiceTest {
+public class PaymentDtaServiceTest {
 
 	@Test
 	public void testBvo() throws Exception {
@@ -19,11 +20,12 @@ public class DtaServiceTest {
 				BvoDtaFormaterTest.getBvoExpense(),
 				BvrDtaFormaterTest.getBvrExpense(),
 				IbanDtaFormaterTest.getIbanExpense()); 
+		
 		PaymentDtaService service = new PaymentDtaService();
-		List<String> lines = service.getPaymentDtaLines(payment);
-		Assert.assertNotNull(lines);
+		
 		int i = 1;
-		for (String line: lines) {	
+		for (PaymentDta dta: service.getPaymentDtas(payment)) {	
+			String line = dta.getData();
 			System.out.println(line + "]]");
 			Assert.assertEquals("line "+i+"'s length is not 128",128, line.length());
 		}

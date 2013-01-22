@@ -7,11 +7,14 @@ import w.wexpense.model.Payment;
 import w.wexpense.service.PaymentDtaService;
 import w.wexpense.vaadin.ClosableWindow;
 
+import com.vaadin.addon.jpacontainer.JPAContainer;
+import com.vaadin.terminal.ExternalResource;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Link;
 
 public class PaymentEditor extends OneToManyEditor<Payment, Expense> {
 
@@ -20,9 +23,10 @@ public class PaymentEditor extends OneToManyEditor<Payment, Expense> {
 	@Autowired
 	private PaymentDtaService paymentDtaService;
 	
+	private HorizontalLayout dtaLayout = new HorizontalLayout();;
 	private Button generateDtaButton;
 	private Button viewDtaButton;
-
+	private Link downloadDtaButton;
 	
 	public PaymentEditor() {
 		super(Payment.class);
@@ -31,19 +35,28 @@ public class PaymentEditor extends OneToManyEditor<Payment, Expense> {
 	@Override
 	protected AbstractOrderedLayout buildButtons() {
 		AbstractOrderedLayout saveCancel = super.buildButtons();
-		
-		HorizontalLayout otherLayout = new HorizontalLayout();
-		
-		generateDtaButton = new Button("Generate DTA", (Button.ClickListener) this);
-		viewDtaButton = new Button("View DTA", (Button.ClickListener) this);
-		otherLayout.addComponent(generateDtaButton);
-		otherLayout.addComponent(viewDtaButton);
-				
+
 		HorizontalLayout combinedLayout = new HorizontalLayout();
 		combinedLayout.addComponent(saveCancel);
-		combinedLayout.addComponent(otherLayout);
-		combinedLayout.setComponentAlignment(otherLayout, Alignment.MIDDLE_RIGHT);
+		combinedLayout.addComponent(dtaLayout);
+		combinedLayout.setComponentAlignment(dtaLayout, Alignment.MIDDLE_RIGHT);
 		return combinedLayout;
+	}
+	
+	@Override
+	public void setInstance(Payment instance, JPAContainer<Payment> jpaContainer) {
+		super.setInstance(instance, jpaContainer);
+		
+		if (! getItem().getBean().isNew()) {
+			generateDtaButton = new Button("Generate DTA", (Button.ClickListener) this);
+			viewDtaButton = new Button("View DTA", (Button.ClickListener) this);
+			downloadDtaButton = new Link("Download DTA", new ExternalResource("/wexpenses/web/dta?uid="+instance.getUid()));
+			downloadDtaButton.setTargetName("_blank");
+			
+			dtaLayout.addComponent(generateDtaButton);
+			dtaLayout.addComponent(viewDtaButton);
+			dtaLayout.addComponent(downloadDtaButton);
+		}
 	}
 	
 	@Override
@@ -65,7 +78,7 @@ public class PaymentEditor extends OneToManyEditor<Payment, Expense> {
 		// we need to refresh the instance else we can't follow lazy links because 
 		// the instance is not attached to the current running entity manager
 		Payment payment = reloadInstance(getItem().getBean());
-		paymentDtaService.generateDtaPayment(payment);
+		paymentDtaService.generatePaymentDtas(payment);
 	}
 	
 	public void viewDtas() {
