@@ -17,9 +17,8 @@ public interface PropertyConfiguror {
 	String propertyFormat = ".format";
 	String propertyHeader = ".header";
 
-	
 	void setPropertyValue(String property, String value);
-
+	
 	String getPropertyValue(String property, String defaultValue);
 
 	String getPropertyValue(String property);

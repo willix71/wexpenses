@@ -19,7 +19,7 @@ public class ClosableWindow extends Window {
 		setHeight(height);
 		String width = component.getPropertyConfiguror().getPropertyValue(PropertyConfiguror.windowWidth, "100%");
 		setWidth(width);
-		
+
 		setCaption(component.getCaption());
 		component.setCaption(null);
 		
