@@ -1,18 +1,23 @@
 package w.wexpense.vaadin.fieldfactory;
 
 import w.wexpense.model.Codable;
+import w.wexpense.model.DBable;
 import w.wexpense.model.Selectable;
+import w.wexpense.vaadin.ClosableWindow;
 import w.wexpense.vaadin.PropertyConfiguror;
+import w.wexpense.vaadin.WexApplication;
 import w.wexpense.vaadin.WexJPAContainerFactory;
+import w.wexpense.vaadin.view.GenericEditor;
 
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.fieldfactory.SingleSelectTranslator;
 import com.vaadin.addon.jpacontainer.metadata.PropertyKind;
-import com.vaadin.data.Container;
 import com.vaadin.data.Container.Filter;
 import com.vaadin.data.Item;
+import com.vaadin.data.Property;
 import com.vaadin.data.util.filter.Compare;
 import com.vaadin.ui.AbstractSelect;
+import com.vaadin.ui.AbstractSelect.NewItemHandler;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Field;
@@ -22,15 +27,19 @@ public class RelationalFieldFactory<T> extends SimpleFieldFactory {
 
 	private static final long serialVersionUID = -2122739273213720235L;
 	
+	private Component caller;
+	
 	private WexJPAContainerFactory jpaContainerFactory;
 	
 	private final JPAContainer<T> jpaContainer;
 
-	public RelationalFieldFactory(PropertyConfiguror propertyConfiguror, JPAContainer<T> jpaContainer, WexJPAContainerFactory jpaContainerFactory) {
+	public RelationalFieldFactory(PropertyConfiguror propertyConfiguror, JPAContainer<T> jpaContainer, WexJPAContainerFactory jpaContainerFactory, Component caller) {
 		super(propertyConfiguror);
 
 		this.jpaContainer = jpaContainer;
 		this.jpaContainerFactory = jpaContainerFactory;
+		
+		this.caller = caller;
 	}
 
 	@Override
@@ -56,19 +65,38 @@ public class RelationalFieldFactory<T> extends SimpleFieldFactory {
 		}
 	}
 
-	protected Field createManyToOneField(Item item, Class<?> type, Object propertyId, Component uiContext) {
-		ComboBox select = new ComboBox();
+	protected Field createManyToOneField(Item item, final Class<?> type, Object propertyId, Component uiContext) {
+		final JPAContainer<?> comboContainer = getJpaContainer(type, propertyId);
+		final ComboBox select = new ComboBox();
 		select.setMultiSelect(false);
-		select.setContainerDataSource(getJpaContainer(type, propertyId));
+		select.setContainerDataSource(comboContainer);
 		select.setPropertyDataSource(new SingleSelectTranslator(select));
 		select.setItemCaptionMode(NativeSelect.ITEM_CAPTION_MODE_ITEM);
 		select.setFilteringMode(AbstractSelect.Filtering.FILTERINGMODE_CONTAINS);
+		
+		// allow for 'in-place' editing if DBable (so not for currency and country)
+		if (DBable.class.isAssignableFrom(type)) {
+			select.setNewItemsAllowed(true);
+			select.setNewItemHandler(new NewItemHandler() {
+				public void addNewItem(String newItemCaption) {	
+					WexApplication wexapplication = (WexApplication) caller.getApplication();
+					GenericEditor editor = wexapplication.getEditorFor(type);
+					editor.setInstance(null, comboContainer);
+					
+					Property p = editor.getItem().getItemProperty("name");
+					if (p!=null && String.class.equals(p.getType())) {
+						p.setValue(newItemCaption);
+					}
+					wexapplication.getMainWindow().addWindow(new ClosableWindow(editor));
+				}
+			});
+		}
+		
 		return select;
 	}
 
-	protected Container getJpaContainer(Class<?> type, Object propertyId) {
+	protected JPAContainer<?> getJpaContainer(Class<?> type, Object propertyId) {
 		JPAContainer<?> container = jpaContainerFactory.getJPAContainer(type);
-		
 		
 		if (Selectable.class.isAssignableFrom(type) &&
 				! Boolean.valueOf(getPropertyConfiguror().getPropertyValue(

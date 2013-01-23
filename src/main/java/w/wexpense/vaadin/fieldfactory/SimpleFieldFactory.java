@@ -31,7 +31,6 @@ public class SimpleFieldFactory extends DefaultFieldFactory {
 	private Map<Object, CustomFieldFactory> customFieldFactories = new HashMap<Object, CustomFieldFactory>();
 	private PropertyConfiguror propertyConfiguror;
 
-
 	public SimpleFieldFactory(PropertyConfiguror propertyConfiguror) {
 	   super();
 	   this.propertyConfiguror = propertyConfiguror;
