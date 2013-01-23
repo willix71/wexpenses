@@ -8,11 +8,12 @@
    		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
    		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
 
+	<import resource="classpath:persistence-context.xml"/>
+	<import resource="classpath:service-context.xml"/>
+	
 	<context:annotation-config />
 	
-	<context:property-placeholder location="classpath:persistence.properties" />
-
-	<bean class="w.wexpense.persistence.PersistenceConfiguration" />
+	<context:property-placeholder location="classpath:wexpences.properties" />
 	
 	<bean class="w.wexpense.vaadin.WexJPAContainerFactory" >
 		<property name="helper">
@@ -20,9 +21,7 @@
 		</property>
 	</bean>
 	
-	<import resource="classpath:service-context.xml"/>
-	
-	<!-- currency and country -->
+	<!-- ========== currency and country ========== -->
 			
 	<bean class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
 		<constructor-arg value="w.wexpense.model.Currency" />
@@ -36,13 +35,15 @@
 	
 	<bean id="currencyEditor" class="w.wexpense.vaadin.view.GenericEditor" scope="prototype" >
 		<constructor-arg value="w.wexpense.model.Currency" />
-		<property name="propertyConfiguror">
-			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
-				<property name="visibleProperties" value="code,name,roundingFactor"/>
-			</bean>
-		</property>
+		<property name="propertyConfiguror" ref="currencyEditorProperties" />
 	</bean>
 	
+	<bean id="currencyEditorProperties" class="w.wexpense.vaadin.SimplePropertyConfigurator" scope="session">
+		<property name="windowHeight" value="240px"/>
+		<property name="windowWidth" value="340px"/>
+		<property name="visibleProperties" value="code,name,roundingFactor"/>
+	</bean>
+			
 	<bean class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
 		<constructor-arg value="w.wexpense.model.Country" />
 		<lookup-method name="newEditor" bean="countryEditor"/>
@@ -55,13 +56,15 @@
 	
 	<bean id="countryEditor" class="w.wexpense.vaadin.view.GenericEditor" scope="prototype" >
 		<constructor-arg value="w.wexpense.model.Country" />
-		<property name="propertyConfiguror">
-			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
-				<property name="visibleProperties" value="code,name,currency"/>
-			</bean>
-		</property>
+		<property name="propertyConfiguror" ref="countryEditorProperties" />
 	</bean>
 	
+	<bean id="countryEditorProperties" class="w.wexpense.vaadin.SimplePropertyConfigurator" scope="session">
+		<property name="windowHeight" value="240px"/>
+		<property name="windowWidth" value="340px"/>
+		<property name="visibleProperties" value="code,name,currency"/>
+	</bean>
+			
 	<!-- ========== city ========== -->
 	
 	<bean class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
@@ -76,11 +79,13 @@
 	
 	<bean id="cityEditor" class="w.wexpense.vaadin.view.GenericEditor" scope="prototype" >
 		<constructor-arg value="w.wexpense.model.City" />
-		<property name="propertyConfiguror">
-			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
-				<property name="visibleProperties" value="fullId,uid,name,zip,country"/>
-			</bean>
-		</property>
+		<property name="propertyConfiguror" ref="cityEditorProperties" />
+	</bean>
+	
+	<bean id="cityEditorProperties" class="w.wexpense.vaadin.SimplePropertyConfigurator" scope="session">
+		<property name="windowHeight" value="300px"/>
+		<property name="windowWidth" value="350px"/>			
+		<property name="visibleProperties" value="fullId,uid,name,zip,country"/>
 	</bean>
 	
 	<!-- ========== payee ========== -->
@@ -97,11 +102,13 @@
 	
 	<bean id="payeeEditor" class="w.wexpense.vaadin.view.GenericEditor" scope="prototype" >
 		<constructor-arg value="w.wexpense.model.Payee" />
-		<property name="propertyConfiguror">
-			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
-				<property name="visibleProperties" value="fullId,uid,type,prefix,name,address1,address2,city,externalReference,bankDetails"/>
-			</bean>
-		</property>
+		<property name="propertyConfiguror" ref="payeeEditorProperties" />
+	</bean>
+	
+	<bean id="payeeEditorProperties" class="w.wexpense.vaadin.SimplePropertyConfigurator" scope="session">
+		<property name="windowHeight" value="450px"/>
+		<property name="windowWidth" value="500px"/>			
+		<property name="visibleProperties" value="fullId,uid,type,prefix,name,address1,address2,city,externalReference,bankDetails"/>
 	</bean>
 	
 	<bean class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
@@ -116,11 +123,13 @@
 	
 	<bean id="payeeTypeEditor" class="w.wexpense.vaadin.view.GenericEditor" scope="prototype" >
 		<constructor-arg value="w.wexpense.model.PayeeType" />
-		<property name="propertyConfiguror">
-			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
-				<property name="visibleProperties" value="fullId,uid,name,selectable"/>
-			</bean>
-		</property>
+		<property name="propertyConfiguror" ref="payeeTypeEditorProperties" />
+	</bean>
+	
+	<bean id="payeeTypeEditorProperties" class="w.wexpense.vaadin.SimplePropertyConfigurator" scope="session">
+		<property name="windowHeight" value="270px"/>
+		<property name="windowWidth" value="340px"/>			
+		<property name="visibleProperties" value="fullId,uid,name,selectable"/>
 	</bean>
 	
 	<!-- ========== exchange rate ========== -->
@@ -145,12 +154,13 @@
 	
 	<bean id="exchangeRateEditor" class="w.wexpense.vaadin.view.GenericEditor" scope="prototype" >
 		<constructor-arg value="w.wexpense.model.ExchangeRate" />
-		<property name="propertyConfiguror">
-			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
-				<property name="visibleProperties" value="fullId,uid,date,institution,buyCurrency,sellCurrency,rate"/>
-
-			</bean>
-		</property>
+		<property name="propertyConfiguror" ref="exchangeRateEditorProperties" />
+	</bean>
+	
+	<bean id="exchangeRateEditorProperties" class="w.wexpense.vaadin.SimplePropertyConfigurator" scope="session">
+		<property name="windowHeight" value="360px"/>
+		<property name="windowWidth" value="500px"/>			
+		<property name="visibleProperties" value="fullId,uid,date,institution,buyCurrency,sellCurrency,rate"/>
 	</bean>
 	
 	<!-- ========== expense ========== -->
@@ -174,11 +184,7 @@
 	</bean>
 	
 	<bean id="expenseEditor" class="w.wexpense.vaadin.view.ExpenseEditor" scope="prototype" >
-		<property name="propertyConfiguror">
-			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
-				<property name="visibleProperties" value="fullId,uid,date,amount,currency,payee,type,externalReference,description,payment"/>
-			</bean>
-		</property>
+		<property name="propertyConfiguror" ref="expenseEditorProperties" />
 		<property name="subEditor">
 			<bean class="w.wexpense.vaadin.view.ExpenseTransactionLineEditor" scope="prototype" >
 				<property name="propertyConfiguror">
@@ -201,6 +207,12 @@
 		</property>
 	</bean>
 	
+	<bean id="expenseEditorProperties" class="w.wexpense.vaadin.SimplePropertyConfigurator" scope="session">
+		<property name="windowHeight" value="650px"/>
+		<property name="windowWidth" value="910px"/>			
+		<property name="visibleProperties" value="fullId,uid,date,amount,currency,payee,type,externalReference,description,payment"/>
+	</bean>
+	
 	<bean class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
 		<constructor-arg value="w.wexpense.model.ExpenseType" />
 		<lookup-method name="newEditor" bean="expenseTypeEditor"/>
@@ -213,10 +225,17 @@
 	
 	<bean id="expenseTypeEditor" class="w.wexpense.vaadin.view.GenericEditor" scope="prototype" >
 		<constructor-arg value="w.wexpense.model.ExpenseType" />
-		<property name="propertyConfiguror">
-			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
-				<property name="visibleProperties" value="fullId,uid,name,selectable,paymentGeneratorClassName"/>
-			</bean>
+		<property name="propertyConfiguror" ref="expenseTypeEditorProperties" />
+	</bean>
+	
+	<bean id="expenseTypeEditorProperties" class="w.wexpense.vaadin.SimplePropertyConfigurator" scope="session">
+		<property name="windowHeight" value="240px"/>
+		<property name="windowWidth" value="340px"/>			
+		<property name="visibleProperties" value="fullId,uid,name,selectable,paymentGeneratorClassName"/>
+		<property name="otherProperies">
+			<props>
+				<prop key="paymentGeneratorClassName.header">Generator</prop>
+			</props>
 		</property>
 	</bean>
 	
@@ -261,19 +280,21 @@
 	
 	<bean id="accountEditor" class="w.wexpense.vaadin.view.GenericEditor" scope="prototype" >
 		<constructor-arg value="w.wexpense.model.Account" />
-		<property name="propertyConfiguror">
-			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">			
-				<property name="visibleProperties" value="fullId,uid,parent,name,fullName,number,fullNumber,type,externalReference,currency,selectable"/>
-				<property name="otherProperies">
-					<props>
-						<prop key="parent.includeNonSelectable">true</prop>
-					</props>
-				</property>
-			</bean>
+		<property name="propertyConfiguror" ref="accountEditorProperties" />
+	</bean>
+	
+	<bean id="accountEditorProperties" class="w.wexpense.vaadin.SimplePropertyConfigurator" scope="session">
+		<property name="windowHeight" value="490px"/>
+		<property name="windowWidth" value="400px"/>			
+		<property name="visibleProperties" value="fullId,uid,parent,name,fullName,number,fullNumber,type,externalReference,currency,selectable"/>
+		<property name="otherProperies">
+			<props>
+				<prop key="parent.includeNonSelectable">true</prop>
+			</props>
 		</property>
 	</bean>
 	
-	<!-- ========== account ========== -->
+	<!-- ========== discriminator ========== -->
 		
 	<bean class="w.wexpense.vaadin.view.ParentableView" scope="prototype" >
 		<constructor-arg value="w.wexpense.model.Discriminator" />
@@ -287,15 +308,17 @@
 	
 	<bean id="discriminatorEditor" class="w.wexpense.vaadin.view.GenericEditor" scope="prototype" >
 		<constructor-arg value="w.wexpense.model.Discriminator" />
-		<property name="propertyConfiguror">
-			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">			
-				<property name="visibleProperties" value="fullId,uid,parent,name,selectable"/>
-				<property name="otherProperies">
-					<props>
-						<prop key="parent.includeNonSelectable">true</prop>
-					</props>
-				</property>
-			</bean>
+		<property name="propertyConfiguror" ref="discriminatorEditorProperties" />
+	</bean>
+	
+	<bean id="discriminatorEditorProperties" class="w.wexpense.vaadin.SimplePropertyConfigurator" scope="session">
+		<property name="windowHeight" value="310px"/>
+		<property name="windowWidth" value="340px"/>			
+		<property name="visibleProperties" value="fullId,uid,parent,name,selectable"/>
+		<property name="otherProperies">
+			<props>
+				<prop key="parent.includeNonSelectable">true</prop>
+			</props>
 		</property>
 	</bean>
 	
@@ -318,11 +341,7 @@
 	</bean>
 	
 	<bean id="paymentEditor" class="w.wexpense.vaadin.view.PaymentEditor" scope="prototype" >
-		<property name="propertyConfiguror">
-			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
-				<property name="visibleProperties" value="fullId,uid,date,filename"/>
-			</bean>
-		</property>
+		<property name="propertyConfiguror" ref="paymentEditorProperties" />
 		<property name="subEditor">
 			<bean class="w.wexpense.vaadin.view.OneToManySubEditor" scope="prototype" >
 				<constructor-arg value="w.wexpense.model.Expense" />
@@ -345,17 +364,25 @@
 		<lookup-method name="newPaymentDtaEditor" bean="paymentDtaEditor"/>
 	</bean>
 	
+	<bean id="paymentEditorProperties" class="w.wexpense.vaadin.SimplePropertyConfigurator" scope="session">
+		<property name="windowHeight" value="400px"/>
+		<property name="windowWidth" value="500px"/>			
+		<property name="visibleProperties" value="fullId,uid,date,filename"/>
+	</bean>
+	
 	<bean id="paymentDtaEditor" class="w.wexpense.vaadin.view.PaymentDtaEditor" scope="prototype" >
-		<property name="propertyConfiguror">
-			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
-				<property name="visibleProperties" value="data"/>
-				<property name="otherProperies">
-					<props>
-						<prop key="data.expandRatio">100</prop>
-					</props>
-				</property>
-			</bean>
-		</property>		
+		<property name="propertyConfiguror" ref="paymentDtaEditorProperties" />
+	</bean>
+
+	<bean id="paymentDtaEditorProperties" class="w.wexpense.vaadin.SimplePropertyConfigurator" scope="session">
+		<property name="windowHeight" value="420px"/>
+		<property name="windowWidth" value="820px"/>			
+		<property name="visibleProperties" value="data"/>
+		<property name="otherProperies">
+			<props>
+				<prop key="data.expandRatio">100</prop>
+			</props>
+		</property>
 	</bean>
 	
 	<!-- ========== Consolidation ========== -->	
@@ -378,11 +405,7 @@
 	
 	<bean id="consolidationEditor" class="w.wexpense.vaadin.view.OneToManyEditor" scope="prototype" >
 		<constructor-arg value="w.wexpense.model.Consolidation" />
-		<property name="propertyConfiguror">
-			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
-				<property name="visibleProperties" value="fullId,uid,date,institution,openingBalance,closingBalance"/>
-			</bean>
-		</property>
+		<property name="propertyConfiguror" ref="consolidationEditorProperties" />
 		<property name="subEditor">
 			<bean class="w.wexpense.vaadin.view.OneToManySubEditor" scope="prototype" >
 				<constructor-arg value="w.wexpense.model.TransactionLine" />
@@ -414,4 +437,11 @@
 			</bean>
 		</property>
 	</bean>
+
+	<bean id="consolidationEditorProperties" class="w.wexpense.vaadin.SimplePropertyConfigurator" scope="session">
+		<property name="windowHeight" value="480px"/>
+		<property name="windowWidth" value="720px"/>			
+		<property name="visibleProperties" value="fullId,uid,date,institution,openingBalance,closingBalance"/>
+	</bean>
+	
 </beans>

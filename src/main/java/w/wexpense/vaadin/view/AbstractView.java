@@ -7,11 +7,10 @@ import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.Window.Notification;
 
-public abstract class AbstractView<T> extends ConfigurableView implements Action.Handler, ItemClickListener {
+public abstract class AbstractView<T> extends ConfigurableView<T> implements Action.Handler, ItemClickListener {
 
 	private static final long serialVersionUID = 6499289439725418193L;
 	
-	protected Class<T> entityClass;
 	protected Table table;
 
 	protected final Action addAction = new Action("Add");
@@ -24,7 +23,7 @@ public abstract class AbstractView<T> extends ConfigurableView implements Action
 	protected Action[] noEntitySelectedActions = null;
 
 	public AbstractView(Class<T> entityClass) {
-		this.entityClass = entityClass;
+		super(entityClass);
 	}
 
 	protected abstract void initTable();
@@ -89,9 +88,5 @@ public abstract class AbstractView<T> extends ConfigurableView implements Action
 	}
 	
 	public void entitySelected(ItemClickEvent event) {		
-	}
-
-	public Class<T> getEntityClass() {
-		return entityClass;
 	}
 }

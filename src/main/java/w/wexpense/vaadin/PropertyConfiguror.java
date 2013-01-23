@@ -6,6 +6,8 @@ public interface PropertyConfiguror {
 	String propertyIncludeNonSelectable = ".includeNonSelectable";
 	String visibleProperties = "visibleProperties";
 	String nestedProperties = "nestedProperties";
+	String windowHeight = "window.height";
+	String windowWidth = "window.width";
 	String propertyWidth = ".width";
 	String propertyHeight = ".height";
 	String propertyAlignement = ".alignement";
@@ -15,9 +17,14 @@ public interface PropertyConfiguror {
 	String propertyFormat = ".format";
 	String propertyHeader = ".header";
 
+	
+	void setPropertyValue(String property, String value);
+
 	String getPropertyValue(String property, String defaultValue);
 
 	String getPropertyValue(String property);
+
+	void setPropertyValues(String property, String[] values);
 
 	String[] getPropertyValues(String property, String[] defaultValues);
 

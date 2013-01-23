@@ -12,7 +12,7 @@ import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.data.util.filter.Compare.Equal;
 import com.vaadin.ui.Table;
 
-public class PaymentDtaEditor extends ConfigurableView {
+public class PaymentDtaEditor extends ConfigurableView<PaymentDta> {
 
 	private static final long serialVersionUID = -2981650003785171306L;
 	
@@ -23,8 +23,8 @@ public class PaymentDtaEditor extends ConfigurableView {
 	
 	protected Table table;
 	
-	public PaymentDtaEditor() {	
-		setSizeFull();
+	public PaymentDtaEditor() {
+		super(PaymentDta.class);
 	}
 	
 	public void setInstance(Payment payment) {

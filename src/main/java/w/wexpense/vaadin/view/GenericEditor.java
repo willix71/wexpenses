@@ -26,7 +26,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Form;
 import com.vaadin.ui.HorizontalLayout;
 
-public class GenericEditor<T> extends ConfigurableView implements Button.ClickListener {
+public class GenericEditor<T> extends ConfigurableView<T> implements Button.ClickListener {
 	private static final long serialVersionUID = 5282517667310057582L;
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(GenericEditor.class);
@@ -34,7 +34,6 @@ public class GenericEditor<T> extends ConfigurableView implements Button.ClickLi
 	@Autowired
 	private WexJPAContainerFactory jpaContainerFactory;
 
-	private Class<T> entityClass;
 	private String idProperty;
 	private JPAContainer<T> jpaContainer;
 	private BeanItem<T> item;
@@ -45,7 +44,7 @@ public class GenericEditor<T> extends ConfigurableView implements Button.ClickLi
 	private Button cancelButton;
 	
 	public GenericEditor(Class<T> entityClass) {
-		this.entityClass = entityClass;
+		super(entityClass);
 		this.idProperty = PersistenceUtils.getIdName(entityClass);
 	}
 
