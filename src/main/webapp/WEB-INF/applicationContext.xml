@@ -70,6 +70,9 @@
 	<bean class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
 		<constructor-arg value="w.wexpense.model.City" />
 		<lookup-method name="newEditor" bean="cityEditor"/>
+		<property name="filter">
+			<bean class="w.wexpense.vaadin.filter.DisplayFilter" />
+		</property>
 		<property name="propertyConfiguror">
 			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
 				<property name="visibleProperties" value="name,zip,country"/>
@@ -93,6 +96,9 @@
 	<bean class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
 		<constructor-arg value="w.wexpense.model.Payee" />
 		<lookup-method name="newEditor" bean="payeeEditor"/>
+		<property name="filter">
+			<bean class="w.wexpense.vaadin.filter.DisplayFilter" />
+		</property>		
 		<property name="propertyConfiguror">
 			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
 				<property name="visibleProperties" value="type,prefix,name,city"/>

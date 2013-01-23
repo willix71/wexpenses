@@ -8,6 +8,7 @@ import org.vaadin.dialogs.ConfirmDialog;
 import w.wexpense.vaadin.ClosableWindow;
 import w.wexpense.vaadin.PropertyConfiguror;
 import w.wexpense.vaadin.WexJPAContainerFactory;
+import w.wexpense.vaadin.filter.WexFilter;
 
 import com.vaadin.addon.jpacontainer.EntityItem;
 import com.vaadin.addon.jpacontainer.JPAContainer;
@@ -31,7 +32,7 @@ public class GenericView<T> extends AbstractView<T> implements ComponentContaine
 	
 	protected HorizontalLayout toolbar;
 
-	protected Component filter;
+	protected WexFilter filter;
 
 	public GenericView(Class<T> entityClass) {
 		super(entityClass);	
@@ -62,6 +63,9 @@ public class GenericView<T> extends AbstractView<T> implements ComponentContaine
 	protected void initTable() {
 		this.jpaContainer = jpaContainerFactory.getJPAContainer(entityClass, propertyConfiguror.getPropertyValues(PropertyConfiguror.nestedProperties));
 		this.table = new WexTable(jpaContainer, propertyConfiguror);
+		if (filter != null) {
+			filter.setJPAContainer(this.jpaContainer);
+		}
 	}
 	
 	protected void buildToolbar() {
@@ -125,7 +129,8 @@ public class GenericView<T> extends AbstractView<T> implements ComponentContaine
 		return null;
 	}
 
-	public void setFilter(Component filter) {
+	public void setFilter(WexFilter filter) {
 		this.filter = filter;
+		
 	}
 }

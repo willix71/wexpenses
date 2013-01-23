@@ -19,7 +19,9 @@ public class ParentableView<T extends Parentable<T>> extends GenericView<T> {
 	protected void initTable() {
 		this.jpaContainer = jpaContainerFactory.getJPAContainer(entityClass, propertyConfiguror.getPropertyValues(PropertyConfiguror.nestedProperties));
 		this.jpaContainer.setParentProperty("parent");
-		
+		if (filter != null) {
+			filter.setJPAContainer(this.jpaContainer);
+		}
 		this.table = new WexTreeTable(jpaContainer, propertyConfiguror);
 	}
 	
