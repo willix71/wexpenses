@@ -12,6 +12,7 @@ transaction line filters
 Login and Security
 	fetch the owner's payee details for dta from current user
 
+Null pointer exception in creating a root account
 
 GUI
 ===
@@ -20,8 +21,14 @@ height of cells in editable sub view
 
 use modal windows for adding combo box values
 
+field custom header name (see expense type and the Payment Generator Class Name field which should be renamed to Generator)
+
 NICE TO HAVE
 ============
+
+Automatic completion of expense currency (from payee) and transaction line's amount 
+
+Automatic filling  of account full name and number
 
 'dynamic' combo box (picking up new values in caller)
 
@@ -29,6 +36,7 @@ edit expenses from transaction line and consolidation view
 
 selective combo boxes (i.e. only display filtered values such as with discriminators)
 
+unmodifiable sent payments and expenses
 
 TECHY
 =====
@@ -36,3 +44,7 @@ TECHY
 Refactor transaction line update values into the model itself and refresh the table rather than using the properties in the view
 
 remove jpaContainers and use custom jpaRepository dependant containers
+
+add caching to hibernate
+
+lazy loading bug in accounts
