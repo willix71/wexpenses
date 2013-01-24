@@ -216,7 +216,7 @@
 	<bean id="expenseEditorProperties" class="w.wexpense.vaadin.SimplePropertyConfigurator" scope="session">
 		<property name="windowHeight" value="650px"/>
 		<property name="windowWidth" value="910px"/>			
-		<property name="visibleProperties" value="fullId,uid,date,amount,currency,payee,type,externalReference,description,payment"/>
+		<property name="visibleProperties" value="fullId,uid,type,payee,date,amount,currency,externalReference,description,payment"/>
 	</bean>
 	
 	<bean class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
