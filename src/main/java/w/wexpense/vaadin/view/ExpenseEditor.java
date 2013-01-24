@@ -5,12 +5,16 @@ import java.math.BigDecimal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import w.wexpense.model.Currency;
 import w.wexpense.model.Expense;
 import w.wexpense.model.TransactionLine;
+import w.wexpense.utils.ExpenseUtils;
 
-import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.ui.AbstractOrderedLayout;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 
 public class ExpenseEditor extends OneToManyEditor<Expense, TransactionLine> {
 
@@ -22,20 +26,26 @@ public class ExpenseEditor extends OneToManyEditor<Expense, TransactionLine> {
 		super(Expense.class);
 	}
 	
-	@Override
-	public void setInstance(Expense instance, JPAContainer<Expense> jpaContainer) {
-		super.setInstance(instance, jpaContainer);
+	protected AbstractOrderedLayout buildButtons() {
+		AbstractOrderedLayout layout = super.buildButtons();
 		
-		if (instance != null) {
-			((ExpenseTransactionLineEditor) getSubEditor()).setCurrentAmount(instance.getAmount());
-		}
+		layout.addComponent(new Button("debug", new Button.ClickListener() {
+			@Override
+			public void buttonClick(ClickEvent event) {
+				LOGGER.info(ExpenseUtils.toString(getItem().getBean()));
+			}
+		}));
+		
+		return layout;
 	}
 	
 	@Override
 	public void attach() {
 		super.attach();
-		
+
 		addListener();
+
+		((ExpenseTransactionLineEditor) getSubEditor()).setCurrentAmount(getItem().getBean().getAmount());
 		((ExpenseTransactionLineEditor) getSubEditor()).enableUpdateValues(true);
 	}
 	
@@ -44,13 +54,29 @@ public class ExpenseEditor extends OneToManyEditor<Expense, TransactionLine> {
 		getForm().getField("amount").addListener(new Property.ValueChangeListener() {
 			@Override
 			public void valueChange(ValueChangeEvent event) {
-				// get new value
-				Object newObject = event.getProperty().getValue();
-				BigDecimal newAmount = newObject instanceof  BigDecimal? (BigDecimal) newObject: new BigDecimal(newObject.toString());
-				
+				BigDecimal newAmount = getItem().getBean().getAmount();
+
 				LOGGER.debug("Updating transaction lines with new amount {}", newAmount);
 				
-				((ExpenseTransactionLineEditor) getSubEditor()).setCurrentAmount(newAmount);
+				((ExpenseTransactionLineEditor) getSubEditor()).updateAmount(newAmount);
+			}
+		});
+		
+		getForm().getField("payee").addListener(new Property.ValueChangeListener() {
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				Expense expense = getItem().getBean();
+				try {
+					Currency currency = expense.getPayee().getCity().getCountry().getCurrency();
+					
+					LOGGER.debug("Updating currency to {}", currency);
+					expense.setCurrency(currency);
+					
+					// refresh field
+					getForm().getField("currency").requestRepaint();
+				} catch(NullPointerException e) {
+					LOGGER.warn("No currency defined");
+				}
 			}
 		});
 	}

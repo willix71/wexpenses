@@ -63,38 +63,7 @@ public class OneToManySubEditor<C extends DBable, P extends DBable> extends Abst
 		this.parentEntity = parentEntity;
 		this.parentType = parentJpaContainer.getEntityClass(); 						
 		this.childPropertyId = PersistenceUtils.getMappedByProperty(parentType, parentPropertyId);
-
-		JPAContainer<C> childJpaContainer = jpaContainerFactory.getJPAContainerFrom(parentJpaContainer.getEntityProvider(), this.entityClass);			
-		this.fieldFactory = getTableFieldFactory(childJpaContainer, jpaContainerFactory);
-		
-		buildTable();
-
-		// populate the container
-		Collection<C> children = (Collection<C>) new BeanItem<P>(parentEntity).getItemProperty(parentPropertyId).getValue();
-		if (children != null && !children.isEmpty()) {
-			childContainer.addAll(children);
-		}
-		
-		addComponent(table);
-	}
-
-//	protected void buildLayout() {
-//		CssLayout vl = new CssLayout();
-//		
-//		// build the table
-//		buildTable();
-//		vl.addComponent(table);
-//	
-//		addComponent(vl);
-//	}
-	
-	protected TableFieldFactory getTableFieldFactory(JPAContainer<C> childJpaContainer, WexJPAContainerFactory jpaContainerFactory) {
-		return new RelationalFieldFactory<C>(this.propertyConfiguror, childJpaContainer, jpaContainerFactory, this);
-	}
-	
-	@Override
-	protected void initTable() {
-		childContainer = new BeanItemContainer<C>(entityClass) {
+		this.childContainer = new BeanItemContainer<C>(entityClass) {
 			@Override
 			public Property getContainerProperty(Object itemId, Object propertyId) {
 				// TODO figure a way to get Nested properties out of a BeanItemContainer
@@ -111,26 +80,58 @@ public class OneToManySubEditor<C extends DBable, P extends DBable> extends Abst
 		String[] nestedProperties = propertyConfiguror.getPropertyValues(PropertyConfiguror.visibleProperties);
 		if (nestedProperties != null) {
 			for (String nestedProperty : nestedProperties) {
-				childContainer.addNestedContainerProperty(nestedProperty);
+				this.childContainer.addNestedContainerProperty(nestedProperty);
 			}
 		}
+
+		JPAContainer<C> childJpaContainer = jpaContainerFactory.getJPAContainerFrom(parentJpaContainer.getEntityProvider(), this.entityClass);			
+		this.fieldFactory = getTableFieldFactory(childJpaContainer, jpaContainerFactory);		
+		
+		// populate the container
+		Collection<C> children = (Collection<C>) new BeanItem<P>(parentEntity).getItemProperty(parentPropertyId).getValue();
+		if (children != null && !children.isEmpty()) {
+			childContainer.addAll(children);
+		}
+		
 		table = new WexTable(childContainer, propertyConfiguror);
 	}
 	
-	@Override
+	protected TableFieldFactory getTableFieldFactory(JPAContainer<C> childJpaContainer, WexJPAContainerFactory jpaContainerFactory) {
+		return new RelationalFieldFactory<C>(this.propertyConfiguror, childJpaContainer, jpaContainerFactory, this);
+	}
+	
 	protected void buildTable() {
-		super.buildTable();
 		table.setSizeFull();
+		table.setSelectable(true);
+		table.setImmediate(true);
+		table.addListener(this);
+		table.addActionHandler(this);
+
 		table.setPageLength(5);			
 		table.setEditable(editable);		
 		table.setTableFieldFactory(this.fieldFactory);		
+		
+		addComponent(table);
 	}
 
 	@Override
-	public void addEntity() {
+	public void attach() {
+		buildTable();
+		
+		setExpandRatio(table, 1);
+		setSizeFull();
+	}
+	
+	public C newEntity() {
 		C newInstance = PersistenceUtils.newInstance(entityClass);
 		BeanItem<C> beanItem = new BeanItem<C>(newInstance);
 		beanItem.getItemProperty(this.childPropertyId).setValue(parentEntity);
+		return newInstance;
+	}
+	
+	@Override
+	public void addEntity() {
+		C newInstance = newEntity();		
 		childContainer.addBean(newInstance); 
 	}
 	

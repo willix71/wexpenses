@@ -93,7 +93,7 @@ public class WexApplication extends Application implements HttpServletRequestLis
 				@Override
 				public void valueChange(ValueChangeEvent event) {
 					GenericView<?> cv = (GenericView<?>) event.getProperty().getValue();
-					cv.refreshContainer();
+					cv.setInstance();
 					horizontalSplitPanel.setSecondComponent(cv);
 				}
 			});

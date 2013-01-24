@@ -2,8 +2,6 @@ package w.wexpense.vaadin.view;
 
 import w.wexpense.vaadin.PropertyConfiguror;
 
-import com.vaadin.event.Action.Handler;
-import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.ui.VerticalLayout;
 
 public class ConfigurableView<T> extends VerticalLayout {

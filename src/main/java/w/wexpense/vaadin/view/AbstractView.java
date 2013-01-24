@@ -25,17 +25,6 @@ public abstract class AbstractView<T> extends ConfigurableView<T> implements Act
 	public AbstractView(Class<T> entityClass) {
 		super(entityClass);
 	}
-
-	protected abstract void initTable();
-	
-	protected void buildTable() {	
-		initTable();
-		table.setSelectable(true);
-		table.setImmediate(true);
-
-		table.addListener(this);
-		table.addActionHandler(this);
-	}
 	
 	@Override
 	public Action[] getActions(Object target, Object sender) {
@@ -54,10 +43,6 @@ public abstract class AbstractView<T> extends ConfigurableView<T> implements Act
 			deleteEntity(target);
 		} else if (refreshAction == action) {
 			refreshContainer();
-			
-			getWindow().showNotification(
-					entityClass.getSimpleName(), "refreshed...",
-	                Notification.TYPE_HUMANIZED_MESSAGE);			
 		}
 	}
 
@@ -74,7 +59,9 @@ public abstract class AbstractView<T> extends ConfigurableView<T> implements Act
 	}
 	
 	public void refreshContainer() {
-
+		getWindow().showNotification(
+				entityClass.getSimpleName(), "refreshed...",
+                Notification.TYPE_HUMANIZED_MESSAGE);	
 	}
 
 	@Override

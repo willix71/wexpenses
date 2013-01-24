@@ -38,29 +38,32 @@ public class GenericView<T> extends AbstractView<T> implements ComponentContaine
 		super(entityClass);	
 		entitySelectedActions = new Action[] { addAction, editAction, deleteAction, refreshAction };
 		noEntitySelectedActions = new Action[] { addAction, refreshAction };
-	}
-	
-	@PostConstruct
-	protected void init() {
-		buildToolbar();
-		buildTable();		
-		addComponent(toolbar);
-		addComponent(table);
-		setExpandRatio(table, 1);
+		
 		setCaption( entityClass.getSimpleName() );
-		setSizeFull();		
 	}
-	
-	protected void buildTable() {	
-		initTable();
+		
+	protected void buildTable() {		
 		table.setSizeFull();
 		table.setSelectable(true);
 		table.setImmediate(true);
 		table.addListener(this);
 		table.addActionHandler(this);
+		
+		addComponent(table);		
 	}
 
-	protected void initTable() {
+	protected void buildToolbar() {
+		toolbar = new HorizontalLayout();		
+		if (filter !=null) {
+			toolbar.addComponent(filter);
+			toolbar.setWidth("100%");
+			toolbar.setExpandRatio(filter, 1);
+			toolbar.setComponentAlignment(filter, Alignment.TOP_RIGHT);
+		}
+		addComponent(toolbar);
+	}
+
+	public void setInstance() {
 		this.jpaContainer = jpaContainerFactory.getJPAContainer(entityClass, propertyConfiguror.getPropertyValues(PropertyConfiguror.nestedProperties));
 		this.table = new WexTable(jpaContainer, propertyConfiguror);
 		if (filter != null) {
@@ -68,17 +71,15 @@ public class GenericView<T> extends AbstractView<T> implements ComponentContaine
 		}
 	}
 	
-	protected void buildToolbar() {
-		toolbar = new HorizontalLayout();
+	@Override
+	public void attach() {
+		buildToolbar();
+		buildTable();
 		
-		if (filter !=null) {
-			toolbar.addComponent(filter);
-			toolbar.setWidth("100%");
-			toolbar.setExpandRatio(filter, 1);
-			toolbar.setComponentAlignment(filter, Alignment.TOP_RIGHT);
-		}
+		setExpandRatio(table, 1);
+		setSizeFull();
 	}
-
+	
 	@Override
 	public void addEntity() {
 		GenericEditor<T> editor = newEditor();
@@ -115,6 +116,7 @@ public class GenericView<T> extends AbstractView<T> implements ComponentContaine
 	@Override
 	public void refreshContainer() {
 		jpaContainer.refresh();
+		super.refreshContainer();
 	}
 		
 	@Override
@@ -131,6 +133,5 @@ public class GenericView<T> extends AbstractView<T> implements ComponentContaine
 
 	public void setFilter(WexFilter filter) {
 		this.filter = filter;
-		
 	}
 }

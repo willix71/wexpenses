@@ -2,6 +2,7 @@ package w.wexpense.vaadin.view;
 
 import java.math.BigDecimal;
 import java.text.MessageFormat;
+import java.util.Collection;
 
 import javax.persistence.EntityManager;
 
@@ -14,13 +15,17 @@ import w.wexpense.model.ExchangeRate;
 import w.wexpense.model.Expense;
 import w.wexpense.model.TransactionLine;
 import w.wexpense.model.enums.TransactionLineEnum;
+import w.wexpense.persistence.PersistenceUtils;
+import w.wexpense.utils.TransactionLineUtils;
 import w.wexpense.vaadin.WexJPAContainerFactory;
 import w.wexpense.vaadin.fieldfactory.RelationalFieldFactory;
 
+import com.google.common.collect.Table;
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.data.Container;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.util.BeanItem;
 import com.vaadin.event.Action;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Field;
@@ -64,22 +69,17 @@ class ExpenseTransactionLineEditor extends OneToManySubEditor<TransactionLine, E
 		};
 	}
 	
-	class AmountListener implements Property.ValueChangeListener {
+	private class AmountListener implements Property.ValueChangeListener {
+		private static final long serialVersionUID = 2635280167376554849L;
 		private Object rowId;
 		public AmountListener(Object rowId) { this.rowId = rowId; }
 		@Override
 		public void valueChange(ValueChangeEvent event) {
-			Object newObject = event.getProperty().getValue();
-			Double newAmount = 0.0;
-			if (newObject != null) {
-				if (newObject instanceof Number) {
-					newAmount = ((Number) newObject).doubleValue();
-				} else {
-					newAmount = Double.valueOf(newObject.toString());
-				}
+			if (fireUpdateValues) {
+				((TransactionLine) rowId).updateValue();
+				updateTotals();
+				ExpenseTransactionLineEditor.this.requestRepaint();
 			}
-						
-			updateValue(rowId, newAmount, true);
 		}
 	};
 
@@ -88,90 +88,51 @@ class ExpenseTransactionLineEditor extends OneToManySubEditor<TransactionLine, E
 	}
 	
 	public void setCurrentAmount(BigDecimal currentAmount) {
-		updateValues(currentAmount);
 		this.currentExpenseAmount = currentAmount;
+		updateTotals();
 	}
 
-	private void updateValue(Object rowId, Double newRowAmount, boolean refresh) {
-		LOGGER.debug("Updating transaction line value {}", fireUpdateValues);
-		
-		if (fireUpdateValues) {
-			Container container = getChildContainer();
-			Property rateProp = container.getItem(rowId).getItemProperty("exchangeRate");
-			Property accountProp = container.getItem(rowId).getItemProperty("account");
-			Property valueProp = container.getItem(rowId).getItemProperty("value");
-
-			double newValue = newRowAmount == null ? 0 : newRowAmount;
-
-			Currency currency = null;
-			if (rateProp.getValue() != null) {
-				ExchangeRate rate = (ExchangeRate) rateProp.getValue();
-				newValue *= rate.getRate();
-
-				// get the currency of the exchange rate
-				currency = rate.getBuyCurrency();
-			}
-			if (currency == null && accountProp.getValue() != null) {
-				// fall back on the currency of the account
-				currency = ((Account) accountProp.getValue()).getCurrency();
-			}
-			if (currency != null && currency.getRoundingFactor() != null) {
-				// perform rounding
-				newValue = Math.rint(newValue * currency.getRoundingFactor()) / currency.getRoundingFactor();
-			}
-			valueProp.setValue(newValue);
-
-			if (refresh) {
-				updateTotalValue();
-			}
-		}
+	public void updateAmount(BigDecimal newExpenseAmount) {
+		TransactionLineUtils.updateAmount((Collection<TransactionLine>) getChildContainer().getItemIds(), newExpenseAmount, this.currentExpenseAmount);
+		this.currentExpenseAmount = newExpenseAmount;
+		updateTotals();
+		ExpenseTransactionLineEditor.this.requestRepaint();
 	}
 	
-	private void updateValues(BigDecimal newExpenseAmount) {
-		LOGGER.debug("Updating transaction lines amount {}", fireUpdateValues);
-				
-		if (fireUpdateValues) {
-			Container container = getChildContainer();
-			for (Object id : container.getItemIds()) {
-				// get the item property
-				Property amountProp = container.getItem(id).getItemProperty("amount");
-				if (currentExpenseAmount.equals(amountProp.getValue())) {
-					amountProp.setValue(newExpenseAmount);
-					updateValue(id, newExpenseAmount.doubleValue(), false);
-				}
-			}
-		}
-		updateTotalValue();
-	}
-	
-	public void updateTotalValue() {
-		double total = 0;
-		double totalIn = 0;
+	public void updateTotals() {
+		BigDecimal[] deltaAndTotalOut = TransactionLineUtils.getDeltaAndTotalOut((Collection<TransactionLine>) getChildContainer().getItemIds());
 		
-		Container container = getChildContainer();
-		for(Object id: container.getItemIds()) {
-			// get the item property
-			Property factorProp = container.getItem(id).getItemProperty("factor");
-			Property amountProp = container.getItem(id).getItemProperty("amount");
-					
-			double amount = amountProp.getValue() != null? ((Number) amountProp.getValue()).doubleValue(): 0;
-			if (factorProp.getValue() != null) {
-				TransactionLineEnum factor = (TransactionLineEnum)factorProp.getValue();
-				
-				total += factor.getFactor() * amount;
-				if (TransactionLineEnum.IN == factor) {
-					totalIn += amount;
-				}
-			}
-		}
-		
-		String footer = total==0?
-				MessageFormat.format("Amount {0,number,0.00}",totalIn):
-					MessageFormat.format("Diff {0,number,0.00}",total);
+		String footer = deltaAndTotalOut[0].intValue()==0?
+				MessageFormat.format("Amount {0,number,0.00}",deltaAndTotalOut[1]):
+					MessageFormat.format("Diff {0,number,0.00}",deltaAndTotalOut[0]);
 		table.setColumnFooter("amount", footer);
 		table.requestRepaintAll();
 	}
 
+	@Override
+	public TransactionLine newEntity() {
+		TransactionLine newInstance = super.newEntity();
+		
+		BigDecimal[] deltaAndTotalOut = TransactionLineUtils.getDeltaAndTotalOut((Collection<TransactionLine>) getChildContainer().getItemIds());
+		int delta = deltaAndTotalOut[0].intValue();
+		if (delta > 0) {
+			newInstance.setAmount(deltaAndTotalOut[0].abs());
+			newInstance.setFactor(TransactionLineEnum.OUT);
+		} else if (delta < 0) {
+			newInstance.setAmount(deltaAndTotalOut[0].abs());
+			newInstance.setFactor(TransactionLineEnum.IN);
+		} else {
+			if (deltaAndTotalOut[1].intValue() == 0) {
+				newInstance.setAmount(newInstance.getExpense().getAmount());
+				newInstance.setFactor(TransactionLineEnum.OUT);
+			} else {
+				newInstance.setAmount(deltaAndTotalOut[1]);
+				newInstance.setFactor(TransactionLineEnum.IN);
+			}
+		}
+		return newInstance;
+	}
+	
 	@Override
 	public void save(Expense parent, EntityManager em) {
 		fireUpdateValues = false;

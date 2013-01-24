@@ -63,7 +63,7 @@ public class GenericEditor<T> extends ConfigurableView<T> implements Button.Clic
 		
 	protected void buildForm() {
 		form = new BeanValidationForm<T>(entityClass);		
-		form.setWriteThrough(false);
+		form.setWriteThrough(true);
 		form.setImmediate(true);				
 		addComponent(form);		
 	}
@@ -152,6 +152,9 @@ public class GenericEditor<T> extends ConfigurableView<T> implements Button.Clic
 				jpaContainer.refreshItem(o);
 			}
 
+			isNew = false;
+			item = new BeanItem<T>(t);
+
 			return t;
 		} catch (Exception e) {
 			LOGGER.error("Failed to save entity", e);
@@ -197,6 +200,10 @@ public class GenericEditor<T> extends ConfigurableView<T> implements Button.Clic
 	
 	public BeanItem<T> getItem() {
 		return item;
+	}
+
+	public boolean isNew() {
+		return isNew;
 	}
 
 	public JPAContainer<T> getJpaContainer() {
