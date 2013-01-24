@@ -57,9 +57,10 @@ public class PaymentDtaService {
 				dtas.add(new PaymentDta(payment, ++order, expense, line));
 			}
 		}
-		for(String line: endFormater.format(payment, ++index)) {
-			dtas.add(new PaymentDta(payment, ++order, null, line));
-		}
+		
+		String endLine = endFormater.format(payment, ++index);
+		dtas.add(new PaymentDta(payment, ++order, null, endLine));
+
 		return dtas;
 	}
 }

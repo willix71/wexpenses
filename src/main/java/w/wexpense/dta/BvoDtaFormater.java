@@ -15,13 +15,9 @@ import com.google.common.base.Preconditions;
 import w.wexpense.model.Expense;
 import w.wexpense.model.Payee;
 import w.wexpense.model.Payment;
-public class BvoDtaFormater extends AbstractDtaFormater {
+public class BvoDtaFormater implements DtaFormater {
 
 	public static final String TRANSACTION_TYPE = "826";
-	
-	public BvoDtaFormater() {
-		super(TRANSACTION_TYPE);
-	}
 	
 	@Override
 	public List<String> format(Payment payment, int index, Expense expense) {

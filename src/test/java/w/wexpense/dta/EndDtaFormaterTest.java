@@ -17,9 +17,9 @@ public class EndDtaFormaterTest {
 	@Test
 	public void testBvo() {
 		Payment payment = createPaymentData(15,2,2013,"test.dta"); 
-		List<String> l = new EndDtaFormater().format(payment, 2);
-		Assert.assertEquals(1, l.size());
-		Assert.assertEquals(128, l.get(0).length());
-		Assert.assertEquals(expected, l.get(0));
+		String l = new EndDtaFormater().format(payment, 2);
+		Assert.assertNotNull(l);
+		Assert.assertEquals(128, l.length());
+		Assert.assertEquals(expected, l);
 	}
 }

@@ -3,8 +3,6 @@ package w.wexpense.dta;
 import static w.wexpense.dta.DtaHelper.pad;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.List;
 
 import w.wexpense.model.Expense;
 import w.wexpense.model.Payment;
@@ -13,14 +11,7 @@ public class EndDtaFormater {
 
 	public static final String TRANSACTION_TYPE = "890";	
 	
-
-	public List<String> format(Payment payment, int index) {
-		List<String> lines = new ArrayList<String>();
-		lines.add(formatLine01(payment, index));
-		return lines;
-	}
-	
-	protected String formatLine01(Payment payment, int index) {
+	public String format(Payment payment, int index) {
 		StringBuilder line01 = new StringBuilder();
 		line01.append("01");
 

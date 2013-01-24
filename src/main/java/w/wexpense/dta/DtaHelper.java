@@ -1,8 +1,5 @@
 package w.wexpense.dta;
 
-import static w.wexpense.dta.DtaHelper.getTransactionLine;
-import static w.wexpense.dta.DtaHelper.pad;
-import static w.wexpense.dta.DtaHelper.zeroPad;
 import static w.wexpense.model.enums.TransactionLineEnum.OUT;
 
 import java.text.DecimalFormat;
@@ -17,7 +14,6 @@ import w.wexpense.model.City;
 import w.wexpense.model.Country;
 import w.wexpense.model.Expense;
 import w.wexpense.model.Payee;
-import w.wexpense.model.Payment;
 import w.wexpense.model.TransactionLine;
 import w.wexpense.model.enums.TransactionLineEnum;
 

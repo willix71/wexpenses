@@ -16,13 +16,9 @@ import w.wexpense.model.Expense;
 import w.wexpense.model.Payee;
 import w.wexpense.model.Payment;
 
-public class BvrDtaFormater extends AbstractDtaFormater {
+public class BvrDtaFormater implements DtaFormater {
 
 	public static final String TRANSACTION_TYPE = "827";
-
-	public BvrDtaFormater() {
-		super(TRANSACTION_TYPE);
-	}
 		
 	@Override
 	public List<String> format(Payment payment, int index, Expense expense) {
