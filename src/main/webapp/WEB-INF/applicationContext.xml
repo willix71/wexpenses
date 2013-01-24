@@ -13,7 +13,7 @@
 	
 	<context:annotation-config />
 	
-	<context:property-placeholder location="classpath:wexpences.properties" />
+	<context:property-placeholder location="classpath:wexpenses.properties" />
 	
 	<bean class="w.wexpense.vaadin.WexJPAContainerFactory" >
 		<property name="helper">
