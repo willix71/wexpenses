@@ -22,6 +22,8 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Field;
 import com.vaadin.ui.NativeSelect;
+import com.vaadin.ui.Window.CloseEvent;
+import com.vaadin.ui.Window.CloseListener;
 
 public class RelationalFieldFactory<T> extends SimpleFieldFactory {
 
@@ -67,32 +69,7 @@ public class RelationalFieldFactory<T> extends SimpleFieldFactory {
 
 	protected Field createManyToOneField(Item item, final Class<?> type, Object propertyId, Component uiContext) {
 		final JPAContainer<?> comboContainer = getJpaContainer(type, propertyId);
-		final ComboBox select = new ComboBox();
-		select.setMultiSelect(false);
-		select.setContainerDataSource(comboContainer);
-		select.setPropertyDataSource(new SingleSelectTranslator(select));
-		select.setItemCaptionMode(NativeSelect.ITEM_CAPTION_MODE_ITEM);
-		select.setFilteringMode(AbstractSelect.Filtering.FILTERINGMODE_CONTAINS);
-		
-		// allow for 'in-place' editing if DBable (so not for currency and country)
-		if (DBable.class.isAssignableFrom(type)) {
-			select.setNewItemsAllowed(true);
-			select.setNewItemHandler(new NewItemHandler() {
-				public void addNewItem(String newItemCaption) {	
-					WexApplication wexapplication = (WexApplication) caller.getApplication();
-					GenericEditor editor = wexapplication.getEditorFor(type);
-					editor.setInstance(null, comboContainer);
-					
-					Property p = editor.getItem().getItemProperty("name");
-					if (p!=null && String.class.equals(p.getType())) {
-						p.setValue(newItemCaption);
-					}
-					wexapplication.getMainWindow().addWindow(new ClosableWindow(editor));
-				}
-			});
-		}
-		
-		return select;
+		return new WexComboBox(type, comboContainer, caller);		
 	}
 
 	protected JPAContainer<?> getJpaContainer(Class<?> type, Object propertyId) {
