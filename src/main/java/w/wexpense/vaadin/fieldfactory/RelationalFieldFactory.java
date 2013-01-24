@@ -69,7 +69,7 @@ public class RelationalFieldFactory<T> extends SimpleFieldFactory {
 
 	protected Field createManyToOneField(Item item, final Class<?> type, Object propertyId, Component uiContext) {
 		final JPAContainer<?> comboContainer = getJpaContainer(type, propertyId);
-		return new WexComboBox2(type, comboContainer, caller);		
+		return new WexComboBox(type, comboContainer, caller);		
 	}
 
 	protected JPAContainer<?> getJpaContainer(Class<?> type, Object propertyId) {
