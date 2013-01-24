@@ -32,6 +32,7 @@ public class Payee extends DBable {
 	// ISR
     private String externalReference;
     
+    @ManyToOne(fetch = FetchType.EAGER)
     private Payee bankDetails;
    
     private String display;
