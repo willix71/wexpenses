@@ -90,6 +90,8 @@ public class WexApplication extends Application implements HttpServletRequestLis
 
 			final HorizontalSplitPanel horizontalSplitPanel = new HorizontalSplitPanel();		
 			navTree.addListener(new Property.ValueChangeListener() {
+				private static final long serialVersionUID = 1L;
+
 				@Override
 				public void valueChange(ValueChangeEvent event) {
 					GenericView<?> cv = (GenericView<?>) event.getProperty().getValue();
