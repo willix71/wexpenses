@@ -13,10 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import w.wexpense.model.DBable;
 import w.wexpense.persistence.PersistenceUtils;
+import w.wexpense.vaadin.ClosableWindow;
 import w.wexpense.vaadin.PropertyConfiguror;
 import w.wexpense.vaadin.WexJPAContainerFactory;
 import w.wexpense.vaadin.fieldfactory.RelationalFieldFactory;
 
+import com.vaadin.addon.jpacontainer.EntityItem;
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
@@ -25,6 +27,8 @@ import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.event.Action;
 import com.vaadin.ui.TableFieldFactory;
+import com.vaadin.ui.Window.CloseEvent;
+import com.vaadin.ui.Window.CloseListener;
 
 public class OneToManySubEditor<C extends DBable, P extends DBable> extends AbstractView<C> {
 
@@ -131,8 +135,27 @@ public class OneToManySubEditor<C extends DBable, P extends DBable> extends Abst
 	
 	@Override
 	public void addEntity() {
-		C newInstance = newEntity();		
-		childContainer.addBean(newInstance); 
+		final GenericView<C> view = newView();
+		view.setInstance();
+		
+		if (view != null) {
+			view.table.setMultiSelect(true);
+
+			ClosableWindow window = new ClosableWindow(view);
+			window.setModal(true);
+
+			window.addListener(new CloseListener() {						
+				@Override
+				public void windowClose(CloseEvent e) {
+					for(Object id : (Collection) view.table.getValue()) {
+						EntityItem<C> i = (EntityItem<C>) view.table.getItem(id);
+						i.getItemProperty(childPropertyId).setValue(parentEntity);
+						entityManager.merge(i.getEntity());						
+					}
+				}
+			});		
+			getApplication().getMainWindow().addWindow(window);	
+		}
 	}
 	
 	@Override
@@ -188,7 +211,11 @@ public class OneToManySubEditor<C extends DBable, P extends DBable> extends Abst
 		return childPropertyId;
 	}
 
-	public Container getChildContainer() {
+	public BeanItemContainer<C> getChildContainer() {
 		return childContainer;
+	}
+	
+	public GenericView<C> newView() {
+		return null;
 	}
 }

@@ -1,7 +1,5 @@
 package w.wexpense.vaadin.view;
 
-import javax.annotation.PostConstruct;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.dialogs.ConfirmDialog;
 
@@ -15,11 +13,8 @@ import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.event.Action;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Component;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.Window.Notification;
 
 public class GenericView<T> extends AbstractView<T> implements ComponentContainer {

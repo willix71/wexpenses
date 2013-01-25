@@ -9,23 +9,17 @@ import javax.persistence.EntityManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import w.wexpense.model.Account;
-import w.wexpense.model.Currency;
-import w.wexpense.model.ExchangeRate;
 import w.wexpense.model.Expense;
 import w.wexpense.model.TransactionLine;
 import w.wexpense.model.enums.TransactionLineEnum;
-import w.wexpense.persistence.PersistenceUtils;
 import w.wexpense.utils.TransactionLineUtils;
 import w.wexpense.vaadin.WexJPAContainerFactory;
 import w.wexpense.vaadin.fieldfactory.RelationalFieldFactory;
 
-import com.google.common.collect.Table;
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.data.Container;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.util.BeanItem;
 import com.vaadin.event.Action;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Field;
@@ -131,6 +125,12 @@ class ExpenseTransactionLineEditor extends OneToManySubEditor<TransactionLine, E
 			}
 		}
 		return newInstance;
+	}
+	
+	@Override
+	public void addEntity() {
+		TransactionLine newInstance = newEntity();		
+		getChildContainer().addBean(newInstance); 
 	}
 	
 	@Override

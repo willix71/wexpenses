@@ -171,7 +171,7 @@
 	
 	<!-- ========== expense ========== -->
 
-	<bean class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
+	<bean id="expenseView" class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
 		<constructor-arg value="w.wexpense.model.Expense" />
 		<lookup-method name="newEditor" bean="expenseEditor"/>
 		<property name="propertyConfiguror">
@@ -245,7 +245,7 @@
 		</property>
 	</bean>
 	
-	<bean class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
+	<bean id="transactionLineView" class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
 		<constructor-arg value="w.wexpense.model.TransactionLine" />
 		<property name="propertyConfiguror">
 			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
@@ -329,7 +329,7 @@
 	
 	<!-- ========== Payments ========== -->	
 	
-	<bean class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
+	<bean id="paymentView" class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
 		<constructor-arg value="w.wexpense.model.Payment" />
 		<lookup-method name="newEditor" bean="paymentEditor"/>
 		<property name="propertyConfiguror">
@@ -352,6 +352,7 @@
 				<constructor-arg value="w.wexpense.model.Expense" />
 				<constructor-arg value="expenses" />
 				<property name="editable" value="false" />
+				<lookup-method name="newView" bean="expenseView"/>
 				<property name="propertyConfiguror">
 					<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
 						<property name="visibleProperties" value="date,amount,currency,payee"/>
@@ -392,7 +393,7 @@
 	
 	<!-- ========== Consolidation ========== -->	
 	
-	<bean class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
+	<bean id="consolidationView" class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
 		<constructor-arg value="w.wexpense.model.Consolidation" />
 		<lookup-method name="newEditor" bean="consolidationEditor"/>
 		<property name="propertyConfiguror">
@@ -416,6 +417,7 @@
 				<constructor-arg value="w.wexpense.model.TransactionLine" />
 				<constructor-arg value="transactions" />
 				<property name="editable" value="false" />
+				<lookup-method name="newView" bean="transactionLineView"/>
 				<property name="propertyConfiguror">
 					<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
 						<!-- TODO figure a way to get Nested properties out of a BeanItemContainer
