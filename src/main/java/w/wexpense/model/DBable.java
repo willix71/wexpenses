@@ -97,7 +97,7 @@ public abstract class DBable implements Serializable {
 	}
 
 	public boolean isNew() {
-		return modifiedTs == null;
+		return id == null;
 	}
 	
 	@Override
