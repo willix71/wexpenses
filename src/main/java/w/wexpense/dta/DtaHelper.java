@@ -1,5 +1,6 @@
 package w.wexpense.dta;
 
+import static w.wexpense.model.enums.TransactionLineEnum.IN;
 import static w.wexpense.model.enums.TransactionLineEnum.OUT;
 
 import java.text.DecimalFormat;
@@ -115,6 +116,10 @@ public class DtaHelper {
 		return lines;
 	}
 	
+	public static String getExpenseHint(Expense expense) {
+		return getTransactionLine(IN, expense).getAccount().getFullName();
+	}
+	
 	public static TransactionLine getTransactionLine(TransactionLineEnum factor, Expense expense) {
 		for(TransactionLine l: expense.getTransactions()) {
 			if (l.getFactor()==factor) return l;
@@ -158,7 +163,7 @@ public class DtaHelper {
 			sb.append(pad(7));
 		} else {String iban = getTransactionLine(OUT, expense).getAccount().getExternalReference();
 			String clearing = iban.substring(4, 9);
-			// remove leading zero and the pad to 7
+			// remove leading zero and then pad to 7
 			String purgedClearing = Integer.valueOf(clearing).toString();
 			sb.append(pad(purgedClearing,7));
 		}

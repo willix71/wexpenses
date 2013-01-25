@@ -1,20 +1,18 @@
 package w.wexpense.dta;
 
 import static w.wexpense.dta.DtaHelper.formatLine01;
-import static w.wexpense.dta.DtaHelper.getTransactionLine;
 import static w.wexpense.dta.DtaHelper.lineSeparator;
 import static w.wexpense.dta.DtaHelper.pad;
-import static w.wexpense.model.enums.TransactionLineEnum.IN;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import com.google.common.base.Preconditions;
-
 import w.wexpense.model.Expense;
 import w.wexpense.model.Payee;
 import w.wexpense.model.Payment;
+
+import com.google.common.base.Preconditions;
 
 public class BvrDtaFormater implements DtaFormater {
 
@@ -50,7 +48,7 @@ public class BvrDtaFormater implements DtaFormater {
 		line02.append(pad(payee.getAddress2(),24));
 		line02.append(pad(payee.getCity().toString(),24));
 
-		line02.append(pad(getTransactionLine(IN, expense).getAccount().getFullName(),30));
+		line02.append(pad(DtaHelper.getExpenseHint(expense),30));
 		return line02.toString();
 	}
 	
