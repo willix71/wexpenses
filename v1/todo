@@ -7,30 +7,20 @@ exchange rate handling
 
 Advanced filters on expense and transaction lines
 
-transaction line filters
+transaction line filters account
 
 Login and Security
 	fetch the owner's payee details for dta from current user
-
-Null pointer exception in creating a root account
 
 GUI
 ===
 
 height of cells in editable sub view
 
-use modal windows for adding combo box values
-
 field custom header name (see expense type and the Payment Generator Class Name field which should be renamed to Generator)
 
 NICE TO HAVE
 ============
-
-Automatic completion of expense currency (from payee) and transaction line's amount 
-
-Automatic filling  of account full name and number
-
-'dynamic' combo box (picking up new values in caller)
 
 edit expenses from transaction line and consolidation view
 
@@ -46,5 +36,3 @@ Refactor transaction line update values into the model itself and refresh the ta
 remove jpaContainers and use custom jpaRepository dependant containers
 
 add caching to hibernate
-
-lazy loading bug in accounts

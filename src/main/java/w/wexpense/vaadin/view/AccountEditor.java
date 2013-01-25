@@ -6,7 +6,7 @@ import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 
-public class AccountEditor extends GenericEditor<Account> {
+public class AccountEditor extends ParentableEditor<Account> {
 
 	private static final long serialVersionUID = 701758651197792890L;
 	

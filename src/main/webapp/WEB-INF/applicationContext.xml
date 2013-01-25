@@ -311,7 +311,7 @@
 		</property>
 	</bean>
 	
-	<bean id="discriminatorEditor" class="w.wexpense.vaadin.view.GenericEditor" scope="prototype" >
+	<bean id="discriminatorEditor" class="w.wexpense.vaadin.view.ParentableEditor" scope="prototype" >
 		<constructor-arg value="w.wexpense.model.Discriminator" />
 		<property name="propertyConfiguror" ref="discriminatorEditorProperties" />
 	</bean>
