@@ -284,8 +284,7 @@
 		</property>
 	</bean>
 	
-	<bean id="accountEditor" class="w.wexpense.vaadin.view.GenericEditor" scope="prototype" >
-		<constructor-arg value="w.wexpense.model.Account" />
+	<bean id="accountEditor" class="w.wexpense.vaadin.view.AccountEditor" scope="prototype" >
 		<property name="propertyConfiguror" ref="accountEditorProperties" />
 	</bean>
 	

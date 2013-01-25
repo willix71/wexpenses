@@ -51,18 +51,28 @@ public class Account extends AbstractType implements Parentable<Account> {
 	public Account(Account parent, int number, String name, AccountEnum type, Currency currency) {
 		super(name, currency != null);
 		this.number = String.valueOf(number);
-		if (parent == null) {
-			this.fullName = name;
-			this.fullNumber = this.number;
-		} else {
-			this.parent = parent;
-			this.fullName = parent.fullName + ":" + name;
-			this.fullNumber = parent.fullNumber + ":" + this.number;
-		}
+		this.parent = parent;
+		updateFullNameAndNumber();
 		this.type = type;
 		this.currency = currency;
 	}
 
+	public void updateFullNameAndNumber() {		
+		if (getParent() == null) {
+			this.fullName = "";
+			this.fullNumber = "";
+		} else {
+			this.fullName = getParent().getFullName() + ":";
+			this.fullNumber = getParent().getFullNumber() + ":";			
+		}
+		if (getName() != null) {
+			this.fullName += getName();
+		}
+		if (getNumber() != null) {
+			this.fullNumber += getNumber();
+		}		
+	}
+	
 	@PreUpdate
 	public void preupdate() {
 		display = fullNumber + " " + fullName;
