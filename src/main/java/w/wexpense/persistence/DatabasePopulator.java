@@ -32,26 +32,21 @@ import w.wexpense.model.enums.TransactionLineEnum;
 
 public class DatabasePopulator {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DatabasePopulator.class);
-	
-//	@Autowired
-//	private WexJPAContainerFactory jpaContainerFactory;
-	
+
 	@PersistenceContext
 	private EntityManager em;
 	
 	@Transactional
 	public void populate() {
-		//em = jpaContainerFactory.getEntityManager();
+		long currencySize = (Long) em.createQuery("SELECT COUNT(p) FROM Currency p").getSingleResult();
+		long countrySize = (Long) em.createQuery("SELECT COUNT(p) FROM Country p").getSingleResult();
 		
-		long size = (Long) em.createQuery("SELECT COUNT(p) FROM Currency p").getSingleResult();
+		LOGGER.info("Number of currencies {} and countries {}", currencySize, countrySize);
 		
-		LOGGER.info("Number of currencies {}", size);
-		
-		if (size == 0) {
+		if (currencySize == 0 && countrySize ==0) {
 			// create test data
-	
-			//em.getTransaction().begin();
-	
+			LOGGER.warn("Creating test data");
+
 			Currency chf = save(new Currency("CHF", "Swiss Francs", 20));
 			Currency euro = save(new Currency("EUR", "Euro", 100));
 			Currency usd = save(new Currency("USD", "US Dollar", 100));
@@ -224,7 +219,6 @@ public class DatabasePopulator {
 			save(line);
 			
 			em.flush();
-			//em.getTransaction().commit();
 		}
 	}
 	

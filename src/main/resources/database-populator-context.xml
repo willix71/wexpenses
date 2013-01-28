@@ -10,9 +10,15 @@
 
 	<context:annotation-config />
 	
-	<context:property-placeholder location="classpath:persistence-create.properties" />
+	<context:property-override location="classpath:${env:dev}/persistence.properties" />
 	 
-	<bean class="w.wexpense.persistence.PersistenceConfiguration" />
+	<bean id="jdbc" class="w.wexpense.persistence.PersistenceConfiguration" >
+		<property name="jpaAdapterProperties">
+			<bean class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+				<property name="location" value="classpath:${env:dev}/Hibernate-populator.properties" />
+			</bean>
+		</property>
+	</bean>		
 	 
 	<bean class="w.wexpense.persistence.DatabasePopulator" />
 	
