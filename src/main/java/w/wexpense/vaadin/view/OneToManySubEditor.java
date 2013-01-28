@@ -1,7 +1,9 @@
 package w.wexpense.vaadin.view;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
@@ -20,7 +22,6 @@ import w.wexpense.vaadin.fieldfactory.RelationalFieldFactory;
 
 import com.vaadin.addon.jpacontainer.EntityItem;
 import com.vaadin.addon.jpacontainer.JPAContainer;
-import com.vaadin.data.Container;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.BeanItem;
@@ -52,8 +53,8 @@ public class OneToManySubEditor<C extends DBable, P extends DBable> extends Abst
 	
 	private boolean editable = true;
 	
-	private Set<C> toDelete = new HashSet<C>();
-	private Set<C> toRemove = new HashSet<C>();
+	private enum PersistAction { ADD, MERGE, DELETE }
+	private Map<C, PersistAction> persistEntities = new HashMap<C, PersistAction>();
 	
 	public OneToManySubEditor(Class<C> childType, String parentPropertyId) {
 		super(childType);
@@ -148,9 +149,11 @@ public class OneToManySubEditor<C extends DBable, P extends DBable> extends Abst
 				@Override
 				public void windowClose(CloseEvent e) {
 					for(Object id : (Collection) view.table.getValue()) {
-						EntityItem<C> i = (EntityItem<C>) view.table.getItem(id);
-						i.getItemProperty(childPropertyId).setValue(parentEntity);
-						entityManager.merge(i.getEntity());						
+						EntityItem<C> item = (EntityItem<C>) view.table.getItem(id);
+						item.getItemProperty(childPropertyId).setValue(parentEntity);
+						C c = item.getEntity();
+						childContainer.addBean(c);
+						persistEntities.put(c, PersistAction.MERGE);
 					}
 				}
 			});		
@@ -164,7 +167,7 @@ public class OneToManySubEditor<C extends DBable, P extends DBable> extends Abst
 		Item item = childContainer.getItem(c);
 		item.getItemProperty(this.childPropertyId).setValue(null);
 		if (!c.isNew()) {
-			toRemove.add(c);
+			persistEntities.put(c, PersistAction.MERGE);
 		}
 		childContainer.removeItem(c);
 	}
@@ -173,7 +176,7 @@ public class OneToManySubEditor<C extends DBable, P extends DBable> extends Abst
 	public void deleteEntity(Object target) {
 		C c = (C) table.getValue();
 		if (!c.isNew()) {
-			toDelete.add(c);
+			persistEntities.put(c, PersistAction.DELETE);
 		}
 		childContainer.removeItem(table.getValue());
 	}
@@ -191,11 +194,16 @@ public class OneToManySubEditor<C extends DBable, P extends DBable> extends Abst
 				em.merge(child);
 			}
 		}
-		for(C child: toRemove) {
-			em.merge(child);
-		}
-		for(C child: toDelete) {
-			em.remove(em.merge(child));
+		
+		for(Map.Entry<C, PersistAction> entry: persistEntities.entrySet()) {
+			switch(entry.getValue()) {
+			case MERGE:
+				em.merge(em.merge(entry.getKey()));
+				break;
+			case DELETE:
+				em.remove(em.merge(entry.getKey()));
+				break;
+			}
 		}
 	}
 	

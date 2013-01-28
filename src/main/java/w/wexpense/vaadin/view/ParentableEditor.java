@@ -18,15 +18,15 @@ public class ParentableEditor<T extends Parentable<T>> extends GenericEditor<T> 
 		// open the children -> we get a 
 		// 	org.hibernate.LazyInitializationException: could not initialize proxy - no Session
 		// and the application fails totally (a server restart is needed)
-		// Not quite sure why, full stack trace below.
-		
+		// Not quite sure why, full stack trace below.		
 		for(T child: a.getParent().getChildren()) {
-			System.out.println(child);
+			child.toString();
 		}
 		return a;
 	}
 
 }
+
 /*
 2013-01-25 12:03:54,624 DEBUG | org.springframework.orm.jpa.support.OpenEntityManagerInViewInterceptor | Opening JPA EntityManager in OpenEntityManagerInViewInterceptor 
 2013-01-25 12:03:54,624 DEBUG | w.wexpense.vaadin.WexApplication | Request started with EntityManagerPerRequestHelper 

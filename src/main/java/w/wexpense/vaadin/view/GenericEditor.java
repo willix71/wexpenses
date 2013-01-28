@@ -80,8 +80,13 @@ public class GenericEditor<T> extends ConfigurableView<T> implements Button.Clic
 		return buttonLayout;
 	}
 	
-	public void setInstance(T instance, JPAContainer<T> jpaContainer) {		
+	protected void setInstance(JPAContainer<T> jpaContainer) {		
 		this.jpaContainer = jpaContainer;
+		
+		this.form.setFormFieldFactory(new RelationalFieldFactory<T>(propertyConfiguror, jpaContainer, jpaContainerFactory, this));				
+	}
+
+	protected void setInstance(T instance) {
 		if (instance == null) {
 			this.isNew = true;
 			this.item = new BeanItem<T>(PersistenceUtils.newInstance(entityClass));
@@ -97,13 +102,17 @@ public class GenericEditor<T> extends ConfigurableView<T> implements Button.Clic
 			T t = reloadInstance(instance);
 
 			this.item = new BeanItem<T>(t);
-		}			
+		}
 		
-		form.setFormFieldFactory(new RelationalFieldFactory<T>(propertyConfiguror, jpaContainer, jpaContainerFactory, this));				
-		String[] propertyIds=propertyConfiguror.getPropertyValues(PropertyConfiguror.visibleProperties);		
+		String[] propertyIds=propertyConfiguror.getPropertyValues(PropertyConfiguror.visibleProperties);
 		form.setItemDataSource(item, Arrays.asList(propertyIds));
 	}
-
+	
+	public void setInstance(T instance, JPAContainer<T> jpaContainer) {
+		setInstance(jpaContainer);
+		setInstance(instance);
+	}
+	
 	public T reloadInstance(T instance) {
 		EntityManager entityManager = jpaContainerFactory.getEntityManager();
 		Object id = new BeanItem<T>(instance).getItemProperty(idProperty).getValue();
@@ -136,7 +145,7 @@ public class GenericEditor<T> extends ConfigurableView<T> implements Button.Clic
 	
 	protected void saveOnly() {
 		T t = save();
-		setInstance(t, jpaContainer);
+		setInstance(reloadInstance(t));
 		getWindow().setCaption(getTitle());
 	}
 	
