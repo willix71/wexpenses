@@ -20,8 +20,7 @@ public class ClosableWindow extends Window {
 		String width = component.getPropertyConfiguror().getPropertyValue(PropertyConfiguror.windowWidth, "100%");
 		setWidth(width);
 
-		setCaption(component.getCaption());
-		component.setCaption(null);
+		component.setWexWindow(this);
 		
 		addComponent(component);
 		

@@ -3,6 +3,7 @@ package w.wexpense.vaadin.view;
 import w.wexpense.vaadin.PropertyConfiguror;
 
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 
 public class ConfigurableView<T> extends VerticalLayout {
 	
@@ -12,6 +13,8 @@ public class ConfigurableView<T> extends VerticalLayout {
 	
 	protected PropertyConfiguror propertyConfiguror;
 
+	protected Window window;
+	
 	public ConfigurableView(Class<T> entityClass) {
 		this.entityClass = entityClass;
 	}
@@ -28,4 +31,18 @@ public class ConfigurableView<T> extends VerticalLayout {
 		this.propertyConfiguror = propertyConfiguror;
 	}
 
+	public String getTitle() {
+		return null;
+	}
+
+	public Window getWexWindow() {
+		return window;
+	}
+
+	public void setWexWindow(Window window) {
+		this.window = window;
+		this.window.setCaption(getTitle());
+	}
+	
+	
 }

@@ -112,7 +112,7 @@ public class WexApplication extends Application implements HttpServletRequestLis
 
 		public Object addView(GenericView<?> view) {
 			Object componentId = navTree.addItem(view);
-			navTree.setItemCaption(view, view.getCaption());
+			navTree.setItemCaption(view, view.getTitle());
 			navTree.setChildrenAllowed(view, false);
 			return componentId;
 		}

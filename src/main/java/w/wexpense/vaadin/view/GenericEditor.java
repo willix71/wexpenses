@@ -41,7 +41,8 @@ public class GenericEditor<T> extends ConfigurableView<T> implements Button.Clic
 	
 	private BeanValidationForm<T> form;
 	private Button saveButton;
-	private Button cancelButton;
+	private Button saveAndCloseButton;
+	private Button cancelAndCloseButton;
 	
 	public GenericEditor(Class<T> entityClass) {
 		super(entityClass);
@@ -71,9 +72,11 @@ public class GenericEditor<T> extends ConfigurableView<T> implements Button.Clic
 	protected AbstractOrderedLayout buildButtons() {
 		HorizontalLayout buttonLayout = new HorizontalLayout();
 		saveButton = new Button("Save", (Button.ClickListener) this);
-		cancelButton = new Button("Cancel", (Button.ClickListener) this);
+		saveAndCloseButton = new Button("Save&Close", (Button.ClickListener) this);
+		cancelAndCloseButton = new Button("Close", (Button.ClickListener) this);
 		buttonLayout.addComponent(saveButton);
-		buttonLayout.addComponent(cancelButton);
+		buttonLayout.addComponent(saveAndCloseButton);
+		buttonLayout.addComponent(cancelAndCloseButton);
 		return buttonLayout;
 	}
 	
@@ -99,8 +102,6 @@ public class GenericEditor<T> extends ConfigurableView<T> implements Button.Clic
 		form.setFormFieldFactory(new RelationalFieldFactory<T>(propertyConfiguror, jpaContainer, jpaContainerFactory, this));				
 		String[] propertyIds=propertyConfiguror.getPropertyValues(PropertyConfiguror.visibleProperties);		
 		form.setItemDataSource(item, Arrays.asList(propertyIds));
-		
-		setCaption();
 	}
 
 	public T reloadInstance(T instance) {
@@ -110,26 +111,35 @@ public class GenericEditor<T> extends ConfigurableView<T> implements Button.Clic
 		return t;
 	}
 	
-	protected void setCaption() {
-		String caption = entityClass.getSimpleName();
+	@Override
+	public String getTitle() {
+		String title = entityClass.getSimpleName();
 		if (!isNew) {
 			Object o = item.getBean();
 			if (o != null) {
-				caption = o.toString();
+				title = o.toString();
 			}
 		}
-		setCaption(caption);
+		return title;
 	}
 	
 	@Override
 	public void buttonClick(ClickEvent event) {
 		if (event.getButton() == saveButton) {
+			saveOnly();			
+		} else if (event.getButton() == saveAndCloseButton) {
 			saveAndClose();
-		} else if (event.getButton() == cancelButton) {
+		} else if (event.getButton() == cancelAndCloseButton) {
 			cancelAndClose();
 		}
 	}
-
+	
+	protected void saveOnly() {
+		T t = save();
+		setInstance(t, jpaContainer);
+		getWindow().setCaption(getTitle());
+	}
+	
 	protected void saveAndClose() {
 		save();
 		close();		

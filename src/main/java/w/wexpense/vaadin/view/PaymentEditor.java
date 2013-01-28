@@ -58,15 +58,19 @@ public class PaymentEditor extends OneToManyEditor<Payment, Expense> {
 	public void setInstance(Payment instance, JPAContainer<Payment> jpaContainer) {
 		super.setInstance(instance, jpaContainer);
 		
-		if (! getItem().getBean().isNew()) {
-			generateDtaButton = new Button("Generate DTA", (Button.ClickListener) this);
-			viewDtaButton = new Button("View DTA", (Button.ClickListener) this);
-			downloadDtaButton = new Link("Download DTA", new ExternalResource("/wexpenses/web/dta?uid="+instance.getUid()));
-			downloadDtaButton.setTargetName("_blank");
-			
-			dtaLayout.addComponent(generateDtaButton);
-			dtaLayout.addComponent(viewDtaButton);
-			dtaLayout.addComponent(downloadDtaButton);
+		generateDtaButton = new Button("Generate DTA", (Button.ClickListener) this);
+		viewDtaButton = new Button("View DTA", (Button.ClickListener) this);
+		downloadDtaButton = new Link("Download DTA", new ExternalResource("/wexpenses/web/dta?uid=" + getItem().getBean().getUid()));
+		downloadDtaButton.setTargetName("_blank");
+		
+		dtaLayout.addComponent(generateDtaButton);
+		dtaLayout.addComponent(viewDtaButton);
+		dtaLayout.addComponent(downloadDtaButton);
+
+		if (getItem().getBean().isNew()) {
+			generateDtaButton.setVisible(false);
+			viewDtaButton.setVisible(false);
+			downloadDtaButton.setVisible(false);
 		}
 	}
 	
@@ -107,6 +111,15 @@ public class PaymentEditor extends OneToManyEditor<Payment, Expense> {
 		}
 	}
 
+	@Override
+	public void saveOnly() {
+		super.saveOnly();
+		
+		generateDtaButton.setVisible(true);
+		viewDtaButton.setVisible(true);
+		downloadDtaButton.setVisible(true);
+	}
+	
 	public void generateDtas() throws Exception {
 		// we need to refresh the instance else we can't follow lazy links because 
 		// the instance is not attached to the current running entity manager

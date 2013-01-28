@@ -33,8 +33,6 @@ public class GenericView<T> extends AbstractView<T> implements ComponentContaine
 		super(entityClass);	
 		entitySelectedActions = new Action[] { addAction, editAction, deleteAction, refreshAction };
 		noEntitySelectedActions = new Action[] { addAction, refreshAction };
-		
-		setCaption( entityClass.getSimpleName() );
 	}
 		
 	protected void buildTable() {		
@@ -64,6 +62,11 @@ public class GenericView<T> extends AbstractView<T> implements ComponentContaine
 		if (filter != null) {
 			filter.setJPAContainer(this.jpaContainer);
 		}
+	}
+	
+	@Override 
+	public String getTitle() {
+		return entityClass.getSimpleName();
 	}
 	
 	@Override
