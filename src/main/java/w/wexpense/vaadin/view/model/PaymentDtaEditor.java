@@ -1,4 +1,4 @@
-package w.wexpense.vaadin.view;
+package w.wexpense.vaadin.view.model;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -7,6 +7,8 @@ import w.wexpense.model.PaymentDta;
 import w.wexpense.vaadin.PropertyConfiguror;
 import w.wexpense.vaadin.WexJPAContainerFactory;
 import w.wexpense.vaadin.fieldfactory.SimpleFieldFactory;
+import w.wexpense.vaadin.view.ConfigurableView;
+import w.wexpense.vaadin.view.WexTable;
 
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.data.util.filter.Compare.Equal;

@@ -1,6 +1,7 @@
-package w.wexpense.vaadin.view;
+package w.wexpense.vaadin.view.model;
 
 import w.wexpense.model.Account;
+import w.wexpense.vaadin.view.ParentableEditor;
 
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.data.Property;

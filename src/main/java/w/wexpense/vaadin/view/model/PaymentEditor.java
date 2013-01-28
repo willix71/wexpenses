@@ -1,4 +1,4 @@
-package w.wexpense.vaadin.view;
+package w.wexpense.vaadin.view.model;
 
 import java.text.MessageFormat;
 import java.util.Date;
@@ -12,6 +12,7 @@ import w.wexpense.model.Expense;
 import w.wexpense.model.Payment;
 import w.wexpense.service.PaymentDtaService;
 import w.wexpense.vaadin.ClosableWindow;
+import w.wexpense.vaadin.view.OneToManyEditor;
 
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.data.Property;

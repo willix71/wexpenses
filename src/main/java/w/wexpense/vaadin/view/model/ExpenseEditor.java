@@ -1,4 +1,4 @@
-package w.wexpense.vaadin.view;
+package w.wexpense.vaadin.view.model;
 
 import java.math.BigDecimal;
 
@@ -9,6 +9,7 @@ import w.wexpense.model.Currency;
 import w.wexpense.model.Expense;
 import w.wexpense.model.TransactionLine;
 import w.wexpense.utils.ExpenseUtils;
+import w.wexpense.vaadin.view.OneToManyEditor;
 
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;

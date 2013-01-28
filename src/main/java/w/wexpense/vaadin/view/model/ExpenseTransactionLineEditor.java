@@ -1,4 +1,4 @@
-package w.wexpense.vaadin.view;
+package w.wexpense.vaadin.view.model;
 
 import java.math.BigDecimal;
 import java.text.MessageFormat;
@@ -15,6 +15,7 @@ import w.wexpense.model.enums.TransactionLineEnum;
 import w.wexpense.utils.TransactionLineUtils;
 import w.wexpense.vaadin.WexJPAContainerFactory;
 import w.wexpense.vaadin.fieldfactory.RelationalFieldFactory;
+import w.wexpense.vaadin.view.OneToManySubEditor;
 
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.data.Container;

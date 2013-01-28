@@ -189,10 +189,10 @@
 		</property>
 	</bean>
 	
-	<bean id="expenseEditor" class="w.wexpense.vaadin.view.ExpenseEditor" scope="prototype" >
+	<bean id="expenseEditor" class="w.wexpense.vaadin.view.model.ExpenseEditor" scope="prototype" >
 		<property name="propertyConfiguror" ref="expenseEditorProperties" />
 		<property name="subEditor">
-			<bean class="w.wexpense.vaadin.view.ExpenseTransactionLineEditor" scope="prototype" >
+			<bean class="w.wexpense.vaadin.view.model.ExpenseTransactionLineEditor" scope="prototype" >
 				<property name="propertyConfiguror">
 					<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
 						<property name="visibleProperties" value="account,discriminator,factor,amount,exchangeRate,value,description"/>
@@ -284,7 +284,7 @@
 		</property>
 	</bean>
 	
-	<bean id="accountEditor" class="w.wexpense.vaadin.view.AccountEditor" scope="prototype" >
+	<bean id="accountEditor" class="w.wexpense.vaadin.view.model.AccountEditor" scope="prototype" >
 		<property name="propertyConfiguror" ref="accountEditorProperties" />
 	</bean>
 	
@@ -345,7 +345,7 @@
 		</property>
 	</bean>
 	
-	<bean id="paymentEditor" class="w.wexpense.vaadin.view.PaymentEditor" scope="prototype" >
+	<bean id="paymentEditor" class="w.wexpense.vaadin.view.model.PaymentEditor" scope="prototype" >
 		<property name="propertyConfiguror" ref="paymentEditorProperties" />
 		<property name="subEditor">
 			<bean class="w.wexpense.vaadin.view.OneToManySubEditor" scope="prototype" >
@@ -376,7 +376,7 @@
 		<property name="visibleProperties" value="fullId,uid,date,filename"/>
 	</bean>
 	
-	<bean id="paymentDtaEditor" class="w.wexpense.vaadin.view.PaymentDtaEditor" scope="prototype" >
+	<bean id="paymentDtaEditor" class="w.wexpense.vaadin.view.model.PaymentDtaEditor" scope="prototype" >
 		<property name="propertyConfiguror" ref="paymentDtaEditorProperties" />
 	</bean>
 
