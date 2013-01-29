@@ -29,10 +29,15 @@ public class OneToManyEditor<T extends DBable, C extends DBable> extends Generic
 	}
 	
 	@Override
-	public void setInstance(T instance, JPAContainer<T> jpaContainer) {
-		super.setInstance(instance, jpaContainer);
+	public void setInstance(JPAContainer<T> jpaContainer) {
+		super.setInstance(jpaContainer);
+	}
+	
+	@Override
+	public void setInstance(T instance) {
+		super.setInstance(instance);
 		
-		subEditor.setInstance(getItem().getBean(), getJpaContainer());
+		subEditor.setInstance(getItem().getBean());
 	}
 		
 	@Override

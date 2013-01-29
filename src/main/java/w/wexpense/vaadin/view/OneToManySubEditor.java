@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -15,7 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import w.wexpense.model.DBable;
 import w.wexpense.persistence.PersistenceUtils;
-import w.wexpense.vaadin.ClosableWindow;
+import w.wexpense.vaadin.SelectionChangeEvent;
+import w.wexpense.vaadin.WexWindow;
 import w.wexpense.vaadin.PropertyConfiguror;
 import w.wexpense.vaadin.WexJPAContainerFactory;
 import w.wexpense.vaadin.fieldfactory.RelationalFieldFactory;
@@ -27,7 +29,9 @@ import com.vaadin.data.Property;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.event.Action;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.TableFieldFactory;
+import com.vaadin.ui.Component.Event;
 import com.vaadin.ui.Window.CloseEvent;
 import com.vaadin.ui.Window.CloseListener;
 
@@ -43,7 +47,6 @@ public class OneToManySubEditor<C extends DBable, P extends DBable> extends Abst
 	@Autowired
 	protected WexJPAContainerFactory jpaContainerFactory;
 	
-	private Class<P> parentType;
 	private String parentPropertyId;
 	protected P parentEntity;
 	
@@ -53,59 +56,34 @@ public class OneToManySubEditor<C extends DBable, P extends DBable> extends Abst
 	
 	private boolean editable = true;
 	
-	private enum PersistAction { ADD, MERGE, DELETE }
+	private enum PersistAction { REMOVE, DELETE }
 	private Map<C, PersistAction> persistEntities = new HashMap<C, PersistAction>();
 	
-	public OneToManySubEditor(Class<C> childType, String parentPropertyId) {
+	public OneToManySubEditor(Class<C> childType, Class<P> parentType, String parentPropertyId) {
 		super(childType);
 		this.parentPropertyId = parentPropertyId;
+		this.childPropertyId = PersistenceUtils.getMappedByProperty(parentType, parentPropertyId);
 		
 		super.entitySelectedActions = new Action[] { addAction, removeAction };
 		super.noEntitySelectedActions = new Action[] { addAction };
 	}
 
-	public void setInstance(P parentEntity, JPAContainer<P> parentJpaContainer) {
-		this.parentEntity = parentEntity;
-		this.parentType = parentJpaContainer.getEntityClass(); 						
-		this.childPropertyId = PersistenceUtils.getMappedByProperty(parentType, parentPropertyId);
-		this.childContainer = new BeanItemContainer<C>(entityClass) {
-			@Override
-			public Property getContainerProperty(Object itemId, Object propertyId) {
-				// TODO figure a way to get Nested properties out of a BeanItemContainer
-				if (propertyId != null && propertyId.toString().contains(".")) {
-					// int index = propertyId.toString().indexOf(".");
-					// Property p = super.getContainerProperty(itemId, propertyId.toString().substring(0, index));
-					// BeanItem.getPropertyDescriptors(p.getType() );
-					LOGGER.info("This will fail " + propertyId);
-				}
-				
-				return super.getContainerProperty(itemId, propertyId);
-			}
-		};
-		String[] nestedProperties = propertyConfiguror.getPropertyValues(PropertyConfiguror.visibleProperties);
-		if (nestedProperties != null) {
-			for (String nestedProperty : nestedProperties) {
-				this.childContainer.addNestedContainerProperty(nestedProperty);
-			}
-		}
-
-		JPAContainer<C> childJpaContainer = jpaContainerFactory.getJPAContainerFrom(parentJpaContainer.getEntityProvider(), this.entityClass);			
-		this.fieldFactory = getTableFieldFactory(childJpaContainer, jpaContainerFactory);		
-		
-		// populate the container
-		Collection<C> children = (Collection<C>) new BeanItem<P>(parentEntity).getItemProperty(parentPropertyId).getValue();
-		if (children != null && !children.isEmpty()) {
-			childContainer.addAll(children);
-		}
-		
-		table = new WexTable(childContainer, propertyConfiguror);
-	}
+	@PostConstruct
+	public void build() {									
+		this.childContainer = new BeanItemContainer<C>(entityClass);
 	
+		JPAContainer<C> childJpaContainer = jpaContainerFactory.getJPAContainerBatch(this.entityClass);			
+		this.fieldFactory = getTableFieldFactory(childJpaContainer, jpaContainerFactory);	
+		
+		buildTable();
+	}
+
 	protected TableFieldFactory getTableFieldFactory(JPAContainer<C> childJpaContainer, WexJPAContainerFactory jpaContainerFactory) {
 		return new RelationalFieldFactory<C>(this.propertyConfiguror, childJpaContainer, jpaContainerFactory, this);
 	}
 	
 	protected void buildTable() {
+		table = new WexTable(childContainer, propertyConfiguror);
 		table.setSizeFull();
 		table.setSelectable(true);
 		table.setImmediate(true);
@@ -114,16 +92,27 @@ public class OneToManySubEditor<C extends DBable, P extends DBable> extends Abst
 
 		table.setPageLength(5);			
 		table.setEditable(editable);		
-		table.setTableFieldFactory(this.fieldFactory);		
+		table.setTableFieldFactory(fieldFactory);		
 		
 		addComponent(table);
+		setExpandRatio(table, 1);
 	}
+		
+	public void setInstance(P parentEntity) {
+		this.parentEntity = parentEntity;
+		
+		// populate the container
+		Collection<C> children = (Collection<C>) new BeanItem<P>(parentEntity).getItemProperty(parentPropertyId).getValue();
+		childContainer.removeAllItems();
+		if (children != null && !children.isEmpty()) {
+			childContainer.addAll(children);
+		}
+	}
+
+
 
 	@Override
 	public void attach() {
-		buildTable();
-		
-		setExpandRatio(table, 1);
 		setSizeFull();
 	}
 	
@@ -137,26 +126,26 @@ public class OneToManySubEditor<C extends DBable, P extends DBable> extends Abst
 	@Override
 	public void addEntity() {
 		final GenericView<C> view = newView();
-		view.setInstance();
-		
+
 		if (view != null) {
 			view.table.setMultiSelect(true);
-
-			ClosableWindow window = new ClosableWindow(view);
-			window.setModal(true);
-
-			window.addListener(new CloseListener() {						
+			view.addListener(new Component.Listener() {
+				private static final long serialVersionUID = 8121179082149508635L;
+				
 				@Override
-				public void windowClose(CloseEvent e) {
-					for(Object id : (Collection) view.table.getValue()) {
-						EntityItem<C> item = (EntityItem<C>) view.table.getItem(id);
-						item.getItemProperty(childPropertyId).setValue(parentEntity);
-						C c = item.getEntity();
-						childContainer.addBean(c);
-						persistEntities.put(c, PersistAction.MERGE);
-					}
+				public void componentEvent(Event event) {
+					if (event instanceof SelectionChangeEvent && event.getComponent()==view) {
+						for(Object id : ((SelectionChangeEvent) event).getIds()) {
+							EntityItem<C> item = (EntityItem<C>) view.table.getItem(id);
+							C c = item.getEntity();
+							childContainer.addBean(c);
+						}
+					} 
 				}
-			});		
+			});
+			
+			WexWindow window = new WexWindow(view);
+			window.setModal(true);
 			getApplication().getMainWindow().addWindow(window);	
 		}
 	}
@@ -167,7 +156,7 @@ public class OneToManySubEditor<C extends DBable, P extends DBable> extends Abst
 		Item item = childContainer.getItem(c);
 		item.getItemProperty(this.childPropertyId).setValue(null);
 		if (!c.isNew()) {
-			persistEntities.put(c, PersistAction.MERGE);
+			persistEntities.put(c, PersistAction.REMOVE);
 		}
 		childContainer.removeItem(c);
 	}
@@ -197,7 +186,7 @@ public class OneToManySubEditor<C extends DBable, P extends DBable> extends Abst
 		
 		for(Map.Entry<C, PersistAction> entry: persistEntities.entrySet()) {
 			switch(entry.getValue()) {
-			case MERGE:
+			case REMOVE:
 				em.merge(em.merge(entry.getKey()));
 				break;
 			case DELETE:

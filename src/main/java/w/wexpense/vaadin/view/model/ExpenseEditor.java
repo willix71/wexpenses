@@ -2,9 +2,6 @@ package w.wexpense.vaadin.view.model;
 
 import java.math.BigDecimal;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import w.wexpense.model.Currency;
 import w.wexpense.model.Expense;
 import w.wexpense.model.TransactionLine;
@@ -21,8 +18,6 @@ public class ExpenseEditor extends OneToManyEditor<Expense, TransactionLine> {
 
 	private static final long serialVersionUID = 701758651197792890L;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ExpenseEditor.class);
-
 	public ExpenseEditor() {
 		super(Expense.class);
 	}
@@ -31,6 +26,7 @@ public class ExpenseEditor extends OneToManyEditor<Expense, TransactionLine> {
 		AbstractOrderedLayout layout = super.buildButtons();
 		
 		layout.addComponent(new Button("debug", new Button.ClickListener() {
+			private static final long serialVersionUID = -1;
 			@Override
 			public void buttonClick(ClickEvent event) {
 				LOGGER.info(ExpenseUtils.toString(getItem().getBean()));
@@ -53,6 +49,8 @@ public class ExpenseEditor extends OneToManyEditor<Expense, TransactionLine> {
 	protected void addListener() {
 		// attach user interaction listener
 		getForm().getField("amount").addListener(new Property.ValueChangeListener() {
+			private static final long serialVersionUID = -1;
+			
 			@Override
 			public void valueChange(ValueChangeEvent event) {
 				BigDecimal newAmount = getItem().getBean().getAmount();
@@ -64,6 +62,8 @@ public class ExpenseEditor extends OneToManyEditor<Expense, TransactionLine> {
 		});
 		
 		getForm().getField("payee").addListener(new Property.ValueChangeListener() {
+			private static final long serialVersionUID = -1;
+
 			@Override
 			public void valueChange(ValueChangeEvent event) {
 				Expense expense = getItem().getBean();

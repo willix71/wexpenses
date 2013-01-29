@@ -22,6 +22,7 @@
 	 
 	<bean class="w.wexpense.persistence.DatabasePopulator" />
 	
+	<!-- 
 	<bean class="w.wexpense.vaadin.WexJPAContainerFactory" />
-		
+	-->
 </beans>

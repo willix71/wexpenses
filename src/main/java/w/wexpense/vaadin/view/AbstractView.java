@@ -42,7 +42,7 @@ public abstract class AbstractView<T> extends ConfigurableView<T> implements Act
 		} else if (deleteAction == action) {
 			deleteEntity(target);
 		} else if (refreshAction == action) {
-			refreshContainer();
+			refreshContainer(true);
 		}
 	}
 
@@ -58,10 +58,12 @@ public abstract class AbstractView<T> extends ConfigurableView<T> implements Act
 	public void deleteEntity(Object target) {
 	}
 	
-	public void refreshContainer() {
-		getWindow().showNotification(
+	public void refreshContainer(boolean notify) {
+		if (notify) {
+			getWindow().showNotification(
 				entityClass.getSimpleName(), "refreshed...",
-                Notification.TYPE_HUMANIZED_MESSAGE);	
+                Notification.TYPE_HUMANIZED_MESSAGE);
+		}			
 	}
 
 	@Override

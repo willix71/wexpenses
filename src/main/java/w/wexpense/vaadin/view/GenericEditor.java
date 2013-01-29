@@ -11,8 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import w.wexpense.model.DBable;
 import w.wexpense.persistence.PersistenceUtils;
-import w.wexpense.vaadin.CloseViewEvent;
 import w.wexpense.vaadin.PropertyConfiguror;
+import w.wexpense.vaadin.SelectionChangeEvent;
 import w.wexpense.vaadin.WexJPAContainerFactory;
 import w.wexpense.vaadin.fieldfactory.RelationalFieldFactory;
 
@@ -28,8 +28,6 @@ import com.vaadin.ui.HorizontalLayout;
 
 public class GenericEditor<T> extends ConfigurableView<T> implements Button.ClickListener {
 	private static final long serialVersionUID = 5282517667310057582L;
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(GenericEditor.class);
 
 	@Autowired
 	private WexJPAContainerFactory jpaContainerFactory;
@@ -42,7 +40,6 @@ public class GenericEditor<T> extends ConfigurableView<T> implements Button.Clic
 	private BeanValidationForm<T> form;
 	private Button saveButton;
 	private Button saveAndCloseButton;
-	private Button cancelAndCloseButton;
 	
 	public GenericEditor(Class<T> entityClass) {
 		super(entityClass);
@@ -73,10 +70,9 @@ public class GenericEditor<T> extends ConfigurableView<T> implements Button.Clic
 		HorizontalLayout buttonLayout = new HorizontalLayout();
 		saveButton = new Button("Save", (Button.ClickListener) this);
 		saveAndCloseButton = new Button("Save&Close", (Button.ClickListener) this);
-		cancelAndCloseButton = new Button("Close", (Button.ClickListener) this);
 		buttonLayout.addComponent(saveButton);
 		buttonLayout.addComponent(saveAndCloseButton);
-		buttonLayout.addComponent(cancelAndCloseButton);
+		buttonLayout.addComponent(getCloseButton());
 		return buttonLayout;
 	}
 	
@@ -107,19 +103,19 @@ public class GenericEditor<T> extends ConfigurableView<T> implements Button.Clic
 		String[] propertyIds=propertyConfiguror.getPropertyValues(PropertyConfiguror.visibleProperties);
 		form.setItemDataSource(item, Arrays.asList(propertyIds));
 	}
-	
-	public void setInstance(T instance, JPAContainer<T> jpaContainer) {
-		setInstance(jpaContainer);
-		setInstance(instance);
-	}
-	
+		
 	public T reloadInstance(T instance) {
 		EntityManager entityManager = jpaContainerFactory.getEntityManager();
 		Object id = new BeanItem<T>(instance).getItemProperty(idProperty).getValue();
 		T t = entityManager.find(entityClass, id);
 		return t;
-	}
+	}	
 	
+	public void setInstance(T instance, JPAContainer<T> jpaContainer) {
+		setInstance(jpaContainer);
+		setInstance(instance);
+	}
+
 	@Override
 	public String getTitle() {
 		String title = entityClass.getSimpleName();
@@ -138,14 +134,17 @@ public class GenericEditor<T> extends ConfigurableView<T> implements Button.Clic
 			saveOnly();			
 		} else if (event.getButton() == saveAndCloseButton) {
 			saveAndClose();
-		} else if (event.getButton() == cancelAndCloseButton) {
-			cancelAndClose();
-		}
+		} 
 	}
 	
 	protected void saveOnly() {
 		T t = save();
-		setInstance(reloadInstance(t));
+		if (t == null) {
+			LOGGER.error("\n\nHouston we have a problem!!!");
+		}
+		// set new value
+		setInstance(t);
+		
 		getWindow().setCaption(getTitle());
 	}
 	
@@ -165,14 +164,16 @@ public class GenericEditor<T> extends ConfigurableView<T> implements Button.Clic
 		try {			
 			T t = isNew ? insert(em) : update(em);
 			em.getTransaction().commit();
-			
-			if (!isNew) {
-				Object o = item.getItemProperty(idProperty).getValue();
-				jpaContainer.refreshItem(o);
-			}
 
+			if (!isNew) {				
+				Object id = item.getItemProperty(idProperty).getValue();
+				jpaContainer.refreshItem(id);
+			}
+			
 			isNew = false;
 			item = new BeanItem<T>(t);
+			
+			fireEvent(new SelectionChangeEvent(this, item.getItemProperty(idProperty).getValue()));
 
 			return t;
 		} catch (Exception e) {
@@ -182,10 +183,10 @@ public class GenericEditor<T> extends ConfigurableView<T> implements Button.Clic
 		}
 	}
 	
-	protected void cancelAndClose() {
-		cancel();
-		close();		
-	}
+//	protected void cancelAndClose() {
+//		cancel();
+//		close();		
+//	}
 	
 	protected T insert(EntityManager em) {
 		LOGGER.debug("Inserting {}", item.getBean());		
@@ -205,13 +206,9 @@ public class GenericEditor<T> extends ConfigurableView<T> implements Button.Clic
 		return t;
 	}
 
-	protected void cancel() {
-		form.discard();
-	}
-	
-	protected void close() {
-		fireEvent(new CloseViewEvent(this));
-	}
+//	protected void cancel() {
+//		form.discard();
+//	}
 
 	public Form getForm() {
 		return form;
@@ -221,9 +218,9 @@ public class GenericEditor<T> extends ConfigurableView<T> implements Button.Clic
 		return item;
 	}
 
-	public boolean isNew() {
-		return isNew;
-	}
+//	public boolean isNew() {
+//		return isNew;
+//	}
 
 	public JPAContainer<T> getJpaContainer() {
 		return jpaContainer;

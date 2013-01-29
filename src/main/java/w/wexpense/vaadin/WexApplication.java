@@ -2,12 +2,14 @@ package w.wexpense.vaadin;
 
 import java.util.List;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import w.wexpense.vaadin.view.GenericEditor;
 import w.wexpense.vaadin.view.GenericView;
@@ -27,7 +29,8 @@ public class WexApplication extends Application implements HttpServletRequestLis
 		
 	private static final Logger LOGGER = LoggerFactory.getLogger(WexApplication.class);
 	
-	@Autowired
+	@Resource()
+	@Qualifier("views")
 	private List<GenericView<?>> views;
 	
 	@Autowired
@@ -95,7 +98,7 @@ public class WexApplication extends Application implements HttpServletRequestLis
 				@Override
 				public void valueChange(ValueChangeEvent event) {
 					GenericView<?> cv = (GenericView<?>) event.getProperty().getValue();
-					cv.setInstance();
+					cv.refreshContainer(false);
 					horizontalSplitPanel.setSecondComponent(cv);
 				}
 			});

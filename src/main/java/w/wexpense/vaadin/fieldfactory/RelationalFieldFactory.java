@@ -1,29 +1,17 @@
 package w.wexpense.vaadin.fieldfactory;
 
 import w.wexpense.model.Codable;
-import w.wexpense.model.DBable;
 import w.wexpense.model.Selectable;
-import w.wexpense.vaadin.ClosableWindow;
 import w.wexpense.vaadin.PropertyConfiguror;
-import w.wexpense.vaadin.WexApplication;
 import w.wexpense.vaadin.WexJPAContainerFactory;
-import w.wexpense.vaadin.view.GenericEditor;
 
 import com.vaadin.addon.jpacontainer.JPAContainer;
-import com.vaadin.addon.jpacontainer.fieldfactory.SingleSelectTranslator;
 import com.vaadin.addon.jpacontainer.metadata.PropertyKind;
 import com.vaadin.data.Container.Filter;
 import com.vaadin.data.Item;
-import com.vaadin.data.Property;
 import com.vaadin.data.util.filter.Compare;
-import com.vaadin.ui.AbstractSelect;
-import com.vaadin.ui.AbstractSelect.NewItemHandler;
-import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Field;
-import com.vaadin.ui.NativeSelect;
-import com.vaadin.ui.Window.CloseEvent;
-import com.vaadin.ui.Window.CloseListener;
 
 public class RelationalFieldFactory<T> extends SimpleFieldFactory {
 

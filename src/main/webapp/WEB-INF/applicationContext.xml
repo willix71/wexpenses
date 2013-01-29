@@ -2,11 +2,13 @@
 
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
 	xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:p="http://www.springframework.org/schema/p"
 	xsi:schemaLocation="
-   		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-   		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd
+   		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+   		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
 
 	<import resource="classpath:persistence-context.xml"/>
 	<import resource="classpath:service-context.xml"/>
@@ -21,9 +23,24 @@
 		</property>
 	</bean>
 	
+	<util:list id="views">
+		<ref bean="currencyView"/>
+		<ref bean="countryView"/>
+		<ref bean="cityView"/>
+		<ref bean="payeeView"/>
+		<ref bean="payeeTypeView"/>
+		<ref bean="exchangeRateView"/>
+		<ref bean="accountView"/>
+		<ref bean="discriminatorView"/>
+		<ref bean="expenseView"/>
+		<ref bean="expenseTypeView"/>
+		<ref bean="paymentView"/>
+		<ref bean="consolidationView"/>		
+	</util:list>
+	
 	<!-- ========== currency and country ========== -->
 			
-	<bean class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
+	<bean id="currencyView" class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
 		<constructor-arg value="w.wexpense.model.Currency" />
 		<lookup-method name="newEditor" bean="currencyEditor"/>
 		<property name="propertyConfiguror">
@@ -44,7 +61,7 @@
 		<property name="visibleProperties" value="code,name,roundingFactor"/>
 	</bean>
 			
-	<bean class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
+	<bean id="countryView" class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
 		<constructor-arg value="w.wexpense.model.Country" />
 		<lookup-method name="newEditor" bean="countryEditor"/>
 		<property name="propertyConfiguror">
@@ -67,7 +84,7 @@
 			
 	<!-- ========== city ========== -->
 	
-	<bean class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
+	<bean id="cityView" class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
 		<constructor-arg value="w.wexpense.model.City" />
 		<lookup-method name="newEditor" bean="cityEditor"/>
 		<property name="filter">
@@ -93,7 +110,7 @@
 	
 	<!-- ========== payee ========== -->
 	
-	<bean class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
+	<bean id="payeeView" class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
 		<constructor-arg value="w.wexpense.model.Payee" />
 		<lookup-method name="newEditor" bean="payeeEditor"/>
 		<property name="filter">
@@ -117,7 +134,7 @@
 		<property name="visibleProperties" value="fullId,uid,type,prefix,name,address1,address2,city,externalReference,bankDetails"/>
 	</bean>
 	
-	<bean class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
+	<bean id="payeeTypeView" class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
 		<constructor-arg value="w.wexpense.model.PayeeType" />
 		<lookup-method name="newEditor" bean="payeeTypeEditor"/>
 		<property name="propertyConfiguror">
@@ -140,7 +157,7 @@
 	
 	<!-- ========== exchange rate ========== -->
 	
-	<bean class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
+	<bean id="exchangeRateView" class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
 		<constructor-arg value="w.wexpense.model.ExchangeRate" />
 		<lookup-method name="newEditor" bean="exchangeRateEditor"/>
 		<property name="propertyConfiguror">
@@ -177,6 +194,8 @@
 		<property name="propertyConfiguror">
 			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
 				<property name="visibleProperties" value="date,amount,currency,payee,type"/>
+				<property name="windowHeight" value="310px"/>
+				<property name="windowWidth" value="340px"/>
 				<property name="otherProperies">
 					<props>
 						<prop key="date.format">{0,date,dd.MM.yyyy}</prop>
@@ -188,6 +207,8 @@
 			</bean>
 		</property>
 	</bean>
+	
+	<bean id="expenseSelector" parent="expenseView" class="w.wexpense.vaadin.view.GenericSelector" />
 	
 	<bean id="expenseEditor" class="w.wexpense.vaadin.view.model.ExpenseEditor" scope="prototype" >
 		<property name="propertyConfiguror" ref="expenseEditorProperties" />
@@ -219,7 +240,7 @@
 		<property name="visibleProperties" value="fullId,uid,type,payee,date,amount,currency,externalReference,description,payment"/>
 	</bean>
 	
-	<bean class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
+	<bean id="expenseTypeView" class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
 		<constructor-arg value="w.wexpense.model.ExpenseType" />
 		<lookup-method name="newEditor" bean="expenseTypeEditor"/>
 		<property name="propertyConfiguror">
@@ -251,8 +272,10 @@
 			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
 				<property name="nestedProperties" value="expense.date,expense.payee,expense.currency"/>
 				<property name="visibleProperties" value="expense.date,expense.payee,account,discriminator,amount,expense.currency,inValue,outValue"/>
+				<property name="windowHeight" value="475px"/>
+				<property name="windowWidth" value="780px"/>		
 				<property name="otherProperies">
-					<props>
+					<props>			
 						<prop key="expense.date.header">Date</prop>
 						<prop key="expense.date.format">{0,date,dd.MM.yyyy}</prop>
 						<prop key="expense.payee.header">Payee</prop>
@@ -272,9 +295,11 @@
 		</property>
 	</bean>
 	
+	<bean id="transactionLineSelector" parent="transactionLineView" class="w.wexpense.vaadin.view.GenericSelector" />
+	
 	<!-- ========== account ========== -->
 		
-	<bean class="w.wexpense.vaadin.view.ParentableView" scope="prototype" >
+	<bean id="accountView" class="w.wexpense.vaadin.view.ParentableView" scope="prototype" >
 		<constructor-arg value="w.wexpense.model.Account" />
 		<lookup-method name="newEditor" bean="accountEditor"/>
 		<property name="propertyConfiguror">
@@ -301,7 +326,7 @@
 	
 	<!-- ========== discriminator ========== -->
 		
-	<bean class="w.wexpense.vaadin.view.ParentableView" scope="prototype" >
+	<bean id="discriminatorView" class="w.wexpense.vaadin.view.ParentableView" scope="prototype" >
 		<constructor-arg value="w.wexpense.model.Discriminator" />
 		<lookup-method name="newEditor" bean="discriminatorEditor"/>
 		<property name="propertyConfiguror">
@@ -350,9 +375,10 @@
 		<property name="subEditor">
 			<bean class="w.wexpense.vaadin.view.OneToManySubEditor" scope="prototype" >
 				<constructor-arg value="w.wexpense.model.Expense" />
+				<constructor-arg value="w.wexpense.model.Payment" />
 				<constructor-arg value="expenses" />
 				<property name="editable" value="false" />
-				<lookup-method name="newView" bean="expenseView"/>
+				<lookup-method name="newView" bean="expenseSelector"/>
 				<property name="propertyConfiguror">
 					<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
 						<property name="visibleProperties" value="date,amount,currency,payee"/>
@@ -415,9 +441,10 @@
 		<property name="subEditor">
 			<bean class="w.wexpense.vaadin.view.OneToManySubEditor" scope="prototype" >
 				<constructor-arg value="w.wexpense.model.TransactionLine" />
+				<constructor-arg value="w.wexpense.model.Consolidation" />
 				<constructor-arg value="transactions" />
 				<property name="editable" value="false" />
-				<lookup-method name="newView" bean="transactionLineView"/>
+				<lookup-method name="newView" bean="transactionLineSelector"/>
 				<property name="propertyConfiguror">
 					<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
 						<!-- TODO figure a way to get Nested properties out of a BeanItemContainer

@@ -3,15 +3,13 @@ package w.wexpense.vaadin.view.model;
 import java.text.MessageFormat;
 import java.util.Date;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import w.wexpense.dta.DtaHelper;
 import w.wexpense.model.Expense;
 import w.wexpense.model.Payment;
 import w.wexpense.service.PaymentDtaService;
-import w.wexpense.vaadin.ClosableWindow;
+import w.wexpense.vaadin.WexWindow;
 import w.wexpense.vaadin.view.OneToManyEditor;
 
 import com.vaadin.addon.jpacontainer.JPAContainer;
@@ -29,8 +27,6 @@ import com.vaadin.ui.Link;
 public class PaymentEditor extends OneToManyEditor<Payment, Expense> {
 
 	private static final long serialVersionUID = 7495790122461487109L;
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(PaymentEditor.class);
 	
 	@Autowired
 	private PaymentDtaService paymentDtaService;
@@ -131,7 +127,7 @@ public class PaymentEditor extends OneToManyEditor<Payment, Expense> {
 	public void viewDtas() {
 		PaymentDtaEditor editor = newPaymentDtaEditor();
 		editor.setInstance(getItem().getBean());
-		getApplication().getMainWindow().addWindow(new ClosableWindow(editor));
+		getApplication().getMainWindow().addWindow(new WexWindow(editor));
 	}
 	
 	public PaymentDtaEditor newPaymentDtaEditor() {

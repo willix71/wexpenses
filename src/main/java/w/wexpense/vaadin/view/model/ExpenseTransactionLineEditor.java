@@ -29,15 +29,12 @@ import com.vaadin.ui.TextField;
 
 class ExpenseTransactionLineEditor extends OneToManySubEditor<TransactionLine, Expense> {
 	private static final long serialVersionUID = 701758651197792890L;
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(ExpenseEditor.class);
-	
 
 	private boolean fireUpdateValues = false;
 	private BigDecimal currentExpenseAmount = null;
 	
 	public ExpenseTransactionLineEditor() {
-		super(TransactionLine.class, "transactions");
+		super(TransactionLine.class, Expense.class, "transactions");
 		
 		super.entitySelectedActions = new Action[] { addAction, deleteAction };
 		super.noEntitySelectedActions = new Action[] { addAction };

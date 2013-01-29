@@ -45,9 +45,20 @@ public class WexJPAContainerFactory {
 		JPAContainer<T> jpac = JPAContainerFactory.make(entityClass, getEntityManager());
 		
 		if (helper != null) helper.addContainer(jpac);
-
-		//if (lazyLoader != null) jpac.getEntityProvider().setLazyLoadingDelegate(lazyLoader);
 		
+		if (nestedProperties != null) {
+			for (String nestedProperty : nestedProperties) {
+				jpac.addNestedContainerProperty(nestedProperty);
+			}
+		}
+		return jpac;
+	}
+	
+	public <T> JPAContainer<T> getJPAContainerBatch(Class<T> entityClass, String... nestedProperties) {
+		JPAContainer<T> jpac = JPAContainerFactory.makeBatchable(entityClass, getEntityManager());			
+
+		if (helper != null) helper.addContainer(jpac);
+
 		if (nestedProperties != null) {
 			for (String nestedProperty : nestedProperties) {
 				jpac.addNestedContainerProperty(nestedProperty);

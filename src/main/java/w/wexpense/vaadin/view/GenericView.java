@@ -1,9 +1,11 @@
 package w.wexpense.vaadin.view;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.dialogs.ConfirmDialog;
 
-import w.wexpense.vaadin.ClosableWindow;
+import w.wexpense.vaadin.WexWindow;
 import w.wexpense.vaadin.PropertyConfiguror;
 import w.wexpense.vaadin.WexJPAContainerFactory;
 import w.wexpense.vaadin.filter.WexFilter;
@@ -31,23 +33,24 @@ public class GenericView<T> extends AbstractView<T> implements ComponentContaine
 
 	public GenericView(Class<T> entityClass) {
 		super(entityClass);	
-		entitySelectedActions = new Action[] { addAction, editAction, deleteAction, refreshAction };
-		noEntitySelectedActions = new Action[] { addAction, refreshAction };
-	}
-		
-	protected void buildTable() {		
-		table.setSizeFull();
-		table.setSelectable(true);
-		table.setImmediate(true);
-		table.addListener(this);
-		table.addActionHandler(this);
-		
-		addComponent(table);		
 	}
 
+	@PostConstruct
+	public void build() {
+		entitySelectedActions = new Action[] { addAction, editAction, deleteAction, refreshAction };
+		noEntitySelectedActions = new Action[] { addAction, refreshAction };
+
+		jpaContainer = jpaContainerFactory.getJPAContainer(entityClass, propertyConfiguror.getPropertyValues(PropertyConfiguror.nestedProperties));
+		
+		buildToolbar();
+		buildTable();
+	}
+	
 	protected void buildToolbar() {
 		toolbar = new HorizontalLayout();		
 		if (filter !=null) {
+			filter.setJPAContainer(jpaContainer);
+			
 			toolbar.addComponent(filter);
 			toolbar.setWidth("100%");
 			toolbar.setExpandRatio(filter, 1);
@@ -55,26 +58,21 @@ public class GenericView<T> extends AbstractView<T> implements ComponentContaine
 		}
 		addComponent(toolbar);
 	}
-
-	public void setInstance() {
-		this.jpaContainer = jpaContainerFactory.getJPAContainer(entityClass, propertyConfiguror.getPropertyValues(PropertyConfiguror.nestedProperties));
-		this.table = new WexTable(jpaContainer, propertyConfiguror);
-		if (filter != null) {
-			filter.setJPAContainer(this.jpaContainer);
-		}
-	}
 	
-	@Override 
-	public String getTitle() {
-		return entityClass.getSimpleName();
+	protected void buildTable() {		
+		table = new WexTable(jpaContainer, propertyConfiguror);
+		table.setSizeFull();
+		table.setSelectable(true);
+		table.setImmediate(true);
+		table.addListener(this);
+		table.addActionHandler(this);
+		
+		addComponent(table);
+		setExpandRatio(table, 1);
 	}
 	
 	@Override
 	public void attach() {
-		buildToolbar();
-		buildTable();
-		
-		setExpandRatio(table, 1);
 		setSizeFull();
 	}
 	
@@ -82,7 +80,7 @@ public class GenericView<T> extends AbstractView<T> implements ComponentContaine
 	public void addEntity() {
 		GenericEditor<T> editor = newEditor();
 		editor.setInstance(null, jpaContainer);
-		getApplication().getMainWindow().addWindow(new ClosableWindow(editor));	
+		getApplication().getMainWindow().addWindow(new WexWindow(editor));	
 	}
 
 	@Override
@@ -90,7 +88,7 @@ public class GenericView<T> extends AbstractView<T> implements ComponentContaine
 		GenericEditor<T> editor = newEditor();		
 		EntityItem<T> item = (EntityItem<T>) table.getItem(target);		
 		editor.setInstance(item.getEntity(), jpaContainer);
-		getApplication().getMainWindow().addWindow(new ClosableWindow(editor));		
+		getApplication().getMainWindow().addWindow(new WexWindow(editor));		
 	}
 	
 	@Override
@@ -100,6 +98,7 @@ public class GenericView<T> extends AbstractView<T> implements ComponentContaine
 		ConfirmDialog.show(
 			getWindow(), "Delete", text, "yes", "no", 
 			new ConfirmDialog.Listener() {            
+				private static final long serialVersionUID = 1L;
 				public void onClose(ConfirmDialog dialog) {
 					if (dialog.isConfirmed()) {
 						jpaContainer.removeItem(target);
@@ -112,9 +111,9 @@ public class GenericView<T> extends AbstractView<T> implements ComponentContaine
 	}
 
 	@Override
-	public void refreshContainer() {
+	public void refreshContainer(boolean notify) {
 		jpaContainer.refresh();
-		super.refreshContainer();
+		super.refreshContainer(notify);
 	}
 		
 	@Override
@@ -122,7 +121,7 @@ public class GenericView<T> extends AbstractView<T> implements ComponentContaine
 		GenericEditor<T> editor = newEditor();
 		EntityItem<T> t = (EntityItem<T>) event.getItem(); 
 		editor.setInstance(t.getEntity(), jpaContainer);
-		getApplication().getMainWindow().addWindow(new ClosableWindow(editor));
+		getApplication().getMainWindow().addWindow(new WexWindow(editor));
 	}
 	
 	public GenericEditor<T> newEditor() {

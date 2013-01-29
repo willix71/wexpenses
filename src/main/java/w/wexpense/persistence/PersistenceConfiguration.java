@@ -94,7 +94,7 @@ public class PersistenceConfiguration {
 			}
 			propertiesFilename += ".properties";
 			
-			LOGGER.debug("Loadinf JpaAdapterProperties from {}", propertiesFilename);
+			LOGGER.debug("Loading JpaAdapterProperties from {}", propertiesFilename);
 			
 			Properties properties = new Properties();			
 			properties.load(new ClassPathResource(propertiesFilename).getInputStream());

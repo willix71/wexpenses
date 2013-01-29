@@ -3,8 +3,9 @@ package w.wexpense.vaadin.fieldfactory;
 import org.vaadin.addon.customfield.CustomField;
 
 import w.wexpense.model.DBable;
-import w.wexpense.vaadin.ClosableWindow;
+import w.wexpense.vaadin.SelectionChangeEvent;
 import w.wexpense.vaadin.WexApplication;
+import w.wexpense.vaadin.WexWindow;
 import w.wexpense.vaadin.view.GenericEditor;
 
 import com.vaadin.addon.jpacontainer.JPAContainer;
@@ -13,19 +14,19 @@ import com.vaadin.data.Property;
 import com.vaadin.data.Validator;
 import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.terminal.Sizeable;
-import com.vaadin.ui.AbstractSelect.NewItemHandler;
 import com.vaadin.ui.AbstractSelect;
+import com.vaadin.ui.AbstractSelect.NewItemHandler;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.NativeSelect;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.Window.CloseEvent;
-import com.vaadin.ui.Window.CloseListener;
 
 public class WexComboBox<T> extends CustomField implements Button.ClickListener {
 
+	private static final long serialVersionUID = -5068539384518692094L;
+	
 	private Class<T> entityClass;
 	private JPAContainer<T> comboContainer;
 	private Component caller;
@@ -54,6 +55,8 @@ public class WexComboBox<T> extends CustomField implements Button.ClickListener 
 			
 			comboBox.setNewItemsAllowed(true);
 			comboBox.setNewItemHandler(new NewItemHandler() {
+				private static final long serialVersionUID = 1L;
+
 				public void addNewItem(String newItemCaption) {
 					text=newItemCaption;
 				}
@@ -83,8 +86,19 @@ public class WexComboBox<T> extends CustomField implements Button.ClickListener 
 		WexApplication wexapplication = (WexApplication) caller.getApplication();
 
 		// get the editor for this entity from the main application
-		final GenericEditor editor = wexapplication.getEditorFor(entityClass);
+		@SuppressWarnings("unchecked")
+		final GenericEditor<T> editor = (GenericEditor<T>) wexapplication.getEditorFor(entityClass);
 		editor.setInstance(null, comboContainer);
+		editor.addListener(new Component.Listener() {
+			private static final long serialVersionUID = 8121179082149508635L;
+			
+			@Override
+			public void componentEvent(Event event) {
+				if (event instanceof SelectionChangeEvent && event.getComponent()==editor) {
+					setValue(((SelectionChangeEvent) event).getId());
+				} 
+			}
+		});	
 		
 		// set the entered text in the name property if one exists
 		Property p = editor.getItem().getItemProperty("name");
@@ -93,24 +107,9 @@ public class WexComboBox<T> extends CustomField implements Button.ClickListener 
 		}
 		
 		// open a modal window
-		ClosableWindow window = new ClosableWindow(editor);
-		window.setModal(true);
-
-		window.addListener(new CloseListener() {						
-			@Override
-			public void windowClose(CloseEvent e) {
-				// when window closes, fetch new value if any
-				if (editor.isNew()) {
-					// nothing was saved (so nothing new) revert to old value
-					setValue(currentValue);
-				} else { 
-					Long id = ((DBable) editor.getItem().getBean()).getId();
-					setValue(id);
-				}
-			}
-		});		
+		WexWindow window = new WexWindow(editor);
+		window.setModal(true);	
 		wexapplication.getMainWindow().addWindow(window);
-
 	}
 
 	

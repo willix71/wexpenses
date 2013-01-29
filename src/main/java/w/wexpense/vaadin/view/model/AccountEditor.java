@@ -3,7 +3,6 @@ package w.wexpense.vaadin.view.model;
 import w.wexpense.model.Account;
 import w.wexpense.vaadin.view.ParentableEditor;
 
-import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 
@@ -20,13 +19,6 @@ public class AccountEditor extends ParentableEditor<Account> {
 		super.attach();
 
 		addListener();
-	}
-	
-	public void setInstance(Account instance, JPAContainer<Account> jpaContainer) {
-		super.setInstance(instance, jpaContainer);
-		if (isNew()) {
-			getItem().getBean().updateFullNameAndNumber();
-		}
 	}
 		
 	protected void addListener() {

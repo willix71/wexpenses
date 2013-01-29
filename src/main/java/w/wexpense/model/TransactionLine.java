@@ -195,7 +195,7 @@ public class TransactionLine extends DBable {
 		if (discriminator != null) {
 			s += "/" + discriminator.toString();
 		}
-		return MessageFormat.format("{0} {1,number, 0.00} [{2}]", factor, s );
+		return MessageFormat.format("{0} {1} {2,number, 0.00}", s , factor, amount );
 	}
 	
 	public boolean validate() {		

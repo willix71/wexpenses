@@ -1,11 +1,14 @@
 package w.wexpense.vaadin.view;
 
+import javax.annotation.PostConstruct;
+
 import w.wexpense.model.Parentable;
 import w.wexpense.persistence.PersistenceUtils;
-import w.wexpense.vaadin.ClosableWindow;
+import w.wexpense.vaadin.WexWindow;
 import w.wexpense.vaadin.PropertyConfiguror;
 
 import com.vaadin.addon.jpacontainer.EntityItem;
+import com.vaadin.event.Action;
 
 public class ParentableView<T extends Parentable<T>> extends GenericView<T> {
 
@@ -15,15 +18,32 @@ public class ParentableView<T extends Parentable<T>> extends GenericView<T> {
 		super(entityClass);
 	}
 	
-	public void setInstance() {
+	@PostConstruct
+	@Override
+	public void build() {
+		entitySelectedActions = new Action[] { addAction, editAction, deleteAction, refreshAction };
+		noEntitySelectedActions = new Action[] { addAction, refreshAction };
+
 		this.jpaContainer = jpaContainerFactory.getJPAContainer(entityClass, propertyConfiguror.getPropertyValues(PropertyConfiguror.nestedProperties));
 		this.jpaContainer.setParentProperty("parent");
 		
-		this.table = new WexTreeTable(jpaContainer, propertyConfiguror);
-		if (filter != null) {
-			filter.setJPAContainer(this.jpaContainer);
-		}
+		buildToolbar();
+		buildTable();
 	}
+	
+	@Override
+	protected void buildTable() {		
+		this.table = new WexTreeTable(jpaContainer, propertyConfiguror);
+		table.setSizeFull();
+		table.setSelectable(true);
+		table.setImmediate(true);
+		table.addListener(this);
+		table.addActionHandler(this);
+		
+		addComponent(table);
+		setExpandRatio(table, 1);
+	}
+	
 	
 	@Override
 	public void addEntity() {
@@ -37,6 +57,6 @@ public class ParentableView<T extends Parentable<T>> extends GenericView<T> {
 		
 		GenericEditor<T> editor = newEditor();
 		editor.setInstance(child, jpaContainer);
-		getApplication().getMainWindow().addWindow(new ClosableWindow(editor));	
+		getApplication().getMainWindow().addWindow(new WexWindow(editor));	
 	}
 }
