@@ -34,6 +34,7 @@
 		<ref bean="discriminatorView"/>
 		<ref bean="expenseView"/>
 		<ref bean="expenseTypeView"/>
+		<ref bean="transactionLineView"/>
 		<ref bean="paymentView"/>
 		<ref bean="consolidationView"/>		
 	</util:list>
@@ -220,12 +221,12 @@
 						<property name="otherProperies">
 							<props>
 								<prop key="account.expandRatio">30</prop>
-								<prop key="discriminator.expandRatio">10</prop>
+								<prop key="discriminator.expandRatio">30</prop>
 								<prop key="amount.alignement">e</prop>
 								<prop key="amount.width">80</prop>								
 								<prop key="value.alignement">e</prop>								
 								<prop key="value.width">80</prop>
-								<prop key="description.expandRatio">50</prop>
+								<prop key="description.expandRatio">20</prop>
 							</props>
 						</property>
 					</bean>
@@ -381,7 +382,7 @@
 				<lookup-method name="newView" bean="expenseSelector"/>
 				<property name="propertyConfiguror">
 					<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
-						<property name="visibleProperties" value="date,amount,currency,payee"/>
+						<property name="visibleProperties" value="date,amount,currency,payee,type"/>
 						<property name="otherProperies">
 							<props>
 								<prop key="date.format">{0,date,dd.MM.yyyy}</prop>

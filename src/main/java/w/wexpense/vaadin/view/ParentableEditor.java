@@ -19,8 +19,10 @@ public class ParentableEditor<T extends Parentable<T>> extends GenericEditor<T> 
 		// 	org.hibernate.LazyInitializationException: could not initialize proxy - no Session
 		// and the application fails totally (a server restart is needed)
 		// Not quite sure why, full stack trace below.		
-		for(T child: a.getParent().getChildren()) {
-			child.toString();
+		if (a.getParent() != null) {
+			for(T child: a.getParent().getChildren()) {
+				child.toString();
+			}
 		}
 		return a;
 	}
