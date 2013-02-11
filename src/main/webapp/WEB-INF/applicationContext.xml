@@ -440,10 +440,8 @@
 		<constructor-arg value="w.wexpense.model.Consolidation" />
 		<property name="propertyConfiguror" ref="consolidationEditorProperties" />
 		<property name="subEditor">
-			<bean class="w.wexpense.vaadin.view.OneToManySubEditor" scope="prototype" >
-				<constructor-arg value="w.wexpense.model.TransactionLine" />
-				<constructor-arg value="w.wexpense.model.Consolidation" />
-				<constructor-arg value="transactions" />
+			<bean class="w.wexpense.vaadin.view.model.ConsolidationTransactionLineEditor" scope="prototype" >
+
 				<property name="editable" value="false" />
 				<lookup-method name="newView" bean="transactionLineSelector"/>
 				<property name="propertyConfiguror">
@@ -457,6 +455,7 @@
 							<props>								
 								<prop key="consolidatedDate.header">Date</prop>
 								<prop key="consolidatedDate.format">{0,date,dd.MM.yyyy}</prop>
+								<prop key="consolidatedDate.width">120</prop>
 								<prop key="expense.payee.header">Payee</prop>
 								<prop key="expense.payee.expandRatio">.8</prop>
 								<prop key="amount.alignement">e</prop>
@@ -474,8 +473,8 @@
 	</bean>
 
 	<bean id="consolidationEditorProperties" class="w.wexpense.vaadin.SimplePropertyConfigurator" scope="session">
-		<property name="windowHeight" value="480px"/>
-		<property name="windowWidth" value="720px"/>			
+		<property name="windowHeight" value="560px"/>
+		<property name="windowWidth" value="950px"/>			
 		<property name="visibleProperties" value="fullId,uid,date,institution,openingBalance,closingBalance"/>
 	</bean>
 	

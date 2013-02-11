@@ -23,6 +23,7 @@ public class OneToManyEditor<T extends DBable, C extends DBable> extends Generic
 		buildForm();
 		
 		addComponent(subEditor);
+		setExpandRatio(subEditor, 1);
 		
 		// build the buttons bar
 		addComponent(buildButtons());
