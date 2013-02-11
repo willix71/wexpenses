@@ -68,6 +68,7 @@ public class WexComboBox<T> extends CustomField implements Button.ClickListener 
 
 	protected ComboBox buildComboBox() {
 		ComboBox box = new ComboBox();
+		box.setImmediate(true);
 		box.setMultiSelect(false);
 		box.setContainerDataSource(comboContainer);
 		box.setPropertyDataSource(new SingleSelectTranslator(box));
@@ -138,6 +139,16 @@ public class WexComboBox<T> extends CustomField implements Button.ClickListener 
 		comboBox.setValue(newValue);
 	}
 
+	@Override
+	public void requestRepaint() {
+		// not sure that the following is really needed
+		// super.requestRepaint();
+
+		if (comboBox != null) {
+			comboBox.requestRepaint();
+		}
+	}
+	
 	@Override
 	public Property getPropertyDataSource() {
 		return comboBox.getPropertyDataSource();
