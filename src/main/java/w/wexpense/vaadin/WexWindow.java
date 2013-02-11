@@ -8,6 +8,11 @@ import w.wexpense.vaadin.view.ConfigurableView;
 
 import com.vaadin.ui.Window;
 
+/**
+ * A window with a public close() method so that the contained component can close it when it deems necessary.
+ * 
+ * The window also fetches it's size from the component's properties and remembers them (i.e. saves them) when it closes.
+ */
 public class WexWindow extends Window {
 	private static final long serialVersionUID = 8121179082149508634L;
 
@@ -15,11 +20,13 @@ public class WexWindow extends Window {
 	
 	public WexWindow(final ConfigurableView<?> component) {
 		String height = component.getPropertyConfiguror().getPropertyValue(PropertyConfiguror.windowHeight, "100%");
-		setHeight(height);
 		String width = component.getPropertyConfiguror().getPropertyValue(PropertyConfiguror.windowWidth, "100%");
+		String caption = component.getTitle();
+		
+		setHeight(height);		
 		setWidth(width);
-
-		setCaption(component.getTitle());
+		center();
+		setCaption(caption);
 		
 		component.setWexWindow(this);
 		
@@ -29,6 +36,8 @@ public class WexWindow extends Window {
 			private static final long serialVersionUID = -1;
 			@Override
 			public void windowClose(CloseEvent e) {
+				// on closing, remember the window's size 
+				
 				float width = WexWindow.this.getWidth();
 				SizeUnit widthUnit = SizeUnit.fromValue(WexWindow.this.getWidthUnits());
 				
