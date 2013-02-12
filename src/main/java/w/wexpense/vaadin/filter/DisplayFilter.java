@@ -1,7 +1,6 @@
 package w.wexpense.vaadin.filter;
 
 import com.vaadin.addon.jpacontainer.JPAContainer;
-import com.vaadin.data.Container;
 import com.vaadin.data.Container.Filter;
 import com.vaadin.data.util.filter.Like;
 import com.vaadin.event.FieldEvents.TextChangeEvent;
