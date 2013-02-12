@@ -6,6 +6,7 @@ public interface PropertyConfiguror {
 	String propertyIncludeNonSelectable = ".includeNonSelectable";
 	String visibleProperties = "visibleProperties";
 	String nestedProperties = "nestedProperties";
+	String defaultOrdering = "defaultOrdering";
 	String windowHeight = "window.height";
 	String windowWidth = "window.width";
 	String propertyWidth = ".width";

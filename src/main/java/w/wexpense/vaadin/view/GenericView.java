@@ -10,6 +10,7 @@ import w.wexpense.vaadin.PropertyConfiguror;
 import w.wexpense.vaadin.WexJPAContainerFactory;
 import w.wexpense.vaadin.filter.WexFilter;
 
+import com.vaadin.Application;
 import com.vaadin.addon.jpacontainer.EntityItem;
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.event.Action;
@@ -41,6 +42,23 @@ public class GenericView<T> extends AbstractView<T> implements ComponentContaine
 		noEntitySelectedActions = new Action[] { addAction, refreshAction };
 
 		jpaContainer = jpaContainerFactory.getJPAContainer(entityClass, propertyConfiguror.getPropertyValues(PropertyConfiguror.nestedProperties));
+		
+		String[] sortProperties = propertyConfiguror.getPropertyValues(PropertyConfiguror.defaultOrdering);
+		// set a default ordering or sorting
+		if (sortProperties !=null && sortProperties.length > 0) {
+			String[] propertyIds = new String[sortProperties.length];
+			boolean[] ascendings = new boolean[sortProperties.length];
+			for(int i=0;i<sortProperties.length;i++) {
+				char c = sortProperties[i].charAt(0);
+				ascendings[i] = c != '-';
+				if (c == '+' || c == '-') {
+					propertyIds[i] = sortProperties[i].substring(1);
+				} else {
+					propertyIds[i] = sortProperties[i];
+				}
+			}
+			jpaContainer.sort(propertyIds, ascendings);
+		}
 		
 		buildToolbar();
 		buildTable();
@@ -78,11 +96,15 @@ public class GenericView<T> extends AbstractView<T> implements ComponentContaine
 	
 	@Override
 	public void addEntity() {
-		GenericEditor<T> editor = newEditor();
-		editor.setInstance(null, jpaContainer);
-		getApplication().getMainWindow().addWindow(new WexWindow(editor));	
+		addEntity(null, getApplication());	
 	}
 
+	public void addEntity(T newInstance, Application application) {
+		GenericEditor<T> editor = newEditor();
+		editor.setInstance(newInstance, jpaContainer);
+		application.getMainWindow().addWindow(new WexWindow(editor));	
+	}
+	
 	@Override
 	public void editEntity(Object target) {
 		GenericEditor<T> editor = newEditor();		
@@ -131,4 +153,9 @@ public class GenericView<T> extends AbstractView<T> implements ComponentContaine
 	public void setFilter(WexFilter filter) {
 		this.filter = filter;
 	}
+	
+	public WexFilter getFilter() {
+		return this.filter;
+	}
+	
 }

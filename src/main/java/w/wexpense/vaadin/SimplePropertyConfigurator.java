@@ -49,6 +49,10 @@ public class SimplePropertyConfigurator implements PropertyConfiguror {
 		values.put(nestedProperties, value);
 	}
 	
+	public void setDefaultOrdering(String value) {
+		values.put(defaultOrdering, value);
+	}
+	
 	public void setWindowHeight(String value) {
 		values.put(windowHeight, value);
 	}
