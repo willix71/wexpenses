@@ -10,7 +10,8 @@ public class TransactionLineUtils {
 
 	public static void updateAmount(Collection<TransactionLine> transactions, BigDecimal newAmount, BigDecimal oldAmount) {
 		for(TransactionLine transaction: transactions) {
-			if (oldAmount!=null && oldAmount.compareTo(transaction.getAmount())==0) {
+			BigDecimal amnt = transaction.getAmount();
+			if (amnt==null || (oldAmount!=null && oldAmount.compareTo(amnt)==0) ) {
 				transaction.setAmount(newAmount);
 				transaction.updateValue();
 			}
