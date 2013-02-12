@@ -119,6 +119,14 @@ public class Expense extends DBable {
 		this.transactions = transactions;
 	}
 
+	public void addTransaction(TransactionLine transaction) {
+		if (transactions == null) {
+			transactions = new ArrayList<TransactionLine>();
+		}
+		transactions.add(transaction);
+		transaction.setExpense(this);
+	}
+	
 	public Payment getPayment() {
 		return payment;
 	}

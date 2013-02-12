@@ -39,6 +39,12 @@
 		<ref bean="consolidationView"/>		
 	</util:list>
 	
+	<util:map id="uids" >
+		<entry key="account:ec" value="ea541901-dd9e-4aa4-8e39-9c7e178ac902"/>
+		<entry key="account:cash" value="3658938c-8acc-4c63-8f2a-ad3ed5a52910"/>
+		<entry key="account:mastercard" value="3f468fa4-31f0-4492-9cfd-12de3d59f4a8"/>
+	</util:map>
+	
 	<!-- ========== currency and country ========== -->
 			
 	<bean id="currencyView" class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
@@ -89,7 +95,7 @@
 		<constructor-arg value="w.wexpense.model.City" />
 		<lookup-method name="newEditor" bean="cityEditor"/>
 		<property name="filter">
-			<bean class="w.wexpense.vaadin.filter.DisplayFilter" />
+			<bean class="w.wexpense.vaadin.filter.DisplayFilter" scope="prototype"/>
 		</property>
 		<property name="propertyConfiguror">
 			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
@@ -115,7 +121,7 @@
 		<constructor-arg value="w.wexpense.model.Payee" />
 		<lookup-method name="newEditor" bean="payeeEditor"/>
 		<property name="filter">
-			<bean class="w.wexpense.vaadin.filter.DisplayFilter" />
+			<bean class="w.wexpense.vaadin.filter.DisplayFilter" scope="prototype" />
 		</property>		
 		<property name="propertyConfiguror">
 			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
@@ -189,12 +195,13 @@
 	
 	<!-- ========== expense ========== -->
 
-	<bean id="expenseView" class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
+	<bean id="genericExpenseView" class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
 		<constructor-arg value="w.wexpense.model.Expense" />
 		<lookup-method name="newEditor" bean="expenseEditor"/>
 		<property name="propertyConfiguror">
 			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
 				<property name="visibleProperties" value="date,amount,currency,payee,type"/>
+				<property name="defaultOrdering" value="-date"/>
 				<property name="windowHeight" value="310px"/>
 				<property name="windowWidth" value="340px"/>
 				<property name="otherProperies">
@@ -207,6 +214,18 @@
 				</property>
 			</bean>
 		</property>
+	</bean>
+	
+	<bean id="todaysExpenseView" parent="genericExpenseView" scope="prototype" >
+		<property name="filter">
+			<bean class="w.wexpense.vaadin.filter.TodaysExpenseFilter" scope="prototype" />
+		</property>	
+	</bean>
+	
+	<bean id="expenseView" parent="genericExpenseView" scope="prototype" >
+		<property name="filter">
+			<bean class="w.wexpense.vaadin.filter.ExpenseFilter" scope="prototype" />
+		</property>	
 	</bean>
 	
 	<bean id="expenseSelector" parent="expenseView" class="w.wexpense.vaadin.view.GenericSelector" />
@@ -236,9 +255,17 @@
 	</bean>
 	
 	<bean id="expenseEditorProperties" class="w.wexpense.vaadin.SimplePropertyConfigurator" scope="session">
-		<property name="windowHeight" value="650px"/>
+		<property name="windowHeight" value="700px"/>
 		<property name="windowWidth" value="910px"/>			
-		<property name="visibleProperties" value="fullId,uid,type,payee,date,amount,currency,externalReference,description,payment"/>
+		<property name="visibleProperties" value="fullId,uid,createdTs,modifiedTs,type,payee,date,amount,currency,externalReference,description,payment"/>
+		<property name="otherProperies">
+			<props>
+				<prop key="createdTs.dateFormat">dd.MM.yyyy HH:mm:ss</prop>
+				<prop key="modifiedTs.dateFormat">dd.MM.yyyy HH:mm:ss</prop>
+				<prop key="createdTs.dateResolution">1</prop>
+				<prop key="modifiedTs.dateResolution">1</prop>
+			</props>
+		</property>
 	</bean>
 	
 	<bean id="expenseTypeView" class="w.wexpense.vaadin.view.GenericView" scope="prototype" >
