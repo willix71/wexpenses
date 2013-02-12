@@ -1,11 +1,10 @@
 
-add transaction line to consolidation and expenses to payments
+Advanced filters on expense (combo nor working) and transaction lines
 
-modify consolidated date
+Default order on list views (only on expenses)
+
 
 exchange rate handling
-
-Advanced filters on expense and transaction lines
 
 transaction line filters account
 
@@ -15,9 +14,12 @@ Login and Security
 GUI
 ===
 
+center new windows
+
 height of cells in editable sub view
 
 field custom header name (see expense type and the Payment Generator Class Name field which should be renamed to Generator)
+
 
 NICE TO HAVE
 ============
@@ -28,10 +30,9 @@ selective combo boxes (i.e. only display filtered values such as with discrimina
 
 unmodifiable sent payments and expenses
 
+
 TECHY
 =====
-
-Refactor transaction line update values into the model itself and refresh the table rather than using the properties in the view
 
 remove jpaContainers and use custom jpaRepository dependant containers
 
