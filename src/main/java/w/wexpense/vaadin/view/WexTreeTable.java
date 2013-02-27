@@ -8,6 +8,7 @@ import w.wexpense.vaadin.PropertyConfiguror;
 
 import com.vaadin.data.Container;
 import com.vaadin.data.Property;
+import com.vaadin.ui.Table;
 import com.vaadin.ui.TreeTable;
 
 public class WexTreeTable extends TreeTable {
@@ -27,7 +28,7 @@ public class WexTreeTable extends TreeTable {
 
 		for(String pid: visibleProperties) {
 			String p = propertyConfiguror.getPropertyValue(pid + PropertyConfiguror.propertyAlignement);
-			if (p!=null) setColumnAlignment(pid, p);
+			if (p!=null) setColumnAlignment(pid, Table.Align.CENTER.convertStringToAlign(p));
 			p = propertyConfiguror.getPropertyValue(pid + PropertyConfiguror.propertyExpandRatio);
 			if (p!=null) setColumnExpandRatio(pid, Float.valueOf(p));
 			p = propertyConfiguror.getPropertyValue(pid + PropertyConfiguror.propertyHeader);
@@ -36,7 +37,7 @@ public class WexTreeTable extends TreeTable {
 	}
 	
 	@Override
-	protected String formatPropertyValue(Object rowId, Object colId, Property property) {
+	protected String formatPropertyValue(Object rowId, Object colId, Property<?> property) {
         if (property == null || property.getValue() == null) {
             return "";
         }

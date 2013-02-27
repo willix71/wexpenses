@@ -4,11 +4,12 @@ import javax.annotation.PostConstruct;
 
 import w.wexpense.model.Parentable;
 import w.wexpense.persistence.PersistenceUtils;
-import w.wexpense.vaadin.WexWindow;
 import w.wexpense.vaadin.PropertyConfiguror;
+import w.wexpense.vaadin.WexWindow;
 
 import com.vaadin.addon.jpacontainer.EntityItem;
 import com.vaadin.event.Action;
+import com.vaadin.ui.UI;
 
 public class ParentableView<T extends Parentable<T>> extends GenericView<T> {
 
@@ -37,7 +38,7 @@ public class ParentableView<T extends Parentable<T>> extends GenericView<T> {
 		table.setSizeFull();
 		table.setSelectable(true);
 		table.setImmediate(true);
-		table.addListener(this);
+		table.addItemClickListener(this);
 		table.addActionHandler(this);
 		
 		addComponent(table);
@@ -57,6 +58,6 @@ public class ParentableView<T extends Parentable<T>> extends GenericView<T> {
 		
 		GenericEditor<T> editor = newEditor();
 		editor.setInstance(child, jpaContainer);
-		getApplication().getMainWindow().addWindow(new WexWindow(editor));	
+		UI.getCurrent().addWindow(new WexWindow(editor));	
 	}
 }

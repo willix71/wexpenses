@@ -5,12 +5,11 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.dialogs.ConfirmDialog;
 
-import w.wexpense.vaadin.WexWindow;
 import w.wexpense.vaadin.PropertyConfiguror;
 import w.wexpense.vaadin.WexJPAContainerFactory;
+import w.wexpense.vaadin.WexWindow;
 import w.wexpense.vaadin.filter.WexFilter;
 
-import com.vaadin.Application;
 import com.vaadin.addon.jpacontainer.EntityItem;
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.event.Action;
@@ -18,7 +17,8 @@ import com.vaadin.event.ItemClickEvent;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.ComponentContainer;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Window.Notification;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.UI;
 
 public class GenericView<T> extends AbstractView<T> implements ComponentContainer {
 	private static final long serialVersionUID = 5282517667310057582L;
@@ -96,13 +96,13 @@ public class GenericView<T> extends AbstractView<T> implements ComponentContaine
 	
 	@Override
 	public void addEntity() {
-		addEntity(null, getApplication());	
+		addEntity(null, UI.getCurrent());	
 	}
 
-	public void addEntity(T newInstance, Application application) {
+	public void addEntity(T newInstance, UI ui) {
 		GenericEditor<T> editor = newEditor();
 		editor.setInstance(newInstance, jpaContainer);
-		application.getMainWindow().addWindow(new WexWindow(editor));	
+		ui.addWindow(new WexWindow(editor));	
 	}
 	
 	@Override
@@ -110,23 +110,22 @@ public class GenericView<T> extends AbstractView<T> implements ComponentContaine
 		GenericEditor<T> editor = newEditor();		
 		EntityItem<T> item = (EntityItem<T>) table.getItem(target);		
 		editor.setInstance(item.getEntity(), jpaContainer);
-		getApplication().getMainWindow().addWindow(new WexWindow(editor));		
+		UI.getCurrent().addWindow(new WexWindow(editor));		
 	}
 	
 	@Override
 	public void deleteEntity(final Object target) {
 		EntityItem<T> item = (EntityItem<T>) table.getItem(target);
 		final String text = item.getEntity().toString();
-		ConfirmDialog.show(
-			getWindow(), "Delete", text, "yes", "no", 
+		ConfirmDialog.show(UI.getCurrent(), "Delete", text, "yes", "no", 
 			new ConfirmDialog.Listener() {            
 				private static final long serialVersionUID = 1L;
 				public void onClose(ConfirmDialog dialog) {
 					if (dialog.isConfirmed()) {
 						jpaContainer.removeItem(target);
-						getWindow().showNotification(
+						Notification.show(
 								text, "deleted...",
-				                Notification.TYPE_TRAY_NOTIFICATION);
+				                Notification.Type.TRAY_NOTIFICATION);
 					}
 				}
 			});
@@ -143,7 +142,7 @@ public class GenericView<T> extends AbstractView<T> implements ComponentContaine
 		GenericEditor<T> editor = newEditor();
 		EntityItem<T> t = (EntityItem<T>) event.getItem(); 
 		editor.setInstance(t.getEntity(), jpaContainer);
-		getApplication().getMainWindow().addWindow(new WexWindow(editor));
+		UI.getCurrent().addWindow(new WexWindow(editor));
 	}
 	
 	public GenericEditor<T> newEditor() {

@@ -4,8 +4,8 @@ package w.wexpense.vaadin.view;
 import com.vaadin.event.Action;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.Table;
-import com.vaadin.ui.Window.Notification;
 
 public abstract class AbstractView<T> extends ConfigurableView<T> implements Action.Handler, ItemClickListener {
 
@@ -60,9 +60,9 @@ public abstract class AbstractView<T> extends ConfigurableView<T> implements Act
 	
 	public void refreshContainer(boolean notify) {
 		if (notify) {
-			getWindow().showNotification(
+			Notification.show(
 				entityClass.getSimpleName(), "refreshed...",
-                Notification.TYPE_HUMANIZED_MESSAGE);
+                Notification.Type.HUMANIZED_MESSAGE);
 		}			
 	}
 

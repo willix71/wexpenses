@@ -34,6 +34,7 @@
 				 <bean class="org.springframework.orm.jpa.support.OpenEntityManagerInViewInterceptor" >
 				 	<property name="entityManagerFactory" ref="entityManagerFactoryBean" />
 				 </bean>
+				 <bean class="w.wexpense.vaadin.WexSessionPerRequestInterceptor" />
 			</list>
 		</property>
 	</bean>

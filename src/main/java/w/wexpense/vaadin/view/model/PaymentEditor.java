@@ -15,7 +15,7 @@ import w.wexpense.vaadin.view.OneToManyEditor;
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.terminal.ExternalResource;
+import com.vaadin.server.ExternalResource;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -23,6 +23,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Field;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Link;
+import com.vaadin.ui.UI;
 
 public class PaymentEditor extends OneToManyEditor<Payment, Expense> {
 
@@ -80,7 +81,7 @@ public class PaymentEditor extends OneToManyEditor<Payment, Expense> {
 	
 	protected void addListener() {
 		// attach user interaction listener
-		getForm().getField("date").addListener(new Property.ValueChangeListener() {
+		getForm().getField("date").addValueChangeListener(new Property.ValueChangeListener() {
 			@Override
 			public void valueChange(ValueChangeEvent event) {
 				Field f = getForm().getField("filename");
@@ -127,7 +128,7 @@ public class PaymentEditor extends OneToManyEditor<Payment, Expense> {
 	public void viewDtas() {
 		PaymentDtaEditor editor = newPaymentDtaEditor();
 		editor.setInstance(getItem().getBean());
-		getApplication().getMainWindow().addWindow(new WexWindow(editor));
+		UI.getCurrent().addWindow(new WexWindow(editor));
 	}
 	
 	public PaymentDtaEditor newPaymentDtaEditor() {

@@ -10,7 +10,8 @@ import w.wexpense.vaadin.PropertyConfiguror;
 
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
-import com.vaadin.terminal.Sizeable;
+import com.vaadin.server.Sizeable;
+import com.vaadin.shared.ui.datefield.Resolution;
 import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
@@ -56,7 +57,7 @@ public class SimpleFieldFactory extends DefaultFieldFactory {
 			}
 		}			
 		
-		field.setWidth(100, Sizeable.UNITS_PERCENTAGE);
+		field.setWidth(100, Sizeable.Unit.PERCENTAGE);
 		field.setCaption(createCaptionByPropertyId(propertyId));
 
 		return field;
@@ -105,7 +106,7 @@ public class SimpleFieldFactory extends DefaultFieldFactory {
 			
 			String dateResolution = propertyConfiguror.getPropertyValue(
 					propertyId.toString() + PropertyConfiguror.propertyDateResolution, DEFAULT_DATE_RESOLUTION);			
-			dateField.setResolution(Integer.valueOf(dateResolution));
+			dateField.setResolution(Resolution.valueOf(dateResolution));
 			return dateField;
 		}
 

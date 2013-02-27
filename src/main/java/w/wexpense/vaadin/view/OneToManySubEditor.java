@@ -27,6 +27,7 @@ import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.event.Action;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.TableFieldFactory;
+import com.vaadin.ui.UI;
 
 public class OneToManySubEditor<C extends DBable, P extends DBable> extends AbstractView<C> {
 
@@ -139,7 +140,7 @@ public class OneToManySubEditor<C extends DBable, P extends DBable> extends Abst
 			
 			WexWindow window = new WexWindow(view);
 			window.setModal(true);
-			getApplication().getMainWindow().addWindow(window);	
+			UI.getCurrent().addWindow(window);	
 		}
 	}
 	

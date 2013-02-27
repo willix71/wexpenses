@@ -7,7 +7,7 @@ import java.util.GregorianCalendar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.vaadin.data.Property;
+import com.vaadin.data.util.converter.Converter;
 import com.vaadin.ui.DateField;
 
 public class WexDateField extends DateField {
@@ -18,7 +18,7 @@ public class WexDateField extends DateField {
 
 	@Override
 	protected Date handleUnparsableDateString(String dateString)
-			throws Property.ConversionException {
+			throws Converter.ConversionException {
 
 		return getEasyDate(dateString);
 	}
@@ -26,7 +26,7 @@ public class WexDateField extends DateField {
 	public static Date getEasyDate(String dateString) {
 		if (dateString == null || dateString.length()==0) {
 			LOGGER.debug("Can not parse empty date");
-			throw new Property.ConversionException("invalid date (empty)");
+			throw new Converter.ConversionException("invalid date (empty)");
 		}
 		
 		Calendar now = Calendar.getInstance();
@@ -48,7 +48,7 @@ public class WexDateField extends DateField {
 				}
 			} catch (NumberFormatException e) {
 				LOGGER.debug("Can not parse number for time", e);
-				throw new Property.ConversionException("invalid time " + parts[1]);
+				throw new Converter.ConversionException("invalid time " + parts[1]);
 			}
 		}
 
@@ -62,7 +62,7 @@ public class WexDateField extends DateField {
 			return c.getTime();
 		} catch (NumberFormatException e) {
 			LOGGER.debug("Can not parse number for date", e);
-			throw new Property.ConversionException("invalid date " + parts[0]);
+			throw new Converter.ConversionException("invalid date " + parts[0]);
 		}
 	}
 }

@@ -40,7 +40,6 @@ public class PaymentDtaEditor extends ConfigurableView<PaymentDta> {
 		this.table.setSizeFull();
 		this.table.setEditable(true);
 		this.table.setImmediate(true);		
-		this.table.setWriteThrough(true);
 		
 		addComponent(this.table);
 	}	

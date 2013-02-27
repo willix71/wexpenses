@@ -27,6 +27,8 @@ import com.vaadin.data.util.filter.Compare;
 import com.vaadin.data.util.filter.Like;
 import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.FieldEvents.TextChangeListener;
+import com.vaadin.shared.ui.combobox.FilteringMode;
+import com.vaadin.shared.ui.datefield.Resolution;
 import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.DateField;
@@ -34,6 +36,7 @@ import com.vaadin.ui.Field;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.NativeSelect;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.AbstractSelect.ItemCaptionMode;
 
 public class ExpenseFilter extends HorizontalLayout implements WexFilter {
 
@@ -106,7 +109,7 @@ public class ExpenseFilter extends HorizontalLayout implements WexFilter {
 		dateType.setNullSelectionAllowed(false);
 		dateType.setImmediate(true);
 		dateType.setValue(dateField);
-		dateType.addListener(new Property.ValueChangeListener() {			
+		dateType.addValueChangeListener(new Property.ValueChangeListener() {			
 			@Override
 			public void valueChange(ValueChangeEvent event) {
 				dateField = (String) event.getProperty().getValue();
@@ -121,8 +124,8 @@ public class ExpenseFilter extends HorizontalLayout implements WexFilter {
 		dateFilter.setCaption("date");
 		dateFilter.setImmediate(true);
 		dateFilter.setDateFormat("dd.MM.yyyy");
-		dateFilter.setResolution(DateField.RESOLUTION_DAY);
-		dateFilter.addListener(new Property.ValueChangeListener() {			
+		dateFilter.setResolution(Resolution.DAY);
+		dateFilter.addValueChangeListener(new Property.ValueChangeListener() {			
 			@Override
 			public void valueChange(ValueChangeEvent event) {
 				dateValue = (Date) event.getProperty().getValue();
@@ -144,7 +147,7 @@ public class ExpenseFilter extends HorizontalLayout implements WexFilter {
 	private TextField getAmountField(final String propertyId) {
 		final TextField txtfield = new TextField(propertyId);
 		txtfield.setWidth("120px");
-		txtfield.addListener(new TextChangeListener() {			
+		txtfield.addTextChangeListener(new TextChangeListener() {			
 			@Override
 			public void textChange(TextChangeEvent event) {
 				String ref = event.getText();
@@ -180,7 +183,7 @@ public class ExpenseFilter extends HorizontalLayout implements WexFilter {
 	
 	private TextField getTextField(final String propertyId, String caption) {
 		final TextField txtfield = new TextField(caption);
-		txtfield.addListener(new TextChangeListener() {			
+		txtfield.addTextChangeListener(new TextChangeListener() {			
 			@Override
 			public void textChange(TextChangeEvent event) {
 				String ref = event.getText();
@@ -199,17 +202,16 @@ public class ExpenseFilter extends HorizontalLayout implements WexFilter {
 	private ComboBox getComboBox(Class<?> entityClass, final String propertyId) {
 		final ComboBox box = new ComboBox(propertyId);
 		box.setImmediate(true);
-		box.setMultiSelect(false);
 		
 		Container c = jpaContainerFactory.getJPAContainer(entityClass);
 		box.setContainerDataSource(c);
 		PropertyTranslator t = new SingleSelectTranslator(box);
 		box.setPropertyDataSource(t);
 		
-		box.setItemCaptionMode(NativeSelect.ITEM_CAPTION_MODE_ITEM);
-		box.setFilteringMode(AbstractSelect.Filtering.FILTERINGMODE_CONTAINS);
+		box.setItemCaptionMode(NativeSelect.ItemCaptionMode.ITEM);
+		box.setFilteringMode(FilteringMode.CONTAINS);
 		box.setWidth("60px");
-		box.addListener(new Property.ValueChangeListener() {			
+		box.addValueChangeListener(new Property.ValueChangeListener() {			
 				@Override
 				public void valueChange(ValueChangeEvent event) {
 					Object o = event.getProperty().getValue();	
