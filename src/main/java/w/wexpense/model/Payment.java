@@ -12,7 +12,7 @@ import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 
 @Entity
-public class Payment extends DBable {
+public class Payment extends DBable implements Selectable {
 
 	private static final long serialVersionUID = 2482940442245899869L;
 
@@ -23,13 +23,15 @@ public class Payment extends DBable {
 	@NotNull
 	private String filename;
 	
-    @OneToMany(mappedBy="payment")
-    @OrderBy("date, amount")
-    private List<Expense> expenses;
+	private boolean selectable = true;
+	
+	@OneToMany(mappedBy = "payment")
+	@OrderBy("date, amount")
+	private List<Expense> expenses;
 
-    @OneToMany(mappedBy="payment")
-    @OrderBy("orderBy")
-    private List<PaymentDta> dtaLines;
+	@OneToMany(mappedBy = "payment")
+	@OrderBy("orderBy")
+	private List<PaymentDta> dtaLines;
     
 	public Date getDate() {
 		return date;
@@ -45,6 +47,19 @@ public class Payment extends DBable {
 
 	public void setFilename(String filename) {
 		this.filename = filename;
+	}
+
+	public boolean isSelectable() {
+		return selectable;
+	}
+	
+	@Override
+	public boolean getSelectable() {
+		return selectable;
+	}
+
+	public void setSelectable(boolean selectable) {
+		this.selectable = selectable;
 	}
 
 	public List<Expense> getExpenses() {

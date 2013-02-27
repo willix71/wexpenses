@@ -387,7 +387,7 @@
 		<lookup-method name="newEditor" bean="paymentEditor"/>
 		<property name="propertyConfiguror">
 			<bean class="w.wexpense.vaadin.SimplePropertyConfigurator">
-				<property name="visibleProperties" value="date,filename"/>
+				<property name="visibleProperties" value="date,filename,selectable"/>
 				<property name="otherProperies">
 					<props>
 						<prop key="date.format">{0,date,dd.MM.yyyy}</prop>
@@ -427,7 +427,7 @@
 	<bean id="paymentEditorProperties" class="w.wexpense.vaadin.SimplePropertyConfigurator" scope="session">
 		<property name="windowHeight" value="400px"/>
 		<property name="windowWidth" value="500px"/>			
-		<property name="visibleProperties" value="fullId,uid,date,filename"/>
+		<property name="visibleProperties" value="fullId,uid,date,filename,selectable"/>
 	</bean>
 	
 	<bean id="paymentDtaEditor" class="w.wexpense.vaadin.view.model.PaymentDtaEditor" scope="prototype" >
