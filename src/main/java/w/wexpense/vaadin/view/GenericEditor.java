@@ -14,15 +14,18 @@ import w.wexpense.vaadin.SelectionChangeEvent;
 import w.wexpense.vaadin.WexJPAContainerFactory;
 import w.wexpense.vaadin.fieldfactory.RelationalFieldFactory;
 
-import com.vaadin.addon.beanvalidation.BeanValidationForm;
 import com.vaadin.addon.jpacontainer.EntityItem;
 import com.vaadin.addon.jpacontainer.JPAContainer;
+import com.vaadin.data.fieldgroup.BeanFieldGroup;
+import com.vaadin.data.fieldgroup.FieldGroup;
+import com.vaadin.data.fieldgroup.FieldGroup.CommitException;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Form;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 public class GenericEditor<T> extends ConfigurableView<T> implements Button.ClickListener {
 	private static final long serialVersionUID = 5282517667310057582L;
@@ -35,9 +38,11 @@ public class GenericEditor<T> extends ConfigurableView<T> implements Button.Clic
 	private BeanItem<T> item;
 	private boolean isNew;
 	
-	private BeanValidationForm<T> form;
+	private BeanFieldGroup<T> form;
 	private Button saveButton;
 	private Button saveAndCloseButton;
+	
+	private VerticalLayout layout;
 	
 	public GenericEditor(Class<T> entityClass) {
 		super(entityClass);
@@ -58,10 +63,18 @@ public class GenericEditor<T> extends ConfigurableView<T> implements Button.Clic
 	}
 		
 	protected void buildForm() {
-		form = new BeanValidationForm<T>(entityClass);		
-		form.setWriteThrough(true);
-		form.setImmediate(true);				
-		addComponent(form);		
+		form = new BeanFieldGroup<T>(entityClass);		
+		// TODO VAADIN7
+		//form.setWriteThrough(true);
+		//form.setImmediate(true);
+
+		layout = new VerticalLayout();
+		String[] propertyIds=propertyConfiguror.getPropertyValues(PropertyConfiguror.visibleProperties);
+		for (Object propertyId : propertyIds) {
+          layout.addComponent(form.buildAndBind(propertyId));
+      }
+		 
+		addComponent(layout);		
 	}
 	
 	protected AbstractOrderedLayout buildButtons() {
@@ -77,7 +90,8 @@ public class GenericEditor<T> extends ConfigurableView<T> implements Button.Clic
 	protected void setInstance(JPAContainer<T> jpaContainer) {		
 		this.jpaContainer = jpaContainer;
 		
-		this.form.setFormFieldFactory(new RelationalFieldFactory<T>(propertyConfiguror, jpaContainer, jpaContainerFactory, this));				
+		// TODO VAADIN 7
+		// this.form.setFieldFactory(fieldFactory)set(new RelationalFieldFactory<T>(propertyConfiguror, jpaContainer, jpaContainerFactory, this));				
 	}
 
 	protected void setInstance(T instance) {
@@ -98,8 +112,7 @@ public class GenericEditor<T> extends ConfigurableView<T> implements Button.Clic
 			this.item = new BeanItem<T>(t);
 		}
 		
-		String[] propertyIds=propertyConfiguror.getPropertyValues(PropertyConfiguror.visibleProperties);
-		form.setItemDataSource(item, Arrays.asList(propertyIds));
+		form.setItemDataSource(item);
 	}
 		
 	public T reloadInstance(T instance) {
@@ -128,14 +141,18 @@ public class GenericEditor<T> extends ConfigurableView<T> implements Button.Clic
 	
 	@Override
 	public void buttonClick(ClickEvent event) {
-		if (event.getButton() == saveButton) {
-			saveOnly();			
-		} else if (event.getButton() == saveAndCloseButton) {
-			saveAndClose();
-		} 
+		try {
+			if (event.getButton() == saveButton) {
+				saveOnly();			
+			} else if (event.getButton() == saveAndCloseButton) {
+				saveAndClose();
+			} 
+		} catch(CommitException ce) {
+			ce.printStackTrace();
+		}
 	}
 	
-	protected void saveOnly() {
+	protected void saveOnly() throws CommitException {
 		T t = save();
 		if (t == null) {
 			LOGGER.error("\n\nHouston we have a problem!!!");
@@ -146,12 +163,12 @@ public class GenericEditor<T> extends ConfigurableView<T> implements Button.Clic
 		getWindow().setCaption(getTitle());
 	}
 	
-	protected void saveAndClose() {
+	protected void saveAndClose() throws CommitException {
 		save();
 		close();		
 	}
 	
-	protected T save() {
+	protected T save() throws CommitException {
 		LOGGER.debug("Saving entity {}", item.getBean());
 		
 		form.commit();
@@ -208,7 +225,7 @@ public class GenericEditor<T> extends ConfigurableView<T> implements Button.Clic
 //		form.discard();
 //	}
 
-	public Form getForm() {
+	public FieldGroup getForm() {
 		return form;
 	}
 	

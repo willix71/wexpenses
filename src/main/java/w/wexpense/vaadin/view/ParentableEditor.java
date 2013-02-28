@@ -1,5 +1,7 @@
 package w.wexpense.vaadin.view;
 
+import com.vaadin.data.fieldgroup.FieldGroup.CommitException;
+
 import w.wexpense.model.Parentable;
 
 public class ParentableEditor<T extends Parentable<T>> extends GenericEditor<T> {
@@ -10,7 +12,7 @@ public class ParentableEditor<T extends Parentable<T>> extends GenericEditor<T> 
 		super(entityClass);
 	}
 	
-	protected T save() {
+	protected T save() throws CommitException {
 		T a = super.save();
 		// This a hack to avoid the following bug
 		// Create and save a new Account (parentable) the parent of which 

@@ -34,6 +34,10 @@ public class ConfigurableView<T> extends VerticalLayout {
 		return entityClass.getSimpleName();
 	}
 	
+	public WexWindow getWindow() {
+		return window;
+	}
+
 	public void setWexWindow(WexWindow w) {
 		this.window = w;
 	}

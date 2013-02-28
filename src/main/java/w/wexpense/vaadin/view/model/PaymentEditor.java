@@ -15,6 +15,7 @@ import w.wexpense.vaadin.view.OneToManyEditor;
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.fieldgroup.FieldGroup.CommitException;
 import com.vaadin.server.ExternalResource;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Alignment;
@@ -110,7 +111,7 @@ public class PaymentEditor extends OneToManyEditor<Payment, Expense> {
 	}
 
 	@Override
-	public void saveOnly() {
+	public void saveOnly() throws CommitException {
 		super.saveOnly();
 		
 		generateDtaButton.setVisible(true);

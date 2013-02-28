@@ -10,6 +10,7 @@ import w.wexpense.vaadin.view.OneToManyEditor;
 
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
+import com.vaadin.data.fieldgroup.FieldGroup.CommitException;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -48,7 +49,7 @@ public class ExpenseEditor extends OneToManyEditor<Expense, TransactionLine> {
 	
 	protected void addListener() {
 		// attach user interaction listener
-		getForm().getField("amount").addListener(new Property.ValueChangeListener() {
+		getForm().getField("amount").addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = -1;
 			
 			@Override
@@ -61,7 +62,7 @@ public class ExpenseEditor extends OneToManyEditor<Expense, TransactionLine> {
 			}
 		});
 		
-		getForm().getField("payee").addListener(new Property.ValueChangeListener() {
+		getForm().getField("payee").addValueChangeListener(new Property.ValueChangeListener() {
 			private static final long serialVersionUID = -1;
 
 			@Override
@@ -83,7 +84,7 @@ public class ExpenseEditor extends OneToManyEditor<Expense, TransactionLine> {
 	}
 
 	@Override
-	protected Expense save() {	
+	protected Expense save() throws CommitException {	
 		((ExpenseTransactionLineEditor) getSubEditor()).enableUpdateValues(false);
 		return super.save();
 	}

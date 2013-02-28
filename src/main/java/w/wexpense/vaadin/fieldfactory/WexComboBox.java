@@ -7,6 +7,7 @@ import w.wexpense.vaadin.WexWindow;
 import w.wexpense.vaadin.view.GenericEditor;
 
 import com.vaadin.addon.jpacontainer.JPAContainer;
+import com.vaadin.addon.jpacontainer.fieldfactory.SingleSelectConverter;
 import com.vaadin.data.Property;
 import com.vaadin.data.Validator;
 import com.vaadin.data.Validator.InvalidValueException;
@@ -80,7 +81,7 @@ public class WexComboBox<T> extends CustomField implements Button.ClickListener 
 		ComboBox box = new ComboBox();
 		box.setImmediate(true);
 		box.setContainerDataSource(comboContainer);
-		box.setPropertyDataSource(new SingleSelectTranslator(box));
+		box.setConverter(new SingleSelectConverter(box));
 		box.setItemCaptionMode(NativeSelect.ItemCaptionMode.ITEM);
 		box.setFilteringMode(FilteringMode.CONTAINS);
 		box.setSizeFull();

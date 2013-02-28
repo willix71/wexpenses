@@ -14,14 +14,12 @@ import w.wexpense.vaadin.WexJPAContainerFactory;
 import w.wexpense.vaadin.fieldfactory.WexDateField;
 
 import com.vaadin.addon.jpacontainer.JPAContainer;
-import com.vaadin.addon.jpacontainer.fieldfactory.PropertyTranslator;
-import com.vaadin.addon.jpacontainer.fieldfactory.SingleSelectTranslator;
+import com.vaadin.addon.jpacontainer.fieldfactory.SingleSelectConverter;
 import com.vaadin.data.Container;
 import com.vaadin.data.Container.Filter;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.util.IndexedContainer;
-import com.vaadin.data.util.ObjectProperty;
 import com.vaadin.data.util.filter.And;
 import com.vaadin.data.util.filter.Compare;
 import com.vaadin.data.util.filter.Like;
@@ -29,14 +27,12 @@ import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.FieldEvents.TextChangeListener;
 import com.vaadin.shared.ui.combobox.FilteringMode;
 import com.vaadin.shared.ui.datefield.Resolution;
-import com.vaadin.ui.AbstractSelect;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.DateField;
 import com.vaadin.ui.Field;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.NativeSelect;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.AbstractSelect.ItemCaptionMode;
 
 public class ExpenseFilter extends HorizontalLayout implements WexFilter {
 
@@ -205,8 +201,7 @@ public class ExpenseFilter extends HorizontalLayout implements WexFilter {
 		
 		Container c = jpaContainerFactory.getJPAContainer(entityClass);
 		box.setContainerDataSource(c);
-		PropertyTranslator t = new SingleSelectTranslator(box);
-		box.setPropertyDataSource(t);
+		box.setConverter(new SingleSelectConverter(box));
 		
 		box.setItemCaptionMode(NativeSelect.ItemCaptionMode.ITEM);
 		box.setFilteringMode(FilteringMode.CONTAINS);
