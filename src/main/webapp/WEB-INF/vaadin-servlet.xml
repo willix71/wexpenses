@@ -11,22 +11,22 @@
        	http://www.springframework.org/schema/aop 
        	http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
 
-	<bean id="vasphi"
-		class="org.springframework.web.servlet.mvc.ServletWrappingController">
-		<property name="servletClass" 
-			value="w.wexpense.vaadin.spring.AutowiringApplicationServlet"/>
+	<bean id="springVaadinServlet" class="org.springframework.web.servlet.mvc.ServletWrappingController">
+		<property name="servletClass" value="w.wexpense.vaadin.spring.AutowiringApplicationServlet"/>
 		<property name="initParameters">
 			<props>
-				<prop key="application">w.wexpense.vaadin.WexApplication</prop>
+				<prop key="beanName">wexUI</prop>
 				<prop key="productionMode">false</prop>
+				<prop key="systemMessagesBeanName">DEFAULT</prop>
 			</props>
 		</property>
 	</bean>
 	
+	<!-- 
 	<bean class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
 		<property name="urlMap">
 			<map>
-				<entry key="/*" value-ref="vasphi" />
+				<entry key="/*" value-ref=""springVaadinServlet"" />
 			</map>
 		</property>
 		<property name="interceptors">
@@ -38,5 +38,6 @@
 			</list>
 		</property>
 	</bean>
+	-->
 
 </beans>

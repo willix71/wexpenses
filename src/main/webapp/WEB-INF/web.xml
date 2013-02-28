@@ -17,28 +17,29 @@
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class> 
 	</listener>
 
-	<!-- ===== by default ======
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
-		<param-value>/WEB-INF/applicationContext.xml</param-value>
+		<param-value>/WEB-INF/main-context.xml</param-value>
 	</context-param>
-	-->
+
 
     <listener>
         <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
     </listener>
-    	
+
+	<!--     	
 	<servlet>
-		<servlet-name>dispatcher</servlet-name>
+		<servlet-name>spring</servlet-name>
 		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 	
 	<servlet-mapping>
-		<servlet-name>dispatcher</servlet-name>
+		<servlet-name>spring</servlet-name>
 		<url-pattern>/web/*</url-pattern>		
 	</servlet-mapping>
-	
+	 -->
+	 
 	<!-- ===== using an interceptor =====
 	<filter>
 		<filter-name>openSession</filter-name>
@@ -55,28 +56,28 @@
 	</filter-mapping>
 	-->
  
- 	<!-- 
+ 	<!-- Vaadin servlet -->
 	<servlet>
 		<servlet-name>vaadin</servlet-name>
 		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
         <load-on-startup>1</load-on-startup>		
 	</servlet>
- 	-->
  
-    <!-- Vaadin servlet -->
+    <!-- Vaadin servlet
     <servlet>
         <servlet-name>vaadin</servlet-name>
         <servlet-class>ru.xpoft.vaadin.SpringVaadinServlet</servlet-class>
         <init-param>
             <param-name>beanName</param-name>
-            <param-value>myUI</param-value>
+            <param-value>wexUI</param-value>
         </init-param>
         <init-param>
             <param-name>systemMessagesBeanName</param-name>
             <param-value>DEFAULT</param-value>
         </init-param>
     </servlet>
-    		
+	 -->
+	     		
 	<servlet-mapping>
 		<servlet-name>vaadin</servlet-name>
 		<url-pattern>/vaadin/*</url-pattern>
