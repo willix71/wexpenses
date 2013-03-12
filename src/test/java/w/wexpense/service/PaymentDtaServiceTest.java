@@ -10,7 +10,7 @@ import w.wexpense.dta.BvrDtaFormaterTest;
 import w.wexpense.dta.IbanDtaFormaterTest;
 import w.wexpense.model.Payment;
 import w.wexpense.model.PaymentDta;
-import w.wexpense.service.PaymentDtaService;
+import w.wexpense.service.model.PaymentDtaService;
 
 public class PaymentDtaServiceTest {
 
@@ -21,7 +21,7 @@ public class PaymentDtaServiceTest {
 				BvrDtaFormaterTest.getBvrExpense(),
 				IbanDtaFormaterTest.getIbanExpense()); 
 		
-		PaymentDtaService service = new PaymentDtaService();
+		PaymentDtaService service = new PaymentDtaService(null);
 		
 		int i = 1;
 		for (PaymentDta dta: service.getPaymentDtas(payment)) {	

@@ -15,6 +15,8 @@
 	
 	<context:property-placeholder location="classpath:wexpenses.properties" />
 
+ 	<context:component-scan base-package="w.wexpense.service"/>
+ 	
     <context:component-scan base-package="w.wexpense.vaadin7"/>
     
     <bean class="ru.xpoft.vaadin.VaadinMessageSource" />
@@ -24,16 +26,15 @@
      </bean>
 
     
-    <!-- END VAADIN 7 
-    
 	<import resource="classpath:persistence-context.xml"/>
+	<!-- 
 	<import resource="classpath:service-context.xml"/>
+	 -->
 	
-	
-	<bean class="w.wexpense.vaadin.WexJPAContainerFactory" >
+	<bean class="w.wexpense.service.PersistenceService" >
 		<property name="helper">
 			<bean class="com.vaadin.addon.jpacontainer.util.EntityManagerPerRequestHelper"/>
 		</property>
 	</bean>
-	-->	
+	
 </beans>

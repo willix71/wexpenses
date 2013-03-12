@@ -60,7 +60,7 @@ public class DatabasePopulator {
 						
 			City paris = save(new City(null, "Paris", f));
 			City nyon = save(new City("1260", "Nyon", ch));
-			save(new City("1197", "Prangins", ch));
+			City prangins = save(new City("1197", "Prangins", ch));
 			
 			Account assetAcc = save(new Account(null, 1, "asset", ASSET, null));			
 			Account cashAcc = save(new Account(assetAcc, 1, "cash", ASSET, chf));			
@@ -79,57 +79,19 @@ public class DatabasePopulator {
 			PayeeType stationService = save(new PayeeType("Station Service"));			
 			PayeeType garage = save(new PayeeType("garage"));			
 			
-			Payee garageDeLEtraz = new Payee();
-			garageDeLEtraz.setType(garage);
-			garageDeLEtraz.setPrefix("Garage de l'");
-			garageDeLEtraz.setName("Etraz");
-			garageDeLEtraz.setCity(nyon);
-			garageDeLEtraz = save(garageDeLEtraz);
+			Payee garageDeLEtraz = newPayee(garage, "Garage de l'","Etraz", null, null, nyon, null);				
+			Payee garageDeParis = newPayee(stationService, null, "BP", "Rue de l'inconnu", null, paris, null);
+			Payee garageParfait = newPayee(garage, null, "Parfait", "a cote", null, prangins, "10 00000 00000 00000 00000");
+			Payee orange = newPayee(null, null, "Orange", "12 rue de la Morache", null, nyon, "10-2020-1");
 						
-			Payee garageDeParis = new Payee();
-			garageDeParis.setType(stationService);
-			garageDeParis.setName("BP");
-			garageDeParis.setCity(paris);
-			garageDeParis = save(garageDeParis);
-						
-			Payee orange = new Payee();
-			orange.setName("Orange");			
-			orange.setAddress1("12 rue de la Morache");
-			orange.setCity(nyon);
-			orange.setExternalReference("10-2020-1");
-			orange = save(orange);
-			
 			ExpenseType recu = save(new ExpenseType("recu"));
-			ExpenseType bvr = save(new ExpenseType("BVR"));
-			bvr.setPaymentGeneratorClassName(BvrDtaFormater.class.getName());
-			ExpenseType bvo = save(new ExpenseType("BVO"));
-			bvo.setPaymentGeneratorClassName(BvoDtaFormater.class.getName());
+			ExpenseType bvr = save(new ExpenseType("BVR", true, BvrDtaFormater.class.getName()));
+			ExpenseType bvo = save(new ExpenseType("BVO", true, BvoDtaFormater.class.getName()));
 			
 			// === Expense 1 ===
-			BigDecimal amount = new BigDecimal("22.50");
-			Expense expense = new Expense();
-			expense.setAmount(amount);
-			expense.setCurrency(chf);
-			expense.setDate(new GregorianCalendar().getTime());
-			expense.setPayee(garageDeLEtraz);
-			expense.setType(recu);
-			save(expense);
-			
-			TransactionLine line = new TransactionLine();
-			line.setExpense(expense);
-			line.setAccount(cashAcc);
-			line.setFactor(TransactionLineEnum.OUT);
-			line.setAmount(amount);
-			line.updateValue();
-			save(line);
-			
-			line = new TransactionLine();
-			line.setExpense(expense);
-			line.setAccount(gasAcc);
-			line.setFactor(TransactionLineEnum.IN);
-			line.setAmount(amount);
-			line.updateValue();
-			save(line);
+			newExpense("22.50", chf, new GregorianCalendar().getTime(), garageDeLEtraz, recu, null, cashAcc, gasAcc);
+			newExpense("60", euro, new GregorianCalendar(2012,6,23).getTime(), garageDeParis, recu, null, ecAcc, gasAcc);
+			newExpense("119.999999999", chf, new GregorianCalendar(2013,6,23).getTime(), garageParfait, bvo, null, ecAcc, gasAcc);
 			
 			// === Exchange rates ===
 			ExchangeRate rate = new ExchangeRate();
@@ -156,8 +118,9 @@ public class DatabasePopulator {
 			rate = save(rate);
 			
 			// === Expense 2 ===
-			amount = new BigDecimal("40");
-			expense = new Expense();
+			
+			BigDecimal amount = new BigDecimal("40");
+			Expense expense = new Expense();
 			expense.setAmount(amount);
 			expense.setCurrency(euro);
 			expense.setDate(d);
@@ -165,7 +128,7 @@ public class DatabasePopulator {
 			expense.setType(recu);
 			save(expense);
 			
-			line = new TransactionLine();
+			TransactionLine line = new TransactionLine();
 			line.setExpense(expense);
 			line.setAccount(ecAcc);
 			line.setAmount(amount);
@@ -220,6 +183,48 @@ public class DatabasePopulator {
 			
 			em.flush();
 		}
+	}
+	
+	private Payee newPayee(PayeeType type, String prefix, String name, String adr1, String adr2, City city, String xRef) {
+		Payee payee = new Payee();
+		payee.setType(type);
+		payee.setPrefix(prefix);
+		payee.setName(name);			
+		payee.setAddress1(adr1);
+		payee.setAddress2(adr2);
+		payee.setCity(city);
+		payee.setExternalReference(xRef);
+		return save(payee);		
+	}
+	
+	private Expense newExpense(String amt, Currency currency, Date date, Payee payee, ExpenseType type, Payment payment, Account out, Account in) {
+		BigDecimal amount = new BigDecimal(amt);
+		Expense expense = new Expense();
+		expense.setAmount(amount);
+		expense.setCurrency(currency);
+		expense.setDate(date);
+		expense.setPayee(payee);
+		expense.setType(type);
+		expense.setPayment(payment);
+		expense = save(expense);
+		
+		TransactionLine line = new TransactionLine();
+		line.setExpense(expense);
+		line.setAccount(out);
+		line.setAmount(amount);
+		line.updateValue();
+		line.setFactor(TransactionLineEnum.OUT);
+		save(line);
+		
+		line = new TransactionLine();
+		line.setExpense(expense);
+		line.setAccount(in);
+		line.setAmount(amount);
+		line.updateValue();
+		line.setFactor(TransactionLineEnum.IN);
+		save(line);
+		
+		return expense;
 	}
 	
 	private <T> T save(T t) {

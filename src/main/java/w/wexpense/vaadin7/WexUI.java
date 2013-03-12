@@ -8,8 +8,10 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import ru.xpoft.vaadin.DiscoveryNavigator;
+import w.wexpense.vaadin7.converter.WexConverterFactory;
 
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.UI;
 
@@ -28,10 +30,15 @@ public class WexUI extends UI {
 		
 		setSizeFull();
 
+		VaadinSession.getCurrent().setConverterFactory(new WexConverterFactory());
+		
       DiscoveryNavigator navigator = new DiscoveryNavigator(this, this);
       navigator.navigateTo(UI.getCurrent().getPage().getUriFragment());
 
       Notification.show("Welcome");
 	}
 
+	public <T> T getBean(Class<T> type) {
+		return applicationContext.getBean(type);
+	}
 }

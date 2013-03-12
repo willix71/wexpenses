@@ -1,4 +1,4 @@
-package w.wexpense.service;
+package w.wexpense.service.model;
 
 import java.util.Date;
 import java.util.Map;
@@ -7,16 +7,18 @@ import javax.annotation.Resource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
 
 import w.wexpense.model.Expense;
 import w.wexpense.model.TransactionLine;
 import w.wexpense.model.enums.TransactionLineEnum;
 import w.wexpense.persistence.dao.IAccountJpaDao;
+import w.wexpense.persistence.dao.IExpenseJpaDao;
 import w.wexpense.persistence.dao.IExpenseTypeJpaDao;
+import w.wexpense.service.EntityService;
 
-@Service
-public class ExpenseService {
+//@Service
+public class ExpenseService extends EntityService<Expense, Long> {
+
 
 	@Autowired
 	private IExpenseTypeJpaDao expenseTypeDao;
@@ -27,6 +29,12 @@ public class ExpenseService {
 	@Resource
 	@Qualifier("uids")
 	private Map<String, String> uids;
+
+	
+	@Autowired
+	public ExpenseService(IExpenseJpaDao dao) {
+	   super(Expense.class, dao);
+   } 
 	
 	public Expense newBvrExpense() {
 		return newExpense("BVR", uids.get("account:ec"));

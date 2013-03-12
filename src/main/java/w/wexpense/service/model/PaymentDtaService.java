@@ -1,4 +1,4 @@
-package w.wexpense.service;
+package w.wexpense.service.model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,8 +7,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,33 +16,42 @@ import w.wexpense.dta.EndDtaFormater;
 import w.wexpense.model.Expense;
 import w.wexpense.model.Payment;
 import w.wexpense.model.PaymentDta;
+import w.wexpense.persistence.dao.IPaymentDtaJpaDao;
+import w.wexpense.service.EntityService;
 
-@Service
-public class PaymentDtaService {
+//@Service
+public class PaymentDtaService extends EntityService<PaymentDta, Long> {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(PaymentDtaService.class);
-	
 	@PersistenceContext
 	private EntityManager entityManager;
 	
-	private EndDtaFormater endFormater = new EndDtaFormater();
+	@Autowired
+	public PaymentDtaService(IPaymentDtaJpaDao dao) {
+	   super(PaymentDta.class, dao);
+   }
 	
 	@Transactional
 	public void generatePaymentDtas(Payment payment) throws Exception {
-		// delete existing dtas
+		// delete existing dtas		
 		Query query = entityManager.createQuery("DELETE PaymentDta WHERE payment = :p");
 		query.setParameter("p", payment);
 		int i = query.executeUpdate();
 		LOGGER.info("Deleted {} old payment DTAs", i);
+		
+		/**
+		List<PaymentDta> l = payment.getDtaLines();
+		getDao().deleteInBatch(l);
+		LOGGER.info("Deleted {} old payment DTAs", l.size());
+		*/
 		
 		// generate new ones
 		List<PaymentDta> dtas = getPaymentDtas(payment);
 		
 		// save them
 		for(PaymentDta dta: dtas) {
-			entityManager.persist(dta);
+			getDao().save(dta);
 		}
-		LOGGER.info("Created {} new payment DTAs", i);
+		LOGGER.info("Created {} new payment DTAs", dtas.size());
 	}
 	
 	public List<PaymentDta> getPaymentDtas(Payment payment) throws Exception {
@@ -58,7 +66,7 @@ public class PaymentDtaService {
 			}
 		}
 		
-		String endLine = endFormater.format(payment, ++index);
+		String endLine = new EndDtaFormater().format(payment, ++index);
 		dtas.add(new PaymentDta(payment, ++order, null, endLine));
 
 		return dtas;

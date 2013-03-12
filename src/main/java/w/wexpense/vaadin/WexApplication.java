@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import w.wexpense.model.Expense;
-import w.wexpense.service.ExpenseService;
+import w.wexpense.service.model.ExpenseService;
 import w.wexpense.vaadin.view.GenericEditor;
 import w.wexpense.vaadin.view.GenericView;
 

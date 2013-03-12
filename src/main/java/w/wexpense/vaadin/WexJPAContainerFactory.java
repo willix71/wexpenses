@@ -1,5 +1,7 @@
 package w.wexpense.vaadin;
 
+import java.util.Collection;
+
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -36,6 +38,22 @@ public class WexJPAContainerFactory {
 //		String persistenceUnit = getPersistenceUnit();
 //		LOGGER.info("Creating EntityManager from persistence unit {}", persistenceUnit);
 //		return JPAContainerFactory.createEntityManagerForPersistenceUnit(getPersistenceUnit());
+	}
+	
+	public <T> JPAContainer<T> getJPAContainer(Class<T> entityClass, Collection<String> nestedProperties) {
+		//String persistenceUnit = getPersistenceUnit();
+		LOGGER.info("Creating JPAContainer from persistence unit {}", getEntityManager());
+		
+		JPAContainer<T> jpac = JPAContainerFactory.make(entityClass, getEntityManager());
+		
+		if (helper != null) helper.addContainer(jpac);
+		
+		if (nestedProperties != null) {
+			for (String nestedProperty : nestedProperties) {
+				jpac.addNestedContainerProperty(nestedProperty);
+			}
+		}
+		return jpac;
 	}
 	
 	public <T> JPAContainer<T> getJPAContainer(Class<T> entityClass, String... nestedProperties) {

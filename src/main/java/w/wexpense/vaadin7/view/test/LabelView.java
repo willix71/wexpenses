@@ -1,4 +1,4 @@
-package w.wexpense.vaadin7.view;
+package w.wexpense.vaadin7.view.test;
 
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
@@ -7,6 +7,7 @@ import com.vaadin.ui.*;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import ru.xpoft.vaadin.VaadinView;
+import w.wexpense.vaadin7.view.MainView;
 
 import javax.annotation.PostConstruct;
 

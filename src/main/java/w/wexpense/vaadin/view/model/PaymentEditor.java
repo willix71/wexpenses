@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import w.wexpense.dta.DtaHelper;
 import w.wexpense.model.Expense;
 import w.wexpense.model.Payment;
-import w.wexpense.service.PaymentDtaService;
+import w.wexpense.service.model.PaymentDtaService;
 import w.wexpense.vaadin.WexWindow;
 import w.wexpense.vaadin.view.OneToManyEditor;
 

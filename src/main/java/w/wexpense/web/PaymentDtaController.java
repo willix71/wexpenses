@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import w.wexpense.model.Payment;
 import w.wexpense.model.PaymentDta;
-import w.wexpense.service.PaymentService;
+import w.wexpense.service.model.PaymentService;
 
 @Controller
 public class PaymentDtaController {
@@ -34,7 +34,7 @@ public class PaymentDtaController {
 		Payment payment;
 		if (id!=null) {
 			LOGGER.info("Fetching payment with id {}", id);
-			payment = paymentService.getPaymentById(id);
+			payment = paymentService.load(id);
 		} else {
 			LOGGER.info("Fetching payment with uid {}", uid);
 			payment = paymentService.getPaymentByUid(uid);		
