@@ -10,6 +10,8 @@ import javax.persistence.OneToMany;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.vaadin.data.util.BeanItem;
+
 public class PersistenceUtils {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PersistenceUtils.class);
@@ -30,6 +32,17 @@ public class PersistenceUtils {
 			
 			throw new RuntimeException(e);
 		}
+	}
+	
+	/**
+	 * Returns the id of an entity.
+	 * 
+	 * @param t the entity
+	 * @return the id of the passed entity
+	 */
+	public static <T> Object getIdValue(T t) {
+		String idfield = getIdName(t.getClass());
+		return new BeanItem<T>(t).getItemProperty(idfield).getValue();
 	}
 	
 	/**

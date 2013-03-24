@@ -42,11 +42,12 @@ public class RelationalFieldFactory extends SimpleFieldFactory {
 			return createManyToOneField(type);
 		}
 		if (DBable.class.isAssignableFrom(type)) {
-			return createManyToOneField(type);
+			return createEditableManyToOneField(type);
 		}
 		return null;
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected Field<?> createManyToOneField(Class<?> type) {
 		ComboBox comboBox = new ComboBox();
 		comboBox.setImmediate(true);
@@ -55,12 +56,15 @@ public class RelationalFieldFactory extends SimpleFieldFactory {
 		comboBox.setItemCaptionMode(NativeSelect.ItemCaptionMode.ITEM);
 		comboBox.setFilteringMode(FilteringMode.CONTAINS);
 		comboBox.setSizeFull();
-		return comboBox;
-		
-		//return new WexComboBox(type, getContainer(type));		
+		return comboBox;	
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+   protected Field<?> createEditableManyToOneField(Class<?> type) {
+		return new WexComboBox(type, getContainer(type));		
+	}
+	
 	protected Container getContainer(Class<?> type) {
-		return persistenceService.getJPAContainer(type);		
+		return persistenceService.getContainer(type);		
 	}
 }

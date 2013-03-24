@@ -18,6 +18,8 @@ public class AmountValue extends Number implements Serializable {
 		setRealValue(Double.parseDouble(s));
 	}	
 		
+	// ===
+	
 	private void setValue(long value) {
 		this.value = value;
 	}
@@ -65,6 +67,7 @@ public class AmountValue extends Number implements Serializable {
 	}
 	
 	// ===
+	
 	@Override
 	public int hashCode() {
 		return (int) value;

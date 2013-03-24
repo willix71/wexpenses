@@ -4,6 +4,8 @@ import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.ui.Table;
 
 public class RefreshAction extends ListViewAction {
+	
+	private static final long serialVersionUID = 1L;
 
 	public RefreshAction() {
 		super("refresh");

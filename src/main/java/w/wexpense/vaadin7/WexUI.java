@@ -37,8 +37,15 @@ public class WexUI extends UI {
 
       Notification.show("Welcome");
 	}
-
+	
 	public <T> T getBean(Class<T> type) {
 		return applicationContext.getBean(type);
+	}
+	public <T> T getBean(Class<T> type, String name) {
+		if (name==null || name.length()==0) {
+			return applicationContext.getBean(type);
+		} else {
+			return applicationContext.getBean(name, type);
+		}
 	}
 }

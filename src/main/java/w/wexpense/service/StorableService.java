@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 public interface StorableService<T, ID extends Serializable> {
 
-	T newInstance();
+	T newInstance(Object ... args);
 
 	T load(ID id);
 

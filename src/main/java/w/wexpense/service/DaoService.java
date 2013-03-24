@@ -11,8 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import w.wexpense.persistence.PersistenceUtils;
 
-
-public class GenericService<T, ID extends Serializable> implements StorableService<T, ID> {
+public class DaoService<T, ID extends Serializable> implements StorableService<T, ID> {
 
 	protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 	
@@ -21,7 +20,7 @@ public class GenericService<T, ID extends Serializable> implements StorableServi
 	
 	private Class<T> entityClass;
 	
-	public GenericService(Class<T> entityClass) {
+	public DaoService(Class<T> entityClass) {
 		this.entityClass = entityClass;
 	}
 		
@@ -30,7 +29,7 @@ public class GenericService<T, ID extends Serializable> implements StorableServi
 	}
 
 	@Override
-	public T newInstance() {
+	public T newInstance(Object ... args) {
 		try {
 			return entityClass.newInstance();
 		} catch (Exception e) {

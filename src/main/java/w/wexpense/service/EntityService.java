@@ -6,6 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import com.vaadin.data.Property;
+import com.vaadin.data.util.BeanItem;
 
 public class EntityService<T, ID extends Serializable> implements StorableService<T, ID> {
 
@@ -28,10 +30,21 @@ public class EntityService<T, ID extends Serializable> implements StorableServic
 		return dao;
 	}
 
-	@Override
-   public T newInstance() {
+   @Override
+	@SuppressWarnings({"rawtypes", "unchecked"})
+   public T newInstance(Object ... args) {
 		try {
-			return entityClass.newInstance();
+			T t = entityClass.newInstance();
+			
+			if (args!=null && args.length>0) {
+				// set the first argument as text in the name property if one exists
+            Property p = new BeanItem<T>(t).getItemProperty("name");
+				if (p!=null && String.class.equals(p.getType())) {
+					p.setValue(args[0]);
+				}
+			}
+			
+			return t;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

@@ -41,7 +41,7 @@
         <param-value>false</param-value>
     </context-param>
     
-	<!-- ===== using an interceptor =====
+	<!-- ===== using an filter ===== -->
 	<filter>
 		<filter-name>openSession</filter-name>
 		<filter-class>org.springframework.orm.jpa.support.OpenEntityManagerInViewFilter</filter-class>
@@ -55,7 +55,19 @@
 		<filter-name>openSession</filter-name>
 		<servlet-name>vaadin</servlet-name>		
 	</filter-mapping>
-	-->
+
+	<!-- 
+ 	<filter>
+		<filter-name>sessionPerRequest</filter-name>
+		<filter-class>w.wexpense.vaadin7.WexSessionPerRequestFilter</filter-class>
+	</filter>
+	
+	<filter-mapping>
+		<filter-name>sessionPerRequest</filter-name>
+		<servlet-name>vaadin</servlet-name>		
+	</filter-mapping>
+	 -->
+ 
  
  	<!-- Vaadin servlet -->
  	<!-- 

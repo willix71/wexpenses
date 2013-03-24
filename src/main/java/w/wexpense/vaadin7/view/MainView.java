@@ -8,8 +8,6 @@ import org.springframework.stereotype.Component;
 import ru.xpoft.vaadin.VaadinView;
 import w.wexpense.vaadin7.view.model.ExpenseListView;
 import w.wexpense.vaadin7.view.model.PayeeListView;
-import w.wexpense.vaadin7.view.test.AllInOneView;
-import w.wexpense.vaadin7.view.test.LabelView;
 
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
@@ -36,9 +34,7 @@ public class MainView extends Panel implements View
         VerticalLayout layout = new VerticalLayout();
         layout.setSpacing(true);
         layout.setMargin(true);
-
-        layout.addComponent(new Link("test label view", new ExternalResource("#!" + LabelView.NAME)));
-        
+       
         layout.addComponent(new Link("AllInOne", new ExternalResource("#!" + AllInOneView.NAME)));
 
         layout.addComponent(new Link("Payee", new ExternalResource("#!" + PayeeListView.NAME)));

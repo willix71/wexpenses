@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import w.wexpense.model.ExpenseType;
 import w.wexpense.model.Payee;
 
-public interface IPayeeJpaDao extends JpaRepository< Payee, Long >, JpaSpecificationExecutor< ExpenseType >{
+public interface IPayeeJpaDao extends JpaRepository< Payee, Long >, JpaSpecificationExecutor< Payee >{
 	Payee findByUid(String uid);
 }

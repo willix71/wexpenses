@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import ru.xpoft.vaadin.VaadinView;
 import w.wexpense.model.Expense;
 import w.wexpense.vaadin7.view.ListView;
+import w.wexpense.vaadin7.view.TableColumnConfig;
 
 @Component
 @Scope("prototype")
@@ -17,8 +18,20 @@ public class ExpenseListView extends ListView<Expense> {
 	public ExpenseListView() {
 	   super(Expense.class);
 	   
-	   setAlignProperties("date","payment.date","=type",">amount","currency","payee");
-	   setSortProperties("-date");
+	   setColumnConfigs(
+			   new TableColumnConfig("id").rightAlign().collapse(),
+			   new TableColumnConfig("uid").collapse(),
+			   new TableColumnConfig("createdTs").collapse(),
+			   new TableColumnConfig("modifiedTs").collapse(),
+			   new TableColumnConfig("date").desc(),
+			   new TableColumnConfig("payment.date", "Payment"),
+			   new TableColumnConfig("type").centerAlign(),
+			   new TableColumnConfig("amount").rightAlign(),
+			   new TableColumnConfig("currency").centerAlign(),
+			   new TableColumnConfig("payee").sortBy(".display").expand(1.0f),			   
+			   new TableColumnConfig("externalReference").collapse(),
+			   new TableColumnConfig("description").collapse()
+			   );
    }
 
 }
