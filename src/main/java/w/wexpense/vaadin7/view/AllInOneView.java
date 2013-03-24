@@ -41,8 +41,10 @@ public class AllInOneView extends Panel implements View {
 		addView("currencyListView");
 		addView("countryListView");
 		addView("cityListView");
+		addView("payeeTypeListView");
 		addView("payeeListView");
 		addView("accountListView");
+		addView("expenseTypeListView");
 		addView("expenseListView");
 		
 		navTree.setSelectable(true);
