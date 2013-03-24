@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 
 import ru.xpoft.vaadin.VaadinView;
 import w.wexpense.model.Expense;
+import w.wexpense.vaadin7.action.ActionHelper;
 import w.wexpense.vaadin7.view.ListView;
 import w.wexpense.vaadin7.view.TableColumnConfig;
 
@@ -32,6 +33,8 @@ public class ExpenseListView extends ListView<Expense> {
 			   new TableColumnConfig("externalReference").collapse(),
 			   new TableColumnConfig("description").collapse()
 			   );
-   }
+	   
+	   ActionHelper.setDefaultListViewActions(this, ExpenseEditorView.class);
+	}
 
 }

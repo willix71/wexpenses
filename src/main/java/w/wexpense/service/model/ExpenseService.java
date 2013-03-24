@@ -3,10 +3,8 @@ package w.wexpense.service.model;
 import java.util.Date;
 import java.util.Map;
 
-import javax.annotation.Resource;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 import w.wexpense.model.Expense;
 import w.wexpense.model.TransactionLine;
@@ -16,7 +14,7 @@ import w.wexpense.persistence.dao.IExpenseJpaDao;
 import w.wexpense.persistence.dao.IExpenseTypeJpaDao;
 import w.wexpense.service.EntityService;
 
-//@Service
+@Service
 public class ExpenseService extends EntityService<Expense, Long> {
 
 
@@ -26,8 +24,8 @@ public class ExpenseService extends EntityService<Expense, Long> {
 	@Autowired
 	private IAccountJpaDao accountDao;
 	
-	@Resource
-	@Qualifier("uids")
+	//@Resource
+	//@Qualifier("uids")
 	private Map<String, String> uids;
 
 	
