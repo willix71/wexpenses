@@ -1,33 +1,29 @@
 package w.wexpense.vaadin7.view.model;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 
 import w.wexpense.model.Currency;
-import w.wexpense.persistence.dao.ICurrencyJpaDao;
-import w.wexpense.service.EntityService;
+import w.wexpense.service.StorableService;
 import w.wexpense.vaadin7.action.ActionHelper;
+import w.wexpense.vaadin7.support.TableColumnConfig;
 import w.wexpense.vaadin7.view.EditorView;
 import w.wexpense.vaadin7.view.ListView;
-import w.wexpense.vaadin7.view.TableColumnConfig;
 
 @Configuration
 public class CurrencyConfiguration {
 
 	@Autowired
-	private ICurrencyJpaDao currencyDao;
-
-	@Bean 
-	public EntityService<Currency, String> currencyService() {
-		return new EntityService<>(Currency.class, currencyDao);
-	}
+	@Qualifier("currencyService")
+	private StorableService<Currency, String> currencyService;
 	
 	@Bean
 	@Scope("prototype")
 	public EditorView<Currency, String> currencyEditorView() {
-		EditorView<Currency, String> editorview = new EditorView<Currency, String>(currencyService());
+		EditorView<Currency, String> editorview = new EditorView<Currency, String>(currencyService);
 		editorview.setProperties("code","name");
 		return editorview;
 	}
@@ -41,7 +37,7 @@ public class CurrencyConfiguration {
 				   new TableColumnConfig("name").asc()
 				   );
 		   
-		ActionHelper.setDefaultListViewActions(listview, EditorView.class, "currencyEditorView");
+		ActionHelper.setDefaultListViewActions(listview, "currencyEditorView");
 		return listview;
 	}
 }

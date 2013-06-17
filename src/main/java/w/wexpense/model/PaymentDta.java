@@ -7,7 +7,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @Entity
-public class PaymentDta extends DBable {
+public class PaymentDta extends DBable<PaymentDta> {
 
 	private static final long serialVersionUID = 2482940442245899869L;
 

@@ -8,7 +8,7 @@ import javax.persistence.PreUpdate;
 import javax.validation.constraints.NotNull;
 
 @Entity
-public class Payee extends DBable {
+public class Payee extends DBable<Payee> {
 
 	private static final long serialVersionUID = 2482940442245899869L;
 	

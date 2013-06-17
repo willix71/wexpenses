@@ -4,8 +4,8 @@ import javax.persistence.MappedSuperclass;
 import javax.validation.constraints.NotNull;
 
 @MappedSuperclass
-public abstract class AbstractType extends DBable implements Selectable {
-
+public abstract class AbstractType<T extends AbstractType<T>> extends DBable<T> implements Selectable {
+	
 	private static final long serialVersionUID = 2482940442245899869L;
 
 	@NotNull

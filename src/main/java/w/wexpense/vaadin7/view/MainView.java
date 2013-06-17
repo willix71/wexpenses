@@ -6,8 +6,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import ru.xpoft.vaadin.VaadinView;
-import w.wexpense.vaadin7.view.model.ExpenseListView;
-import w.wexpense.vaadin7.view.model.PayeeListView;
 
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
@@ -29,21 +27,15 @@ public class MainView extends Panel implements View
     @PostConstruct
     public void PostConstruct()
     {
-        setSizeFull();
-
         VerticalLayout layout = new VerticalLayout();
         layout.setSpacing(true);
-        layout.setMargin(true);
-       
+        layout.setMargin(true);      
         layout.addComponent(new Link("AllInOne", new ExternalResource("#!" + AllInOneView.NAME)));
-
-        layout.addComponent(new Link("Payee", new ExternalResource("#!" + PayeeListView.NAME)));
-        layout.addComponent(new Link("Expense", new ExternalResource("#!" + ExpenseListView.NAME)));
-               
         setContent(layout);
     }
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
+       setSizeFull();
     }
 }

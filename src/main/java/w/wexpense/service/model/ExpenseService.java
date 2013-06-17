@@ -1,23 +1,52 @@
 package w.wexpense.service.model;
 
-import java.util.Date;
-import java.util.Map;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import w.wexpense.model.Expense;
 import w.wexpense.model.TransactionLine;
-import w.wexpense.model.enums.TransactionLineEnum;
-import w.wexpense.persistence.dao.IAccountJpaDao;
 import w.wexpense.persistence.dao.IExpenseJpaDao;
-import w.wexpense.persistence.dao.IExpenseTypeJpaDao;
-import w.wexpense.service.EntityService;
+import w.wexpense.persistence.dao.ITransactionLineJpaDao;
+import w.wexpense.service.DaoService;
 
 @Service
-public class ExpenseService extends EntityService<Expense, Long> {
+public class ExpenseService extends DaoService<Expense, Long> {
+	
 
-
+	@Autowired
+	private ITransactionLineJpaDao transactionLineDao;
+	
+	@Autowired
+	public ExpenseService(IExpenseJpaDao dao) {
+	   super(Expense.class, dao);
+   } 
+	
+	@Override
+   public Expense save(Expense entity) {
+	   LOGGER.debug("Saving expense {}", entity);
+	   
+	   List<TransactionLine> newTransactionLines = entity.getTransactions();
+	   
+	   Expense newExpense = super.save(entity);
+	   
+	   List<TransactionLine> oldTransactionLines = transactionLineDao.findByExpense(newExpense);	   
+	   LOGGER.debug("old expense's transaction line size{}", oldTransactionLines.size());
+	   
+	   for(TransactionLine newTransactionLine: newTransactionLines) {
+	   	newTransactionLine.setExpense(newExpense);
+	   	transactionLineDao.save(newTransactionLine);
+	   }
+	   for(TransactionLine oldTransactionLine: oldTransactionLines) {
+	   	if (!newTransactionLines.contains(oldTransactionLine)) {
+	   		transactionLineDao.delete(oldTransactionLine);	   		
+	   	}
+	   }
+	   return newExpense;
+   }
+	
+/*
 	@Autowired
 	private IExpenseTypeJpaDao expenseTypeDao;
 
@@ -27,12 +56,6 @@ public class ExpenseService extends EntityService<Expense, Long> {
 	//@Resource
 	//@Qualifier("uids")
 	private Map<String, String> uids;
-
-	
-	@Autowired
-	public ExpenseService(IExpenseJpaDao dao) {
-	   super(Expense.class, dao);
-   } 
 	
 	public Expense newBvrExpense() {
 		return newExpense("BVR", uids.get("account:ec"));
@@ -73,5 +96,5 @@ public class ExpenseService extends EntityService<Expense, Long> {
 		expense.addTransaction(line);
 		
 		return expense;
-	}
+	}*/
 }

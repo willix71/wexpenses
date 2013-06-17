@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import w.wexpense.model.Currency;
 
-public interface ICurrencyJpaDao extends JpaRepository< Currency, String >, JpaSpecificationExecutor< Currency >{
-	Currency findByCode(String code);
-	Currency findByName(String name);
+public interface ICurrencyJpaDao extends JpaRepository< Currency, String >, JpaSpecificationExecutor< Currency > {
+
 }
+

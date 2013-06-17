@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
 
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-public class City extends DBable {
+public class City extends DBable<City> {
 
 	private static final long serialVersionUID = 2482940442245899869L;
 

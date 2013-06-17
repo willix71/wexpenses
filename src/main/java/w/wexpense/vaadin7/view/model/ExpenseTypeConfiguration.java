@@ -1,33 +1,29 @@
 package w.wexpense.vaadin7.view.model;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 
 import w.wexpense.model.ExpenseType;
-import w.wexpense.persistence.dao.IExpenseTypeJpaDao;
-import w.wexpense.service.EntityService;
+import w.wexpense.service.StorableService;
 import w.wexpense.vaadin7.action.ActionHelper;
+import w.wexpense.vaadin7.support.TableColumnConfig;
 import w.wexpense.vaadin7.view.EditorView;
 import w.wexpense.vaadin7.view.ListView;
-import w.wexpense.vaadin7.view.TableColumnConfig;
 
 @Configuration
 public class ExpenseTypeConfiguration {
 
 	@Autowired
-	private IExpenseTypeJpaDao expenseTypeDao;
-		
-	@Bean 
-	public EntityService<ExpenseType, Long> expenseTypeService() {
-		return new EntityService<>(ExpenseType.class, expenseTypeDao);
-	}
+	@Qualifier("expenseTypeService") 
+	private StorableService<ExpenseType, Long> expenseTypeService;
 	
 	@Bean
 	@Scope("prototype")
 	public EditorView<ExpenseType, Long> expenseTypeEditorView() {
-		EditorView<ExpenseType, Long> editorview = new EditorView<ExpenseType, Long>(expenseTypeService());
+		EditorView<ExpenseType, Long> editorview = new EditorView<ExpenseType, Long>(expenseTypeService);
 		editorview.setProperties("fullId","uid","name","selectable","paymentGeneratorClassName");
 		return editorview;
 	}
@@ -47,7 +43,7 @@ public class ExpenseTypeConfiguration {
 				   new TableColumnConfig("paymentGeneratorClassName", "Generator")
 				   );
 		   
-		ActionHelper.setDefaultListViewActions(listview, EditorView.class, "expenseTypeEditorView");
+		ActionHelper.setDefaultListViewActions(listview, "expenseTypeEditorView");
 		return listview;
 	}
 }

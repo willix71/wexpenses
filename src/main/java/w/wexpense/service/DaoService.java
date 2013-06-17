@@ -2,64 +2,95 @@ package w.wexpense.service;
 
 import java.io.Serializable;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.transaction.annotation.Transactional;
 
-import w.wexpense.persistence.PersistenceUtils;
+import w.wexpense.service.instanciator.Initializor;
 
 public class DaoService<T, ID extends Serializable> implements StorableService<T, ID> {
 
 	protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 	
-	@PersistenceContext
-	private EntityManager entityManager;
+	private JpaRepository<T, ID> dao;
 	
 	private Class<T> entityClass;
 	
-	public DaoService(Class<T> entityClass) {
-		this.entityClass = entityClass;
+	private Initializor<T> initializors[];
+	
+	@SuppressWarnings("unchecked")
+	public DaoService(Class<T> entityClass, JpaRepository<T, ID> dao) {
+		this(entityClass, dao, new Initializor[] {});
+
 	}
-		
+
+	// Generic and optional arguments do not get along very well....
+	
+	@SuppressWarnings("unchecked")
+	public DaoService(Class<T> entityClass, JpaRepository<T, ID> dao, Initializor<T> initializor) {
+		this(entityClass, dao, new Initializor[] {initializor});
+	}
+
+	@SuppressWarnings("unchecked")
+	public DaoService(Class<T> entityClass, JpaRepository<T, ID> dao, Initializor<T> initializor1, Initializor<T> initializor2) {
+		this(entityClass, dao, new Initializor[] {initializor2, initializor2}
+		);
+	}
+
+	public DaoService(Class<T> entityClass, JpaRepository<T, ID> dao, Initializor<T> initializors[]) {
+		this.entityClass = entityClass;
+		this.dao = dao;
+		this.initializors = initializors;
+	}
+
 	public Class<T> getEntityClass() {
 		return entityClass;
 	}
 
-	@Override
-	public T newInstance(Object ... args) {
+	public JpaRepository<T, ID> getDao() {
+		return dao;
+	}
+
+   @Override
+   public T newInstance(Object ... args) {
 		try {
-			return entityClass.newInstance();
+			T t = entityClass.newInstance();
+			
+			if (args!=null && args.length>0) {
+				for(Initializor<T> i: initializors) {
+					args = i.initialize(t, args);
+					if (args==null || args.length == 0) break;
+				}
+			}
+			
+			return t;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 	
 	@Override
-	public T load(ID id) {
-		return entityManager.find(entityClass, id);
+   public T load(ID id) {
+		return dao.findOne(id);
 	}
 	
 	@Override
-	public T save(T entity) {
-		entityManager.persist(entity);
-		
-		return entity;
+	@Transactional
+   public T save(T entity) {
+		return dao.save(entity);
 	}
 	
+
 	@Override
-	public void delete(T entity) {
-		entityManager.remove(entity);
+	@Transactional
+   public void delete(T entity) {
+		dao.delete(entity);
 	}
-	
+
 	@Override
-	public void delete(ID id) {
-		String entityName = entityClass.getSimpleName();
-		String idName = PersistenceUtils.getIdName(entityClass);
-		Query query = entityManager.createQuery("DELETE " + entityName + " WHERE " + idName + " = :id");
-		query.setParameter("id", id);
-		query.executeUpdate();
+	@Transactional
+   public void delete(ID id) {
+		dao.delete(id);
 	}
 }

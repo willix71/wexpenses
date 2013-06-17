@@ -21,7 +21,7 @@ import javax.persistence.Version;
 
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-public abstract class DBable implements Serializable {
+public abstract class DBable<T extends DBable<T>> implements Serializable, Duplicatable<T> {
 
 	private static final long serialVersionUID = 2482940442245899869L;
 
@@ -41,9 +41,12 @@ public abstract class DBable implements Serializable {
 	@Column(name = "uid", unique=true, nullable=false, updatable=false)
 	private String uid;
 
-
+	public static String newUid() {
+		return UUID.randomUUID().toString();
+	}
+	
 	public DBable() {
-		uid = UUID.randomUUID().toString();
+		uid = newUid();
 		createdTs = new Date();
 	}
 
@@ -117,7 +120,8 @@ public abstract class DBable implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		
-		DBable other = (DBable) obj;
+		@SuppressWarnings("rawtypes")
+      DBable other = (DBable) obj;
 		if (uid == null) {
 			if (other.uid != null) return false;
 		} 			
@@ -128,4 +132,31 @@ public abstract class DBable implements Serializable {
 	public String toString() {		
 		return MessageFormat.format("{0}{{1}}", this.getClass().getSimpleName(), uid);
 	}
+
+	@Override
+   public T duplicate() {
+	   T t = klone();
+	   t.setId(null);
+	   t.setModifiedTs(null);
+	   t.setCreatedTs(new Date());
+	   t.setUid(newUid());
+	   return t;
+	}
+
+	@SuppressWarnings("unchecked")
+   @Override
+   public T klone() {
+	   try {
+	   	return (T) clone();
+	   }
+	   catch(CloneNotSupportedException e) {
+	   	throw new RuntimeException("Can not clone " + this.getClass().getName(), e);
+	   }
+   }
+	
+	@Override
+   protected Object clone() throws CloneNotSupportedException {
+	   return super.clone();
+   }
+	
 }

@@ -7,7 +7,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @Entity
-public class Country implements Codable {
+public class Country implements Codable<Country>  {
 
 	private static final long serialVersionUID = 2482940442245899869L;
 
@@ -74,4 +74,19 @@ public class Country implements Codable {
 	public String toString() {
 		return code;
 	}
+	
+   @Override
+   public Country klone() {
+	   try {
+	   	return (Country) clone();
+	   }
+	   catch(CloneNotSupportedException e) {
+	   	throw new RuntimeException("Can not clone " + this.getClass().getName(), e);
+	   }
+   }
+	
+	@Override
+   protected Object clone() throws CloneNotSupportedException {
+	   return super.clone();
+   }
 }

@@ -19,7 +19,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
-public class Expense extends DBable {
+public class Expense extends DBable<Expense> {
 
 	private static final long serialVersionUID = 2482940442245899869L;
 	
@@ -138,5 +138,35 @@ public class Expense extends DBable {
 	@Override
 	public String toString() {		
 		return MessageFormat.format("{0,date,dd/MM/yyyy} {1} {2,number, 0.00}{3}", date, payee, amount, currency);
-	} 
+	}
+	
+	@Override
+   public Expense duplicate() {
+		Expense klone = super.klone();
+		klone.setId(null);
+		klone.setModifiedTs(null);
+		klone.setCreatedTs(new Date());
+		klone.setUid(newUid());
+		kloneLines(klone, true);
+		return klone;
+   }
+
+	@Override
+   public Expense klone() {
+		Expense klone = super.klone();
+		kloneLines(klone, false);
+		return klone;
+   }
+	
+	private void kloneLines(Expense klone, boolean duplicate) {
+		if (getTransactions() != null) {
+			List<TransactionLine> newLines = new ArrayList<TransactionLine>();
+			for (TransactionLine oldLine : getTransactions()) {
+				TransactionLine newLine = duplicate ? oldLine.duplicate() : oldLine.klone();
+				newLine.setExpense(klone);
+				newLines.add(newLine);
+			}
+			klone.setTransactions(newLines);
+		}
+	}
 }

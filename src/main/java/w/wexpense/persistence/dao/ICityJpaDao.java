@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import w.wexpense.model.City;
 
-public interface ICityJpaDao extends JpaRepository< City, Long >, JpaSpecificationExecutor< City >{
-	City findByUid(String uid);
+public interface ICityJpaDao extends JpaRepository< City, Long >, JpaSpecificationExecutor< City >, IDBableJpaDao<City>  {
+
 }
+

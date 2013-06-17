@@ -13,7 +13,7 @@ import com.vaadin.data.Property;
 import com.vaadin.data.Validator;
 import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.util.converter.Converter.ConversionException;
-import com.vaadin.server.Sizeable;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.shared.ui.combobox.FilteringMode;
 import com.vaadin.ui.AbstractSelect.NewItemHandler;
 import com.vaadin.ui.Button;
@@ -51,9 +51,10 @@ public class WexComboBox<T> extends CustomField<T> implements Button.ClickListen
 		layout.setExpandRatio(comboBox, 100);
 		
 		if (DBable.class.isAssignableFrom(entityClass)) {
-			add = new Button("+", (Button.ClickListener) this);
-			add.setWidth(20, Sizeable.Unit.PIXELS);
-			add.setHeight(20, Sizeable.Unit.PIXELS);
+			add = new Button();			
+			add.setStyleName("link");
+			add.setIcon(new ThemeResource("../runo/icons/16/document-add.png"));
+			add.addClickListener((Button.ClickListener) this);
 			layout.addComponent(add);
 			
 			comboBox.setNewItemsAllowed(true);
@@ -62,8 +63,10 @@ public class WexComboBox<T> extends CustomField<T> implements Button.ClickListen
 
 				public void addNewItem(String newItemCaption) {
 					text=newItemCaption;
+					comboBox.setValue(null);
 				}
 			});
+
 		}
 	}
 
@@ -83,7 +86,14 @@ public class WexComboBox<T> extends CustomField<T> implements Button.ClickListen
 	protected GenericView<T> addNew() {
 		final EditorView<T, ?> editor = UIHelper.getEditorView(entityClass);
 		editor.setEnalbleDelete(false);
-		editor.newInstance(text);
+		
+		T t = (T) comboBox.getConvertedValue();
+		if (t == null) {
+			editor.newInstance(text);
+		} else {
+			editor.setInstance(t);
+		}
+		
 		editor.addListener(new Component.Listener() {
 			private static final long serialVersionUID = 8121179082149508635L;
 			

@@ -18,8 +18,10 @@ public class WexDateField extends DateField {
 	private static final Logger LOGGER = LoggerFactory.getLogger(WexDateField.class);	
 
 	public WexDateField() {
-		setResolution(Resolution.DAY);
-		setDateFormat("dd.MM.yyyy");
+      setResolution(Resolution.DAY);
+      setDateFormat("dd.MM.yyyy");
+      setImmediate(true);
+      setBuffered(false);
 	}
 	
 	@Override

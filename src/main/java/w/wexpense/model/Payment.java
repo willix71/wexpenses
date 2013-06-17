@@ -1,6 +1,7 @@
 package w.wexpense.model;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -12,7 +13,7 @@ import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 
 @Entity
-public class Payment extends DBable implements Selectable {
+public class Payment extends DBable<Payment> implements Selectable {
 
 	private static final long serialVersionUID = 2482940442245899869L;
 
@@ -82,4 +83,24 @@ public class Payment extends DBable implements Selectable {
 	public String toString() {		
 		return MessageFormat.format("{0,date,dd/MM/yyyy} {1}", date, filename);
 	} 
+	
+	@Override
+   public Payment duplicate() {
+		Payment klone = super.duplicate();
+		klone.getExpenses().clear();
+		klone.getDtaLines().clear();
+		return klone;
+   }
+
+	@Override
+   public Payment klone() {
+		Payment klone = super.klone();
+		if (klone.getExpenses()!=null) {
+			klone.setExpenses(new ArrayList<Expense>(klone.getExpenses()));
+		}
+		if (klone.getDtaLines()!=null) {
+			klone.setDtaLines(new ArrayList<PaymentDta>(klone.getDtaLines()));
+		}
+		return klone;
+   }
 }

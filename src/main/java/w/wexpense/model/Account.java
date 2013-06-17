@@ -1,5 +1,6 @@
 package w.wexpense.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -15,7 +16,7 @@ import javax.validation.constraints.NotNull;
 import w.wexpense.model.enums.AccountEnum;
 
 @Entity
-public class Account extends AbstractType implements Parentable<Account> {
+public class Account extends AbstractType<Account> implements Parentable<Account> {
 
 	private static final long serialVersionUID = 2482940442245899869L;
 
@@ -150,5 +151,21 @@ public class Account extends AbstractType implements Parentable<Account> {
 	public String toString() {
 		return fullName;
 	}
+
+	@Override
+   public Account duplicate() {
+		Account klone = super.duplicate();
+		klone.getChildren().clear();
+		return klone;
+   }
+
+	@Override
+   public Account klone() {
+		Account klone = super.klone();
+		if (klone.getChildren()!=null) {
+			klone.setChildren(new ArrayList<Account>(klone.getChildren()));
+		}
+		return klone;
+   }
 
 }

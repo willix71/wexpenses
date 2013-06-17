@@ -3,16 +3,18 @@ package w.wexpense.vaadin7.view;
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.dialogs.ConfirmDialog;
 
+import w.wexpense.model.Duplicatable;
 import w.wexpense.persistence.PersistenceUtils;
-import w.wexpense.service.EntityService;
-import w.wexpense.service.PersistenceService;
+import w.wexpense.service.ContainerService;
 import w.wexpense.service.StorableService;
 import w.wexpense.vaadin7.component.RelationalFieldFactory;
 import w.wexpense.vaadin7.event.EntityChangeEvent;
@@ -22,9 +24,11 @@ import com.vaadin.data.fieldgroup.FieldGroup;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.DefaultFieldFactory;
 import com.vaadin.ui.Field;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
@@ -37,13 +41,15 @@ public class EditorView<T, ID extends Serializable> extends GenericView<T> {
 			"version", "fullId", "uid", "modifiedTs", "createdTs");
 
 	@Autowired
-	protected PersistenceService persistenceService;
+	protected ContainerService persistenceService;
 
 	protected StorableService<T, ID> storeService;
 
 	protected String[] properties;
 
 	protected boolean readOnly = false;
+	
+	protected boolean initialized = false;
 
 	protected VerticalLayout layout;
 
@@ -51,8 +57,10 @@ public class EditorView<T, ID extends Serializable> extends GenericView<T> {
 	
 	protected BeanFieldGroup<T> fieldGroup;
 
-	protected HorizontalLayout buttonLayout;
-
+	protected Map<String, Field<?>> fields = new HashMap<>();
+	
+	protected HorizontalLayout buttonLayout;	
+	
 	protected Button[] buttons = new Button[] {
 			new Button("Save", new Button.ClickListener() {
 				@Override
@@ -75,7 +83,7 @@ public class EditorView<T, ID extends Serializable> extends GenericView<T> {
 				}
 			}) };
 
-	public EditorView(EntityService<T, ID> storeService) {
+	public EditorView(StorableService<T, ID> storeService) {
 		super(storeService.getEntityClass());
 
 		this.storeService = storeService;
@@ -85,11 +93,18 @@ public class EditorView<T, ID extends Serializable> extends GenericView<T> {
 	public void postConstruct() {
 
 		formLayout = new FormLayout();		
+		formLayout.setSpacing(true);
+		formLayout.setMargin(true);
 		
 		fieldGroup = new BeanFieldGroup<T>(getEntityClass());
-
-		buttonLayout = new HorizontalLayout(buttons);
-
+		fieldGroup.setBuffered(false);
+		
+		Label shiftRight = new Label();
+      buttonLayout = new HorizontalLayout(shiftRight);               
+      buttonLayout.setExpandRatio(shiftRight, 1);
+      buttonLayout.setWidth(100, Unit.PERCENTAGE);
+      buttonLayout.addComponents(buttons);
+		
 		layout = new VerticalLayout();
 		layout.addComponent(formLayout);
 		layout.addComponent(buttonLayout);
@@ -109,27 +124,53 @@ public class EditorView<T, ID extends Serializable> extends GenericView<T> {
 	}
 
 	public void setInstance(T t) {
-		formLayout.setSpacing(true);
-		formLayout.setMargin(true);
 		fieldGroup.setReadOnly(readOnly);
-
-		fieldGroup.setFieldFactory(new RelationalFieldFactory(persistenceService));
 
 		// We need an item data source before we create the fields to be able to
 		// find the properties, otherwise we have to specify them by hand
 		fieldGroup.setItemDataSource(new BeanItem<T>(t));
 
-		formLayout.removeAllComponents();
-		
-		// Loop through the properties
-		for (Object propertyId : properties) {
-			// build fields for them and add the fields to this UI
-			Field<?> f = fieldGroup.buildAndBind(propertyId);
-			f.setReadOnly(readOnly || systemProperties.contains(propertyId));
-			formLayout.addComponent(f);
+		if (!initialized) {
+			fieldGroup.setFieldFactory(new RelationalFieldFactory(persistenceService));
+
+			
+			// Loop through the properties
+			for (Object propertyId : properties) {
+				// build fields for them and add the fields to this UI
+				Field<?> f = fields.get(propertyId); 
+				if (f != null) {
+					f.setCaption(DefaultFieldFactory.createCaptionByPropertyId(propertyId));
+					fieldGroup.bind(f, propertyId);
+				} else {
+					f = fieldGroup.buildAndBind(propertyId);
+				}
+				f.setReadOnly(readOnly || systemProperties.contains(propertyId));
+				formLayout.addComponent(f);
+			}
+			initialized = true;
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	public T duplicate(ID id) {
+		T t = storeService.load(id);
+		setInstance(((Duplicatable<T>) t).duplicate());
+		return t;
+	}
+	
+	@SuppressWarnings("unchecked")
+   public void duplicate() {
+		setInstance(((Duplicatable<T>) fieldGroup.getItemDataSource().getBean()).duplicate());
+	}
+	
+	public T getInstance() {
+		return fieldGroup.getItemDataSource().getBean();
+	}
+	
+	public BeanItem<T> getBeanItem() {
+		return fieldGroup.getItemDataSource();
+	}
+	
 	public void setProperties(String... properties) {
 		this.properties = properties;
 	}
@@ -138,6 +179,10 @@ public class EditorView<T, ID extends Serializable> extends GenericView<T> {
 		this.readOnly = readOnly;
 	}
 
+	public void setField(String propertyId, Field<?> field) {
+		fields.put(propertyId, field);
+	}
+	
 	public void save() throws FieldGroup.CommitException {
 		fieldGroup.commit();
 
@@ -153,7 +198,7 @@ public class EditorView<T, ID extends Serializable> extends GenericView<T> {
 
 		close();
 	}
-
+	
 	public void setEnalbleDelete(boolean visible) {
 		buttons[2].setVisible(visible);
 	}

@@ -6,7 +6,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @Entity
-public class Currency implements Codable {
+public class Currency implements Codable<Currency> {
 
 	private static final long serialVersionUID = 2482940442245899869L;
 
@@ -79,4 +79,19 @@ public class Currency implements Codable {
 	public String toString() {
 		return code;
 	}
+	
+   @Override
+   public Currency klone() {
+	   try {
+	   	return (Currency) clone();
+	   }
+	   catch(CloneNotSupportedException e) {
+	   	throw new RuntimeException("Can not clone " + this.getClass().getName(), e);
+	   }
+   }
+	
+	@Override
+   protected Object clone() throws CloneNotSupportedException {
+	   return super.clone();
+   }
 }

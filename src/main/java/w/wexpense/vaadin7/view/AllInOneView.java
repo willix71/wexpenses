@@ -43,9 +43,14 @@ public class AllInOneView extends Panel implements View {
 		addView("cityListView");
 		addView("payeeTypeListView");
 		addView("payeeListView");
+		addView("discriminatorListView");
 		addView("accountListView");
+		addView("exchangeRateListView");
 		addView("expenseTypeListView");
 		addView("expenseListView");
+		addView("transactionLineListView");
+		addView("paymentListView");
+		addView("consolidationListView");
 		
 		navTree.setSelectable(true);
 		navTree.setImmediate(true);
@@ -56,6 +61,7 @@ public class AllInOneView extends Panel implements View {
 			@Override
 			public void valueChange(ValueChangeEvent event) {
 				ListView<?> cv = (ListView<?>) event.getProperty().getValue();
+				cv.setSizeFull();
 				horizontalSplitPanel.setSecondComponent(cv);
 				horizontalSplitPanel.markAsDirty();
 			}
@@ -75,7 +81,6 @@ public class AllInOneView extends Panel implements View {
 		layout.setExpandRatio(horizontalSplitPanel, 100);
 
 		setContent(layout);
-		setSizeFull();
 	}
 
 	public Object addView(String name) {
@@ -91,5 +96,6 @@ public class AllInOneView extends Panel implements View {
 
 	@Override
 	public void enter(ViewChangeEvent event) {
+		setSizeFull();
 	}
 }

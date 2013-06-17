@@ -13,10 +13,12 @@
 	<!-- persistence  -->
 	<import resource="classpath:persistence-context.xml"/>
 	
-	<bean id="persistenceService" class="w.wexpense.service.PersistenceService" >
+	<bean id="persistenceService" class="w.wexpense.service.ContainerService" >
+	<!-- 
 		<property name="helper">
 			<bean class="com.vaadin.addon.jpacontainer.util.EntityManagerPerRequestHelper"/>
 		</property>
+	-->
 	</bean>
 	
 	<context:annotation-config />

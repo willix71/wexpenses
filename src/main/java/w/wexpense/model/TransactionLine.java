@@ -23,7 +23,7 @@ import w.wexpense.model.enums.TransactionLineEnum;
 	@TypeDef(name = "transactionLineEnumType", typeClass = w.wexpense.persistence.type.TransactionLineEnumType.class),
 	@TypeDef(name = "amountValueType", typeClass = w.wexpense.persistence.type.AmountValueType.class)
 	})
-public class TransactionLine extends DBable {
+public class TransactionLine extends DBable<TransactionLine> {
 
 	private static final long serialVersionUID = 2482940442245899869L;
 		
@@ -157,6 +157,16 @@ public class TransactionLine extends DBable {
 		this.factor = factor;
 	}
 
+	public Date getDate() {
+		if (consolidatedDate!=null) {
+			return consolidatedDate;
+		} else if (expense!=null) {
+			return expense.getDate();
+		} else {
+			return null;
+		}
+	}
+	
 	public Date getConsolidatedDate() {
 		return consolidatedDate;
 	}
@@ -197,6 +207,14 @@ public class TransactionLine extends DBable {
 		}
 		return MessageFormat.format("{0} {1} {2,number, 0.00}", s , factor, amount );
 	}
+	
+	@Override
+   public TransactionLine duplicate() {
+		TransactionLine klone = super.duplicate();
+		klone.setConsolidatedDate(null);
+		klone.setConsolidation(null);
+		return klone;
+   }
 	
 	public boolean validate() {		
 		if (exchangeRate != null && account.getCurrency() != null) {

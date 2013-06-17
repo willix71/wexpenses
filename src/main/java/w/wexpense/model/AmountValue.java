@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 
-public class AmountValue extends Number implements Serializable {
+public class AmountValue extends Number implements Serializable, Klonable<AmountValue> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -89,8 +89,24 @@ public class AmountValue extends Number implements Serializable {
 	@Override
 	public String toString() {		
 		return String.valueOf(getRealValue());
-	}
+	}	
 	
+   @Override
+   public AmountValue klone() {
+	   try {
+	   	return (AmountValue) clone();
+	   }
+	   catch(CloneNotSupportedException e) {
+	   	throw new RuntimeException("Can not clone " + this.getClass().getName(), e);
+	   }
+   }
+	
+	@Override
+   protected Object clone() throws CloneNotSupportedException {
+	   return super.clone();
+   }
+	
+
 	public static AmountValue fromValue(long l) {
 		AmountValue v = new AmountValue();
 		v.setValue(l);

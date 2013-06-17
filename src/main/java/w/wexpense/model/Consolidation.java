@@ -2,6 +2,7 @@ package w.wexpense.model;
 
 import java.math.BigDecimal;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -14,7 +15,7 @@ import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 
 @Entity
-public class Consolidation extends DBable {
+public class Consolidation extends DBable<Consolidation> {
 
 	private static final long serialVersionUID = 2482940442245899869L;
 	
@@ -77,5 +78,21 @@ public class Consolidation extends DBable {
 	@Override
 	public String toString() {		
 		return MessageFormat.format("{0,date,dd/MM/yyyy} {1}", date, institution);
-	} 
+	}
+	
+	@Override
+   public Consolidation duplicate() {
+		Consolidation klone = super.duplicate();
+		klone.getTransactions().clear();
+		return klone;
+   }
+
+	@Override
+   public Consolidation klone() {
+		Consolidation klone = super.klone();
+		if (klone.getTransactions()!=null) {
+			klone.setTransactions(new ArrayList<TransactionLine>(klone.getTransactions()));
+		}
+		return klone;
+   }
 }

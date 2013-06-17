@@ -12,30 +12,21 @@ import com.vaadin.ui.Table;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.Component.Event;
 
-public class DeleteAction<T, ID extends Serializable, E extends EditorView<T, ID >> extends ListViewAction {
+public class DeleteAction extends ListViewAction {
 	
 	private static final long serialVersionUID = 1L;
 
-	private Class<E> editorType;
 	private String editorName;
 	
-	public DeleteAction(Class<E> editorType) {
-		super("delete");
-		this.editorType = editorType;
-	}
-
-	public DeleteAction(Class<E> editorType, String editorName) {
-		this(editorType);
+	public DeleteAction(String editorName) {
+		super("delete");		
 		this.editorName = editorName;
 	}	
 
 	@Override
 	public void handleAction(final Object sender, final Object target) {
 		if (target != null) {
-			@SuppressWarnings("unchecked")
-			ID id = (ID) target;
-
-			final EditorView<T, ID> editor = ((WexUI) UI.getCurrent()).getBean(editorType, editorName);
+			final EditorView editor = ((WexUI) UI.getCurrent()).getBean(EditorView.class, editorName);
 			editor.addListener(new Component.Listener() {
 				private static final long serialVersionUID = 8121179082149508635L;
 
@@ -44,13 +35,17 @@ public class DeleteAction<T, ID extends Serializable, E extends EditorView<T, ID
 					if (event instanceof EntityChangeEvent && event.getComponent() == editor && sender instanceof Table) {
 						com.vaadin.data.Container c = ((Table) sender) .getContainerDataSource();
 						if (c instanceof JPAContainer) {
-							Object id = ((EntityChangeEvent) event).getId();
-							((JPAContainer<?>) c).refreshItem(id);
+							Object id = ((EntityChangeEvent) event).getId();						
+							if (id!=null) {
+								((JPAContainer<?>) c).refreshItem(id);
+							} else {
+								((JPAContainer<?>) c).refresh();
+							}
 						}
 					}
 				}
 			});
-			editor.delete(id);
+			editor.delete((Serializable) target);
 		}
 	}
 

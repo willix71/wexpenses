@@ -1,5 +1,6 @@
 package w.wexpense.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -9,7 +10,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 
 @Entity
-public class Discriminator extends AbstractType implements Parentable<Discriminator> {
+public class Discriminator extends AbstractType<Discriminator> implements Parentable<Discriminator> {
 
 	private static final long serialVersionUID = -5425160349628676177L;
 
@@ -46,4 +47,20 @@ public class Discriminator extends AbstractType implements Parentable<Discrimina
 	public void setChildren(List<Discriminator> children) {
 		this.children = children;
 	}
+	
+	@Override
+   public Discriminator duplicate() {
+		Discriminator klone = super.duplicate();
+		klone.getChildren().clear();
+		return klone;
+   }
+
+	@Override
+   public Discriminator klone() {
+		Discriminator klone = super.klone();
+		if (klone.getChildren()!=null) {
+			klone.setChildren(new ArrayList<Discriminator>(klone.getChildren()));
+		}
+		return klone;
+   }
 }

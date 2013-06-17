@@ -32,25 +32,25 @@ public class PaymentDtaController {
 			HttpServletResponse response) throws Exception {
 
 		Payment payment;
-		if (id!=null) {
+		if (id != null) {
 			LOGGER.info("Fetching payment with id {}", id);
 			payment = paymentService.load(id);
 		} else {
 			LOGGER.info("Fetching payment with uid {}", uid);
-			payment = paymentService.getPaymentByUid(uid);		
+			payment = paymentService.getPaymentByUid(uid);
 		}
 
 		if (payment == null) {
 			return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
 		} else {
-		
+
 			String content = getContent(payment, singleLine);
-			
+
 			HttpHeaders responseHeaders = new HttpHeaders();
 			responseHeaders.add("Content-Type", "text/plain; charset=utf-8");
-		    responseHeaders.add("Content-Disposition", "inline;filename=\""+payment.getFilename()+"\"");
+			responseHeaders.add("Content-Disposition", "inline;filename=\"" + payment.getFilename() + "\"");
 
-		    return new ResponseEntity<String>(content, responseHeaders, HttpStatus.OK);
+			return new ResponseEntity<String>(content, responseHeaders, HttpStatus.OK);
 		}
 	}
 	

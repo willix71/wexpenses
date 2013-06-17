@@ -2,7 +2,8 @@ package w.wexpense.vaadin7.component;
 
 import w.wexpense.model.Codable;
 import w.wexpense.model.DBable;
-import w.wexpense.service.PersistenceService;
+import w.wexpense.model.ExchangeRate;
+import w.wexpense.service.ContainerService;
 
 import com.vaadin.addon.jpacontainer.fieldfactory.SingleSelectConverter;
 import com.vaadin.data.Container;
@@ -15,9 +16,9 @@ public class RelationalFieldFactory extends SimpleFieldFactory {
 
 	private static final long serialVersionUID = -2122739273213720235L;
 	
-	protected PersistenceService persistenceService;
+	protected ContainerService persistenceService;
 	
-	public RelationalFieldFactory(PersistenceService persistenceService) {
+	public RelationalFieldFactory(ContainerService persistenceService) {
 		super();
 		this.persistenceService = persistenceService;
 	}
@@ -38,6 +39,9 @@ public class RelationalFieldFactory extends SimpleFieldFactory {
 
 
 	protected Field<?> createRelationalField(Class<?> type) {
+		if (ExchangeRate.class.isAssignableFrom(type)) {
+			return new ExchangeRateField();
+		}
 		if (Codable.class.isAssignableFrom(type)) {
 			return createManyToOneField(type);
 		}

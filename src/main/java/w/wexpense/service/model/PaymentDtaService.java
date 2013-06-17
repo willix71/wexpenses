@@ -8,7 +8,6 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import w.wexpense.dta.DtaFormater;
@@ -17,10 +16,10 @@ import w.wexpense.model.Expense;
 import w.wexpense.model.Payment;
 import w.wexpense.model.PaymentDta;
 import w.wexpense.persistence.dao.IPaymentDtaJpaDao;
-import w.wexpense.service.EntityService;
+import w.wexpense.service.DaoService;
 
 //@Service
-public class PaymentDtaService extends EntityService<PaymentDta, Long> {
+public class PaymentDtaService extends DaoService<PaymentDta, Long> {
 
 	@PersistenceContext
 	private EntityManager entityManager;

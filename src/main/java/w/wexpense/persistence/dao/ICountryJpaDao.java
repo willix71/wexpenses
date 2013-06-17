@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import w.wexpense.model.Country;
 
-public interface ICountryJpaDao extends JpaRepository< Country, String >, JpaSpecificationExecutor< Country >{
-	Country findByCode(String code);
-	Country findByName(String name);
+public interface ICountryJpaDao extends JpaRepository< Country, String >, JpaSpecificationExecutor< Country > {
+
 }
+

@@ -10,7 +10,7 @@ import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 
 @Entity
-public class ExchangeRate extends DBable {
+public class ExchangeRate extends DBable<ExchangeRate> {
 
 	private static final long serialVersionUID = 2482940442245899869L;
 	
