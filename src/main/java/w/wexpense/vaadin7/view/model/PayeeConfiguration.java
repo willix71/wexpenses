@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Scope;
 import w.wexpense.model.Payee;
 import w.wexpense.service.StorableService;
 import w.wexpense.vaadin7.action.ActionHelper;
+import w.wexpense.vaadin7.filter.DisplayFilter;
 import w.wexpense.vaadin7.support.TableColumnConfig;
 import w.wexpense.vaadin7.view.EditorView;
 import w.wexpense.vaadin7.view.ListView;
@@ -24,7 +25,7 @@ public class PayeeConfiguration {
 	@Scope("prototype")
 	public EditorView<Payee, Long> payeeEditorView() {
 		EditorView<Payee, Long> editorview = new EditorView<Payee, Long>(payeeService);
-		editorview.setProperties("fullId","uid","type","prefix","name","address1","address2","city","externalReference","bankDetails");
+		editorview.setProperties("fullId","uid","type","prefix","name","address1","address2","city","iban","postalAccount","bankDetails");
 		return editorview;
 	}
 	
@@ -44,7 +45,7 @@ public class PayeeConfiguration {
 				   new TableColumnConfig("city").sortBy(".display"),
 				   new TableColumnConfig("externalReference").collapse()
 				   );
-		   
+		listview.addFilterSource(new DisplayFilter());
 		ActionHelper.setDefaultListViewActions(listview, "payeeEditorView");
 		return listview;
 	}

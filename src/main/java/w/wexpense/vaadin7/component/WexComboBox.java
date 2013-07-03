@@ -85,7 +85,8 @@ public class WexComboBox<T> extends CustomField<T> implements Button.ClickListen
 	
 	protected GenericView<T> addNew() {
 		final EditorView<T, ?> editor = UIHelper.getEditorView(entityClass);
-		editor.setEnalbleDelete(false);
+
+		// disable edit menu???
 		
 		T t = (T) comboBox.getConvertedValue();
 		if (t == null) {

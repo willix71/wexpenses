@@ -13,8 +13,7 @@ public class Payee extends DBable<Payee> {
 	private static final long serialVersionUID = 2482940442245899869L;
 	
     @ManyToOne(fetch = FetchType.EAGER)
-    //@JoinColumn(name="TYPE_OID")
-    private PayeeType type;
+     private PayeeType type;
 
     private String prefix;
     
@@ -26,10 +25,12 @@ public class Payee extends DBable<Payee> {
     private String address2;
     
     @ManyToOne(fetch = FetchType.EAGER)
-    //@JoinColumn(name="CITY_OID")
     private City city;
-
-	// ISR
+    
+    private String iban;
+    
+    private String postalAccount;
+    
     private String externalReference;
     
     @ManyToOne(fetch = FetchType.EAGER)
@@ -41,6 +42,7 @@ public class Payee extends DBable<Payee> {
     @PreUpdate
     public void preupdate() {
     	display = toString().toLowerCase();
+    	externalReference = buildExternalReference();
     }
 
 	public String getDisplay() {
@@ -106,9 +108,37 @@ public class Payee extends DBable<Payee> {
 	public String getExternalReference() {
 		return externalReference;
 	}
+	
+	public String buildExternalReference() {
+		if (iban == null) {
+			if (postalAccount == null) {
+				return null;
+			} else {
+				return "CP:"+postalAccount;
+			}
+		} else {
+			if (postalAccount == null) {
+				return "IBAN:"+iban;
+			} else {
+				return "IBAN:"+iban + " | CP:"+postalAccount;
+			}
+		}	
+	}
 
-	public void setExternalReference(String externalReference) {
-		this.externalReference = externalReference;
+	public String getIban() {
+		return iban;
+	}
+
+	public void setIban(String iban) {
+		this.iban = iban;
+	}
+
+	public String getPostalAccount() {
+		return postalAccount;
+	}
+
+	public void setPostalAccount(String postalAccount) {
+		this.postalAccount = postalAccount;
 	}
 	
 	public Payee getBankDetails() {
@@ -118,7 +148,7 @@ public class Payee extends DBable<Payee> {
 	public void setBankDetails(Payee bankDetails) {
 		this.bankDetails = bankDetails;
 	}
-
+	
 	@Override
 	public String toString() {
 		if (city == null) {

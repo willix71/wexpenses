@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -31,8 +32,8 @@ public class Consolidation extends DBable<Consolidation> {
 	
 	private BigDecimal closingBalance;
 	
-    @OneToMany(mappedBy="consolidation")
-    @OrderBy("consolidatedDate")
+    @OneToMany(mappedBy="consolidation", cascade={CascadeType.PERSIST, CascadeType.MERGE})
+    @OrderBy("date")
     private List<TransactionLine> transactions;
 
 	public Payee getInstitution() {
@@ -75,6 +76,12 @@ public class Consolidation extends DBable<Consolidation> {
 		this.transactions = transactions;
 	}
     
+	public List<TransactionLine> resetTransaction() {
+		List<TransactionLine> xs = this.transactions;
+		this.transactions = new ArrayList<TransactionLine>();
+		return xs;
+	}
+	
 	@Override
 	public String toString() {		
 		return MessageFormat.format("{0,date,dd/MM/yyyy} {1}", date, institution);
@@ -83,7 +90,7 @@ public class Consolidation extends DBable<Consolidation> {
 	@Override
    public Consolidation duplicate() {
 		Consolidation klone = super.duplicate();
-		klone.getTransactions().clear();
+		klone.setTransactions(new ArrayList<TransactionLine>());
 		return klone;
    }
 

@@ -3,7 +3,9 @@ package w.wexpense.vaadin7.component;
 import w.wexpense.model.ExchangeRate;
 import w.wexpense.vaadin7.UIHelper;
 import w.wexpense.vaadin7.WexUI;
+import w.wexpense.vaadin7.event.EntityChangeEvent;
 import w.wexpense.vaadin7.event.SelectionChangeEvent;
+import w.wexpense.vaadin7.view.EditorView;
 import w.wexpense.vaadin7.view.SelectorView;
 
 import com.vaadin.server.ThemeResource;
@@ -20,7 +22,8 @@ public class ExchangeRateField extends CustomField<ExchangeRate> implements Butt
 
 	private HorizontalLayout layout;
 	private Label label;	
-	private Button btn;
+	private Button btnAdd;
+	private Button btnSelect;
 	private ExchangeRate value;
 	
 	public ExchangeRateField() {		
@@ -28,13 +31,22 @@ public class ExchangeRateField extends CustomField<ExchangeRate> implements Butt
 		layout.setSizeFull();
 		
 		label = new Label("xxx");
+		label.setSizeFull();
 		layout.addComponent(label);
 		
-		btn = new Button();			
-		btn.setStyleName("link");
-		btn.setIcon(new ThemeResource("../runo/icons/16/document-add.png"));
-		btn.addClickListener((Button.ClickListener) this);
-		layout.addComponent(btn);
+		btnSelect = new Button();			
+		btnSelect.setStyleName("link");
+		btnSelect.setIcon(new ThemeResource("../runo/icons/16/arrow-down.png"));
+		btnSelect.addClickListener((Button.ClickListener) this);
+		layout.addComponent(btnSelect);
+		
+		btnAdd = new Button();			
+		btnAdd.setStyleName("link");
+		btnAdd.setIcon(new ThemeResource("../runo/icons/16/document-add.png"));
+		btnAdd.addClickListener((Button.ClickListener) this);
+		layout.addComponent(btnAdd);
+		
+		layout.setExpandRatio(label, 100);
 	}
 
 	@Override
@@ -61,26 +73,47 @@ public class ExchangeRateField extends CustomField<ExchangeRate> implements Butt
 	
 	@Override
    public void buttonClick(ClickEvent event) {
-		final SelectorView<ExchangeRate> selector = ((WexUI) UI.getCurrent()).getBean(SelectorView.class, "exchangeRateSelectorView");
-		
-		if (value!=null) {
-			selector.setValue(value);
-		}
-		
-		selector.addListener(new Component.Listener() {
-			private static final long serialVersionUID = 8121179082149508635L;
-
-			@Override
-			public void componentEvent(Event event) {
-				if (event instanceof SelectionChangeEvent && event.getComponent() == selector) {
-					setValue(null);
-					setValue(((SelectionChangeEvent<ExchangeRate>)event).getBean());
-				}
+		if (btnSelect == event.getSource()){
+			final SelectorView<ExchangeRate> selector = ((WexUI) UI.getCurrent()).getBean(SelectorView.class, "exchangeRateSelectorView");
+			
+			if (value!=null) {
+				selector.setValue(value);
 			}
-		});
-		Window w = UIHelper.displayModalWindow(selector);
-		w.setHeight(400,Unit.PIXELS);
-		w.setWidth(500, Unit.PIXELS);
+			
+			selector.addListener(new Component.Listener() {
+				private static final long serialVersionUID = 8121179082149508635L;
+	
+				@Override
+				public void componentEvent(Event event) {
+					if (event instanceof SelectionChangeEvent && event.getComponent() == selector) {
+						setValue(((SelectionChangeEvent<ExchangeRate>)event).getBean());
+					}
+				}
+			});
+			Window w = UIHelper.displayModalWindow(selector);
+			w.setHeight(400,Unit.PIXELS);
+			w.setWidth(500, Unit.PIXELS);
+		} else if (btnAdd == event.getSource()) {
+			final EditorView<ExchangeRate, Long> editor = ((WexUI) UI.getCurrent()).getBean(EditorView.class, "exchangeRateEditorView");
+			
+			if (value!=null) {
+				editor.setInstance(value);
+			} else {
+				editor.newInstance();
+			}
+			
+			editor.addListener(new Component.Listener() {
+				private static final long serialVersionUID = 8121179082149508635L;
+				
+				@Override
+				public void componentEvent(Event event) {
+					if (event instanceof EntityChangeEvent && event.getComponent() == editor) {
+						setInternalValue(null);
+						setValue((ExchangeRate) ((EntityChangeEvent)event).getObject());
+					}
+				}
+			});
+			Window w = UIHelper.displayModalWindow(editor);
+		}
    }
-
 }

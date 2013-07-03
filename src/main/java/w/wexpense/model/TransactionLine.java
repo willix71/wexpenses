@@ -20,8 +20,9 @@ import w.wexpense.model.enums.TransactionLineEnum;
 
 @Entity
 @TypeDefs({
-	@TypeDef(name = "transactionLineEnumType", typeClass = w.wexpense.persistence.type.TransactionLineEnumType.class),
-	@TypeDef(name = "amountValueType", typeClass = w.wexpense.persistence.type.AmountValueType.class)
+	//@AmountValue
+	@TypeDef(name = "amountValueType", typeClass = w.wexpense.persistence.type.AmountValueType.class),
+	@TypeDef(name = "transactionLineEnumType", typeClass = w.wexpense.persistence.type.TransactionLineEnumType.class)
 	})
 public class TransactionLine extends DBable<TransactionLine> {
 
@@ -49,12 +50,18 @@ public class TransactionLine extends DBable<TransactionLine> {
 	@ManyToOne(fetch = FetchType.EAGER)
 	private ExchangeRate exchangeRate;
 	
-	@NotNull
+	//@AmountValue
+	//@NotNull
 	@Type(type="amountValueType")
 	private AmountValue amountValue;
 	
+	@NotNull
+	private BigDecimal value;
+	
+	private BigDecimal balance;
+	
 	@Temporal(TemporalType.TIMESTAMP)
-	private Date consolidatedDate;
+	private Date date;
 	
 	@ManyToOne
 	private Consolidation consolidation;
@@ -113,14 +120,18 @@ public class TransactionLine extends DBable<TransactionLine> {
 	public void updateValue() {
 		// using double because it will be rounded by the AmountValue object anyway
 		// so we don't need the precision of a BigDecimal
+		
 		double v = amount == null?0.0:amount.doubleValue();
-			
+		
 		Currency currency = null;
 		if (exchangeRate != null) {
-			v *= exchangeRate.getRate();
-
+			v *= exchangeRate.getRate();			
+			if (exchangeRate.getFee() != null) {
+				
+				v = v * (1+exchangeRate.getFee());
+			}
 			// get the currency of the exchange rate
-			currency = exchangeRate.getBuyCurrency();
+			currency = exchangeRate.getToCurrency();
 		}
 		if (currency == null && account != null) {
 			// fall back on the currency of the account
@@ -128,17 +139,32 @@ public class TransactionLine extends DBable<TransactionLine> {
 		}
 		if (currency != null && currency.getRoundingFactor() != null) {
 			// perform rounding
-			v = Math.rint(v * currency.getRoundingFactor()) / currency.getRoundingFactor();
+			v = Math.rint(v * currency.getRoundingFactor());
+			value = BigDecimal.valueOf(v).divide(BigDecimal.valueOf(currency.getRoundingFactor()));
+		} else {
+			value = BigDecimal.valueOf(v);
 		}
-		amountValue = AmountValue.fromRealValue(v);
+		// @AmountValue
+		//amountValue = AmountValue.fromRealValue(v);
 	}
 
+	@Override
+	public void preupdate() {
+		super.preupdate();
+		// @AmountValue
+		this.amountValue = AmountValue.fromBigValue(value);
+	}
+	
 	public BigDecimal getValue() {
-		return amountValue==null?null:amountValue.getBigValue();
+		return value;
+		// @AmountValue
+		//return amountValue==null?null:amountValue.getBigValue();
 	}
 
 	public void setValue(BigDecimal value) {
-		this.amountValue = value==null?null:AmountValue.fromBigValue(value);
+		this.value = value;
+		// @AmountValue
+		//this.amountValue = value==null?null:AmountValue.fromBigValue(value);
 	}
 
 	public BigDecimal getInValue() {
@@ -157,22 +183,20 @@ public class TransactionLine extends DBable<TransactionLine> {
 		this.factor = factor;
 	}
 
-	public Date getDate() {
-		if (consolidatedDate!=null) {
-			return consolidatedDate;
-		} else if (expense!=null) {
-			return expense.getDate();
-		} else {
-			return null;
-		}
-	}
-	
-	public Date getConsolidatedDate() {
-		return consolidatedDate;
+	public BigDecimal getBalance() {
+		return balance;
 	}
 
-	public void setConsolidatedDate(Date consolidatedDate) {
-		this.consolidatedDate = consolidatedDate;
+	public void setBalance(BigDecimal balance) {
+		this.balance = balance;
+	}
+
+	public Date getDate() {
+		return date;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
 	}
 
 	public Consolidation getConsolidation() {
@@ -211,14 +235,13 @@ public class TransactionLine extends DBable<TransactionLine> {
 	@Override
    public TransactionLine duplicate() {
 		TransactionLine klone = super.duplicate();
-		klone.setConsolidatedDate(null);
 		klone.setConsolidation(null);
 		return klone;
    }
 	
 	public boolean validate() {		
 		if (exchangeRate != null && account.getCurrency() != null) {
-			if (!account.getCurrency().equals(exchangeRate.getBuyCurrency())) {
+			if (!account.getCurrency().equals(exchangeRate.getToCurrency())) {
 				throw new ValidationException("transaction line's account and exchange rate currencies don't match");
 			}
 		}

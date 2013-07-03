@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
@@ -17,20 +18,21 @@ public class Payment extends DBable<Payment> implements Selectable {
 
 	private static final long serialVersionUID = 2482940442245899869L;
 
+	public static final String DEFAULT_FILENAME = "undefined";
+	
 	@NotNull
+	private String filename = DEFAULT_FILENAME;
+
 	@Temporal(TemporalType.DATE)
 	private Date date;
 	
-	@NotNull
-	private String filename;
-	
 	private boolean selectable = true;
 	
-	@OneToMany(mappedBy = "payment")
+	@OneToMany(mappedBy = "payment", cascade={CascadeType.PERSIST, CascadeType.MERGE})
 	@OrderBy("date, amount")
 	private List<Expense> expenses;
 
-	@OneToMany(mappedBy = "payment")
+	@OneToMany(mappedBy = "payment"/*, cascade={CascadeType.ALL}*/)
 	@OrderBy("orderBy")
 	private List<PaymentDta> dtaLines;
     
@@ -71,6 +73,12 @@ public class Payment extends DBable<Payment> implements Selectable {
 		this.expenses = expenses;
 	}
 
+	public List<Expense> resetExpenses() {
+		List<Expense> xs = this.expenses;
+		this.expenses = new ArrayList<Expense>();
+		return xs;
+	}
+	
 	public List<PaymentDta> getDtaLines() {
 		return dtaLines;
 	}
@@ -87,8 +95,8 @@ public class Payment extends DBable<Payment> implements Selectable {
 	@Override
    public Payment duplicate() {
 		Payment klone = super.duplicate();
-		klone.getExpenses().clear();
-		klone.getDtaLines().clear();
+		klone.setExpenses(new ArrayList<Expense>());
+		klone.setDtaLines(new ArrayList<PaymentDta>());
 		return klone;
    }
 

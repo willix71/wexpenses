@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
@@ -50,7 +51,7 @@ public class Expense extends DBable<Expense> {
 	@ManyToOne
 	private Payment payment;
 	
-   @OneToMany(mappedBy="expense")
+   @OneToMany(mappedBy="expense", cascade={CascadeType.ALL}, orphanRemoval=true)
    @OrderBy("factor, amount")
    @OnDelete(action=OnDeleteAction.CASCADE)
    private List<TransactionLine> transactions = new ArrayList<>();
@@ -142,11 +143,7 @@ public class Expense extends DBable<Expense> {
 	
 	@Override
    public Expense duplicate() {
-		Expense klone = super.klone();
-		klone.setId(null);
-		klone.setModifiedTs(null);
-		klone.setCreatedTs(new Date());
-		klone.setUid(newUid());
+		Expense klone = super.duplicate();
 		kloneLines(klone, true);
 		return klone;
    }

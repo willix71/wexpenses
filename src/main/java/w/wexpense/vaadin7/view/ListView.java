@@ -7,11 +7,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import w.wexpense.model.Parentable;
 import w.wexpense.service.ContainerService;
 import w.wexpense.vaadin7.action.ActionHandler;
+import w.wexpense.vaadin7.event.FilterChangeEvent;
+import w.wexpense.vaadin7.event.FilterChangeListener;
+import w.wexpense.vaadin7.filter.FilterView;
 import w.wexpense.vaadin7.support.TableColumnConfig;
 
 import com.vaadin.addon.jpacontainer.HierarchicalEntityContainer;
 import com.vaadin.data.Container;
 import com.vaadin.data.Container.Filter;
+import com.vaadin.data.util.filter.And;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.Table;
@@ -27,14 +31,17 @@ public class ListView<T> extends GenericView<T> implements View {
    
     protected Container container;
    
-    protected Filter filter;   
-       
+    protected Filter defaultFilter;   
+    
+    protected FilterView filterView;
+    
     protected Table table;
    
     protected TableColumnConfig[] columnConfigs;
    
     protected VerticalLayout layout;
-   
+
+    
     protected ActionHandler actionHandler;
    
     public ListView(Class<T> entityClass) {
@@ -47,9 +54,9 @@ public class ListView<T> extends GenericView<T> implements View {
         container = persistenceService.getContainer(getEntityClass(), columnConfigs);
        
         // filter the container
-        if (container instanceof Container.Filterable && filter != null) {
+        if (container instanceof Container.Filterable && defaultFilter != null) {
             Container.Filterable filterable = (Container.Filterable) container;
-            filterable.addContainerFilter(filter);
+            filterable.addContainerFilter(defaultFilter);
         }               
        
         // build the GUI     
@@ -57,6 +64,10 @@ public class ListView<T> extends GenericView<T> implements View {
         layout.setSizeFull();
         setContent(layout);
        
+        if (filterView != null) {
+      	  layout.addComponent(filterView);
+        }
+        
         table = createTable(container);   
         table.setSizeFull();
         table.setImmediate(true);   
@@ -89,7 +100,7 @@ public class ListView<T> extends GenericView<T> implements View {
 	}
 
 	public void setFilter(Filter filter) {
-		this.filter = filter;
+		this.defaultFilter = filter;
 
 		if (container instanceof Container.Filterable && container != null) {
 			Container.Filterable filterable = (Container.Filterable) container;
@@ -98,6 +109,33 @@ public class ListView<T> extends GenericView<T> implements View {
 				filterable.addContainerFilter(filter);
 			}
 		}
+	}
+	
+	public void addFilterSource(FilterView filterView) {
+		this.filterView = filterView;
+		
+		this.filterView.addFilterChangeListener(new FilterChangeListener() {
+			
+			@Override
+			public void filterChange(FilterChangeEvent event) {
+				Filter f = defaultFilter;
+				Filter f2 = event.getFilter();
+				if (f != null) {					
+					if (f2 != null) {
+						f = new And(f, f2);
+					}
+				} else {
+					f = f2;
+				}
+				
+				Container.Filterable filterable = (Container.Filterable) container;
+				filterable.removeAllContainerFilters();
+				
+				if (f != null) {
+					filterable.addContainerFilter(f);
+				}
+			}
+		});
 	}
 
 	public void setActionHandler(ActionHandler actionHandler) {

@@ -30,7 +30,7 @@ public class BvoDtaFormater implements DtaFormater {
 	public void check(Expense expense) {
 		// Must have an externalReference and a payee.externalReference 
 		Preconditions.checkNotNull(expense.getExternalReference(), "External reference is mandatory for BVO payments (826)");
-		Preconditions.checkNotNull(expense.getPayee().getExternalReference(), "Payee's external reference is mandatory for BVO payments (826)");
+		Preconditions.checkNotNull(expense.getPayee().getPostalAccount(), "Payee's postal account is mandatory for BVO payments (826)");
 	}	
 	
 	protected String formatLine02(Payment payment, int index, Expense expense) {
@@ -55,7 +55,7 @@ public class BvoDtaFormater implements DtaFormater {
 		line03.append("/C/");
 		
 		// ISR party number
-		line03.append(paddedAccountNumber(expense.getPayee().getExternalReference()));
+		line03.append(paddedAccountNumber(expense.getPayee().getPostalAccount()));
 		
 		line03.append(pad(expense.getPayee().getPrefixedName(), 20));
 		line03.append(pad(expense.getPayee().getAddress1(), 20));

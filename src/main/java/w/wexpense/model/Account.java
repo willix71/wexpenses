@@ -37,7 +37,7 @@ public class Account extends AbstractType<Account> implements Parentable<Account
 	@Enumerated(EnumType.STRING)
 	private AccountEnum type = AccountEnum.FILTER;
 
-	@ManyToOne()
+	@ManyToOne
 	private Currency currency;
 
 	private String display;
@@ -58,20 +58,16 @@ public class Account extends AbstractType<Account> implements Parentable<Account
 		this.currency = currency;
 	}
 
-	public void updateFullNameAndNumber() {		
+	public void updateFullNameAndNumber() {
+		String number = getNumber() != null?getNumber():"-";
+		
 		if (getParent() == null) {
-			this.fullName = "";
-			this.fullNumber = "";
+			this.fullName = getName();
+			this.fullNumber = number;
 		} else {
-			this.fullName = getParent().getFullName() + ":";
-			this.fullNumber = getParent().getFullNumber() + ":";			
-		}
-		if (getName() != null) {
-			this.fullName += getName();
-		}
-		if (getNumber() != null) {
-			this.fullNumber += getNumber();
-		}		
+			this.fullName = getParent().getFullName() + ":" + getName();
+			this.fullNumber = getParent().getFullNumber() + ":" + number;			
+		}	
 	}
 	
 	@PreUpdate
@@ -155,7 +151,7 @@ public class Account extends AbstractType<Account> implements Parentable<Account
 	@Override
    public Account duplicate() {
 		Account klone = super.duplicate();
-		klone.getChildren().clear();
+		klone.setChildren(new ArrayList<Account>());
 		return klone;
    }
 

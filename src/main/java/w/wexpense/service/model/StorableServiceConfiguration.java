@@ -5,7 +5,6 @@ import org.springframework.context.annotation.Configuration;
 
 import w.wexpense.model.Account;
 import w.wexpense.model.City;
-import w.wexpense.model.Consolidation;
 import w.wexpense.model.Country;
 import w.wexpense.model.Currency;
 import w.wexpense.model.Discriminator;
@@ -13,11 +12,13 @@ import w.wexpense.model.ExchangeRate;
 import w.wexpense.model.ExpenseType;
 import w.wexpense.model.Payee;
 import w.wexpense.model.PayeeType;
-import w.wexpense.model.TransactionLine;
+import w.wexpense.model.Template;
 import w.wexpense.persistence.dao.ICityJpaDao;
 import w.wexpense.persistence.dao.ICountryJpaDao;
 import w.wexpense.persistence.dao.ICurrencyJpaDao;
 import w.wexpense.persistence.dao.IExchangeRateJpaDao;
+import w.wexpense.persistence.dao.IPayeeJpaDao;
+import w.wexpense.persistence.dao.ITemplateJpaDao;
 import w.wexpense.service.DaoService;
 import w.wexpense.service.GenericService;
 import w.wexpense.service.StorableService;
@@ -43,18 +44,18 @@ public class StorableServiceConfiguration {
 	}
 	
 	@Bean 
+	public StorableService<ExpenseType, Long> expenseTypeService() {
+		return new GenericService<ExpenseType, Long>(ExpenseType.class, new NameInitializor<ExpenseType>(ExpenseType.class));
+	}
+	
+	@Bean 
 	public StorableService<PayeeType, Long> payeeTypeService() {
 		return new GenericService<PayeeType, Long>(PayeeType.class, new NameInitializor<PayeeType>(PayeeType.class));
 	}
 	
 	@Bean 
-	public StorableService<Payee, Long> payeeService() {
-		return new GenericService<Payee, Long>(Payee.class, new NameInitializor<Payee>(Payee.class));
-	}
-		
-	@Bean 
-	public StorableService<Account, Long> accountService() {
-		return new GenericService<Account, Long>(Account.class, new ParentInitializor<Account>(Account.class), new NameInitializor<Account>(Account.class));
+	public StorableService<Payee, Long> payeeService(IPayeeJpaDao dao) {
+		return new DaoService<Payee, Long>(Payee.class, dao, new NameInitializor<Payee>(Payee.class));
 	}
 	
 	@Bean 
@@ -66,20 +67,9 @@ public class StorableServiceConfiguration {
 	public StorableService<ExchangeRate, Long> exchangeRateService(IExchangeRateJpaDao dao) {
 		return new DaoService<ExchangeRate, Long>(ExchangeRate.class, dao);
 	}
-	
-	@Bean 
-	public StorableService<ExpenseType, Long> expenseTypeService() {
-		return new GenericService<ExpenseType, Long>(ExpenseType.class, new NameInitializor<ExpenseType>(ExpenseType.class));
-	}
-	
-	@Bean 
-	public StorableService<TransactionLine, Long> transactionLineService() {
-		return new GenericService<TransactionLine, Long>(TransactionLine.class);
-	}
 
 	@Bean 
-	public StorableService<Consolidation, Long> consolidationService() {
-		return new GenericService<Consolidation, Long>(Consolidation.class);
-	}	
-	
+	public StorableService<Template, Long> templateService(ITemplateJpaDao dao) {
+		return new DaoService<Template, Long>(Template.class, dao);
+	}
 }

@@ -2,7 +2,9 @@ package w.wexpense.model;
 
 import java.io.Serializable;
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -25,6 +27,8 @@ public abstract class DBable<T extends DBable<T>> implements Serializable, Dupli
 
 	private static final long serialVersionUID = 2482940442245899869L;
 
+	public static final List<String> SYSTEM_PROPERTIES = Arrays.asList(
+			"id", "version", "fullId", "uid", "modifiedTs", "createdTs");
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -135,7 +139,7 @@ public abstract class DBable<T extends DBable<T>> implements Serializable, Dupli
 
 	@Override
    public T duplicate() {
-	   T t = klone();
+	   T t = cloneInternal();
 	   t.setId(null);
 	   t.setModifiedTs(null);
 	   t.setCreatedTs(new Date());
@@ -143,16 +147,21 @@ public abstract class DBable<T extends DBable<T>> implements Serializable, Dupli
 	   return t;
 	}
 
-	@SuppressWarnings("unchecked")
+
    @Override
    public T klone() {
+		return cloneInternal();
+   }
+	
+	@SuppressWarnings("unchecked")
+	protected T cloneInternal() {
 	   try {
 	   	return (T) clone();
 	   }
 	   catch(CloneNotSupportedException e) {
 	   	throw new RuntimeException("Can not clone " + this.getClass().getName(), e);
 	   }
-   }
+	}
 	
 	@Override
    protected Object clone() throws CloneNotSupportedException {

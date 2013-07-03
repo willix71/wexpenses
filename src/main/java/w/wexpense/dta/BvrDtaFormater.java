@@ -31,7 +31,8 @@ public class BvrDtaFormater implements DtaFormater {
 	
 	public void check(Expense expense) {
 		// Must have a payee.externalReference (account number)
-		Preconditions.checkNotNull(expense.getPayee().getExternalReference(), "Payee's external reference is mandatory for BVR payments (827)");
+		Preconditions.checkNotNull(expense.getPayee().getBankDetails(), "Payee's bank details is mandatory for BVR payments (827)");
+		Preconditions.checkNotNull(expense.getPayee().getBankDetails().getPostalAccount(), "Payee's bank details postal account is mandatory for BVR payments (827)");
 	}
 	
 	protected String getProcessingDate(Expense expense) {
@@ -60,7 +61,7 @@ public class BvrDtaFormater implements DtaFormater {
 		line03.append("/C/");
 		
 		// ISR party number
-		line03.append(pad(expense.getPayee().getExternalReference(),27));
+		line03.append(pad(expense.getPayee().getBankDetails().getPostalAccount(),27));
 		
 		line03.append(pad(expense.getPayee().getPrefixedName(), 24));
 		line03.append(pad(expense.getPayee().getAddress1(), 24));

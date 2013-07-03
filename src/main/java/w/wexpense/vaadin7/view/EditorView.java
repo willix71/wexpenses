@@ -2,9 +2,7 @@ package w.wexpense.vaadin7.view;
 
 import java.io.Serializable;
 import java.text.MessageFormat;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -12,12 +10,15 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.dialogs.ConfirmDialog;
 
+import w.wexpense.model.Codable;
+import w.wexpense.model.DBable;
 import w.wexpense.model.Duplicatable;
 import w.wexpense.persistence.PersistenceUtils;
 import w.wexpense.service.ContainerService;
 import w.wexpense.service.StorableService;
 import w.wexpense.vaadin7.component.RelationalFieldFactory;
 import w.wexpense.vaadin7.event.EntityChangeEvent;
+import w.wexpense.vaadin7.menu.EnabalebalMenuBar;
 
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
 import com.vaadin.data.fieldgroup.FieldGroup;
@@ -29,6 +30,8 @@ import com.vaadin.ui.Field;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.MenuBar.Command;
+import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
@@ -37,8 +40,12 @@ public class EditorView<T, ID extends Serializable> extends GenericView<T> {
 
 	private static final long serialVersionUID = 5282517667310057582L;
 
-	public static final List<String> systemProperties = Arrays.asList("id",
-			"version", "fullId", "uid", "modifiedTs", "createdTs");
+	public final EnabalebalMenuBar.Enabalebal<T> NEW_DISABLER = new EnabalebalMenuBar.Enabalebal<T> () {
+		@Override
+      public boolean isEnabled(T t) {
+	      return PersistenceUtils.getIdValue(t) != null;
+      }	
+	};
 
 	@Autowired
 	protected ContainerService persistenceService;
@@ -57,9 +64,11 @@ public class EditorView<T, ID extends Serializable> extends GenericView<T> {
 	
 	protected BeanFieldGroup<T> fieldGroup;
 
-	protected Map<String, Field<?>> fields = new HashMap<>();
+	protected Map<String, Field<?>> customFields = new HashMap<>();
 	
 	protected HorizontalLayout buttonLayout;	
+	
+	protected EnabalebalMenuBar<T> menuBar;
 	
 	protected Button[] buttons = new Button[] {
 			new Button("Save", new Button.ClickListener() {
@@ -67,6 +76,7 @@ public class EditorView<T, ID extends Serializable> extends GenericView<T> {
 				public void buttonClick(ClickEvent event) {
 					try {
 						save();
+						close();
 					} catch (FieldGroup.CommitException e) {
 						throw new RuntimeException(e);
 					}
@@ -75,18 +85,60 @@ public class EditorView<T, ID extends Serializable> extends GenericView<T> {
 				@Override
 				public void buttonClick(ClickEvent event) {
 					cancel();
+					close();
 				}
-			}), new Button("Delete", new Button.ClickListener() {
-				@Override
-				public void buttonClick(ClickEvent event) {
-					delete();
-				}
-			}) };
+			})
+	};
 
 	public EditorView(StorableService<T, ID> storeService) {
 		super(storeService.getEntityClass());
 
 		this.storeService = storeService;
+		
+		menuBar = new EnabalebalMenuBar<T>();
+		menuBar.setWidth("100%");
+
+		MenuItem editMenu = menuBar.addItem("edit", null);		
+		menuBar.addItem(editMenu, "save", null, new Command() {
+	         public void menuSelected(MenuItem selectedItem) { 
+	         	try {
+						setInstance(save());
+						Notification.show("saved...", Notification.Type.TRAY_NOTIFICATION);
+					} catch (FieldGroup.CommitException e) {
+						throw new RuntimeException(e);
+					}
+	         }
+	      });
+		
+		menuBar.addItem(editMenu, "reset", NEW_DISABLER, new Command() {
+	         @SuppressWarnings("unchecked")
+            public void menuSelected(MenuItem selectedItem) { 
+					cancel();
+					loadInstance((ID) PersistenceUtils.getIdValue(fieldGroup.getItemDataSource().getBean()));
+					Notification.show("reset...", Notification.Type.TRAY_NOTIFICATION);
+	         }
+	      });
+		
+		if (Duplicatable.class.isAssignableFrom(storeService.getEntityClass())) {
+			menuBar.addItem(editMenu, "duplicate", NEW_DISABLER, new Command() {
+	         @SuppressWarnings("unchecked")
+            public void menuSelected(MenuItem selectedItem) { 
+					setInstance(((Duplicatable<T>) fieldGroup.getItemDataSource().getBean()).duplicate());
+					Notification.show("duplicated...", Notification.Type.TRAY_NOTIFICATION);
+	         }
+	      });
+		}
+		
+		menuBar.addItem(editMenu, "delete", NEW_DISABLER, new Command() {
+         public void menuSelected(MenuItem selectedItem) { 
+				delete();
+         }
+      });
+		menuBar.addItem(editMenu, "close", null, new Command() {
+         public void menuSelected(MenuItem selectedItem) { 
+				close();
+         }
+      });		
 	}
 
 	@PostConstruct
@@ -106,11 +158,18 @@ public class EditorView<T, ID extends Serializable> extends GenericView<T> {
       buttonLayout.addComponents(buttons);
 		
 		layout = new VerticalLayout();
+		if (menuBar != null) {
+			layout.addComponent(menuBar);
+		}
 		layout.addComponent(formLayout);
 		layout.addComponent(buttonLayout);
 		setContent(layout);
 	}
 
+	public EnabalebalMenuBar<T> getMenuBar() {
+		return menuBar;
+	}
+	
 	public T newInstance(Object ...args) {
 		T t = storeService.newInstance(args);
 		setInstance(t);
@@ -133,24 +192,56 @@ public class EditorView<T, ID extends Serializable> extends GenericView<T> {
 		if (!initialized) {
 			fieldGroup.setFieldFactory(new RelationalFieldFactory(persistenceService));
 
-			
 			// Loop through the properties
 			for (Object propertyId : properties) {
 				// build fields for them and add the fields to this UI
-				Field<?> f = fields.get(propertyId); 
+				Field<?> f = customFields.get(propertyId); 
 				if (f != null) {
 					f.setCaption(DefaultFieldFactory.createCaptionByPropertyId(propertyId));
 					fieldGroup.bind(f, propertyId);
 				} else {
 					f = fieldGroup.buildAndBind(propertyId);
 				}
-				f.setReadOnly(readOnly || systemProperties.contains(propertyId));
 				formLayout.addComponent(f);
 			}
+			initMenus();
+			initFields();
+			
 			initialized = true;
+		} 
+		
+		initMenus(t);
+		initFields(t);
+	}
+	public void initMenus() {
+		// void
+	}
+	public void initMenus(T t) {
+		menuBar.enableMenu(t);
+	}
+	public void initFields() {
+		// void
+	}
+	public void initFields(T t) {
+		if (readOnly) {
+			for (Object propertyId : properties) {
+				fieldGroup.getField(propertyId).setReadOnly(true);			
+			}
+		} else {			
+			if (Codable.class.isAssignableFrom(getEntityClass())) {
+				if (((Codable) t).getCode() != null) {
+					// we dont want the code to change because it's the entity's id
+					fieldGroup.getField("code").setReadOnly(true);
+				}
+			} else if (DBable.class.isAssignableFrom(getEntityClass())) {
+				// set the system properties to readonly
+				for (Object propertyId : properties) {
+					fieldGroup.getField(propertyId).setReadOnly(DBable.SYSTEM_PROPERTIES.contains(propertyId));			
+				}
+			}
 		}
 	}
-
+	
 	@SuppressWarnings("unchecked")
 	public T duplicate(ID id) {
 		T t = storeService.load(id);
@@ -179,28 +270,30 @@ public class EditorView<T, ID extends Serializable> extends GenericView<T> {
 		this.readOnly = readOnly;
 	}
 
-	public void setField(String propertyId, Field<?> field) {
-		fields.put(propertyId, field);
+	public void setCustomField(String propertyId, Field<?> field) {
+		customFields.put(propertyId, field);
 	}
 	
-	public void save() throws FieldGroup.CommitException {
+	public Field<?> getField(String propertyId) {
+		return fieldGroup.getField(propertyId);
+	}
+	
+	public T save() throws FieldGroup.CommitException {
 		fieldGroup.commit();
 
 		T t = storeService.save(fieldGroup.getItemDataSource().getBean());
 		
-		fireEvent(new EntityChangeEvent(this, PersistenceUtils.getIdValue(t), t));
-		
-		close();
+		fireEntityChange(t);
+
+		return t;
 	}
 
-	public void cancel() {
-		fieldGroup.discard();
-
-		close();
+	public void fireEntityChange(T t) {
+		fireEvent(new EntityChangeEvent(this, PersistenceUtils.getIdValue(t), t));
 	}
 	
-	public void setEnalbleDelete(boolean visible) {
-		buttons[2].setVisible(visible);
+	public void cancel() {
+		fieldGroup.discard();
 	}
 	
 	public void delete() {
@@ -215,10 +308,10 @@ public class EditorView<T, ID extends Serializable> extends GenericView<T> {
 						if (dialog.isConfirmed()) {
 							storeService.delete(t);
 							close();
-							Notification.show(text, "deleted...",
+							Notification.show(text, "deleted...", 
 									Notification.Type.TRAY_NOTIFICATION);
 							
-							fireEvent(new EntityChangeEvent(EditorView.this, PersistenceUtils.getIdValue(t), t));
+							fireEntityChange(t);
 						}
 					}
 				});
@@ -235,8 +328,8 @@ public class EditorView<T, ID extends Serializable> extends GenericView<T> {
 							storeService.delete(t);
 							Notification.show(text, "deleted...",
 									Notification.Type.TRAY_NOTIFICATION);
-														
-							fireEvent(new EntityChangeEvent(EditorView.this, PersistenceUtils.getIdValue(t), t));
+							
+							fireEntityChange(t);;
 						}
 					}
 				});

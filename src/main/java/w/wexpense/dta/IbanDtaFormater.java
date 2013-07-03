@@ -34,7 +34,7 @@ public class IbanDtaFormater implements DtaFormater {
 	public void check(Expense expense) {
 		// Must have a payee.bankingDetail and an payee.externalReference (IBAN)
 		Preconditions.checkNotNull(expense.getPayee().getBankDetails(), "Payee's banking detail is mandatory for Iban payments (836)");
-		Preconditions.checkNotNull(expense.getPayee().getExternalReference(), "Payee's external reference is mandatory for Iban payments (836)");
+		Preconditions.checkNotNull(expense.getPayee().getIban(), "Payee's IBAN is mandatory for Iban payments (836)");
 		// TODO check external reference is an Iban
 	}
 	
@@ -68,7 +68,7 @@ public class IbanDtaFormater implements DtaFormater {
 		line03.append(pad(institution.getCity().toString(), 35));
 
 		// IBAN
-		line03.append(pad(stripBlanks(expense.getPayee().getExternalReference()),34));
+		line03.append(pad(stripBlanks(expense.getPayee().getIban()),34));
 
 		line03.append(pad(21));
 		return line03.toString();

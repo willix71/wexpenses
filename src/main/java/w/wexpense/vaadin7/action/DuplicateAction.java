@@ -13,14 +13,14 @@ import com.vaadin.ui.Component.Event;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.UI;
 
-public class CopyAction extends ListViewAction {
+public class DuplicateAction extends ListViewAction {
 	
 	private static final long serialVersionUID = 1L;
 
 	private String editorName;
 	
-	public CopyAction(String editorName) {
-		super("copy");
+	public DuplicateAction(String editorName) {
+		super("duplicate");
 		this.editorName = editorName;
 	}
 	

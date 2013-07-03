@@ -1,33 +1,45 @@
 package w.wexpense.vaadin7.view.model;
 
-import java.math.BigDecimal;
-import java.util.Collection;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 
 import w.wexpense.model.Expense;
-import w.wexpense.model.TransactionLine;
-import w.wexpense.service.StorableService;
-import w.wexpense.utils.TransactionLineUtils;
-import w.wexpense.vaadin7.action.ActionHandler;
 import w.wexpense.vaadin7.action.ActionHelper;
-import w.wexpense.vaadin7.action.ListViewAction;
-import w.wexpense.vaadin7.action.RemoveAction;
-import w.wexpense.vaadin7.component.OneToManyField;
-import w.wexpense.vaadin7.container.OneToManyContainer;
+import w.wexpense.vaadin7.filter.ExpenseFilter;
 import w.wexpense.vaadin7.support.TableColumnConfig;
-import w.wexpense.vaadin7.view.EditorView;
 import w.wexpense.vaadin7.view.ListView;
-
-import com.vaadin.ui.Table;
 
 @Configuration
 public class ExpenseConfiguration {
 
+	/*
+	class AmountChangeListener implements Property.ValueChangeListener {
+		Component viewer;
+		Expense x;
+		BigDecimal oldAmount;
+		
+		public void setViewer(Component viewer) {
+			this.viewer = viewer;
+		}
+		
+		public void setExpense(Expense x) {
+			this.x = x;
+			this.oldAmount = x.getAmount();
+		}
+
+		public void valueChange(Property.ValueChangeEvent event) {
+			
+			if (x.getTransactions() != null) {
+				TransactionLineUtils.updateAmount(x.getTransactions(), x.getAmount(), oldAmount);
+				//viewer.markAsDirtyRecursive();
+				((OneToManyField) viewer).itemChange();
+
+			}
+			this.oldAmount = x.getAmount();
+		}
+	}
+	
 	@Autowired
 	@Qualifier("expenseService") 
 	private StorableService<Expense, Long> expenseService;
@@ -35,11 +47,30 @@ public class ExpenseConfiguration {
 	@Bean
 	@Scope("prototype")
 	public EditorView<Expense, Long>  expenseEditorView() {
-		OneToManyField<TransactionLine> expenseTransactionsField = expenseTransactionsField();
+		final AmountChangeListener amountChangeListener = new AmountChangeListener();
 		
-		final EditorView<Expense, Long> editorview = new EditorView<Expense, Long>(expenseService);
+		final OneToManyField<TransactionLine> expenseTransactionsField = expenseTransactionsField(amountChangeListener);
+		
+		final EditorView<Expense, Long> editorview = new EditorView<Expense, Long>(expenseService) {
+			@Override
+         public void initFields() {
+	         super.initFields();
+	         Field<?> f = fieldGroup.getField("amount");
+	         ((AbstractComponent) f).setImmediate(true);
+	         f.addValueChangeListener(amountChangeListener);
+         }
+			
+			@Override
+         public void initFields(Expense expense) {
+	         super.initFields(expense);
+	         amountChangeListener.setExpense(expense);
+         }
+      	
+      };
+      amountChangeListener.setViewer(expenseTransactionsField);
+      
 		editorview.setProperties("fullId","uid","createdTs","modifiedTs","type","payee","date","amount","currency","externalReference","description","payment", "transactions");
-		editorview.setField("transactions", expenseTransactionsField);
+		editorview.setCustomField("transactions", expenseTransactionsField);
 		
 		ListViewAction addAction = new ListViewAction("add") {			
 			@Override
@@ -69,9 +100,10 @@ public class ExpenseConfiguration {
 		return editorview;
 	}
 
+
 	@Bean
 	@Scope("prototype")
-	OneToManyField<TransactionLine> expenseTransactionsField() {
+	OneToManyField<TransactionLine> expenseTransactionsField(final AmountChangeListener amountChangeListener) {
       OneToManyField<TransactionLine> transactions = new OneToManyField<TransactionLine>(TransactionLine.class,
             new TableColumnConfig("fullId").collapse().rightAlign(),
             new TableColumnConfig("uid").collapse(),
@@ -84,11 +116,20 @@ public class ExpenseConfiguration {
             new TableColumnConfig("amount").rightAlign().width(100),
             new TableColumnConfig("exchangeRate"),
             new TableColumnConfig("value").rightAlign().width(100)
-      		);
+      		) {
+      	 
+      	protected void initField(Object rowId, Object colId, Property<?> property, Field<?> field) {
+      		if ("amount".equals(colId)) {
+      			((AbstractComponent) field).setImmediate(true);
+      			field.addValueChangeListener(amountChangeListener);
+      		}
+    		}
+      };
       transactions.setPageLength(5);
       transactions.setEditable(true);
       return transactions;
 	}
+	*/
 	
 	@Bean
 	@Scope("prototype")
@@ -109,7 +150,14 @@ public class ExpenseConfiguration {
 	                new TableColumnConfig("description").collapse()
 	                );
 	       
+		listview.addFilterSource(getExpenseFilter());		
 	   ActionHelper.setDefaultListViewActions(listview, "expenseEditorView");
 		return listview;
+	}
+	
+	@Bean
+	@Scope("prototype")
+	public ExpenseFilter getExpenseFilter() {
+		return new ExpenseFilter();
 	}
 }

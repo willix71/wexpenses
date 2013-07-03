@@ -7,24 +7,27 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 
 import w.wexpense.model.Account;
-import w.wexpense.service.StorableService;
+import w.wexpense.service.model.IAccountService;
 import w.wexpense.vaadin7.action.ActionHelper;
+import w.wexpense.vaadin7.action.ListViewAction;
 import w.wexpense.vaadin7.support.TableColumnConfig;
 import w.wexpense.vaadin7.view.EditorView;
 import w.wexpense.vaadin7.view.ListView;
 
+import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
 import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.Field;
+import com.vaadin.ui.Table;
 
 @Configuration
 public class AccountConfiguration {
 
 	@Autowired
 	@Qualifier("accountService")
-	private StorableService<Account, Long> accountService;
+	private IAccountService accountService;
 	
 	@Bean
 	@Scope("prototype")
@@ -85,7 +88,20 @@ public class AccountConfiguration {
 			   new TableColumnConfig("externalReference").collapse()
 			   );
 	   
-	   ActionHelper.setDefaultListViewActions(listview, "accountEditorView");   
+	   ActionHelper.setDefaultListViewActions(listview, "accountEditorView", new ListViewAction("renumber") {
+	   	@Override
+	   	public void handleAction(final Object sender, final Object target) {
+	   			accountService.renumberAccounts((Long) target);
+	   			
+	   			com.vaadin.data.Container c = ((Table) sender) .getContainerDataSource();
+	   			((JPAContainer<?>) c).refresh();
+	   	}
+
+	   	@Override
+	   	public boolean canHandle(Object target, Object sender) {
+	   		return true;
+	   	}
+	   });
 		return listview;
 	}
 }

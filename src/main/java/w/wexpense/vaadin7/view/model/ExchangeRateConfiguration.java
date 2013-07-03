@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Scope;
 import w.wexpense.model.ExchangeRate;
 import w.wexpense.service.StorableService;
 import w.wexpense.vaadin7.action.ActionHelper;
+import w.wexpense.vaadin7.filter.ExchangeRateFilter;
 import w.wexpense.vaadin7.support.TableColumnConfig;
 import w.wexpense.vaadin7.view.EditorView;
 import w.wexpense.vaadin7.view.ListView;
@@ -25,7 +26,7 @@ public class ExchangeRateConfiguration {
 	@Scope("prototype")
 	public EditorView<ExchangeRate, Long> exchangeRateEditorView() {
 		EditorView<ExchangeRate, Long> editorview = new EditorView<ExchangeRate, Long>(exchangeRateService);
-		editorview.setProperties("fullId","uid","date","institution","sellCurrency","buyCurrency","rate","fee");
+		editorview.setProperties("fullId","uid","date","institution","fromCurrency","toCurrency","rate","fee");
 		return editorview;
 	}
 	
@@ -34,6 +35,7 @@ public class ExchangeRateConfiguration {
 	public ListView<ExchangeRate> exchangeRateListView() {
 		ListView<ExchangeRate> listview = new ListView<ExchangeRate>(ExchangeRate.class);
 		listview.setColumnConfigs(getTableColumnConfig());
+		listview.addFilterSource(getExchangeRateFilter());
 		ActionHelper.setDefaultListViewActions(listview, "exchangeRateEditorView");
 		return listview;
 	}
@@ -43,8 +45,14 @@ public class ExchangeRateConfiguration {
 	public SelectorView<ExchangeRate> exchangeRateSelectorView() {
 		SelectorView<ExchangeRate> selectorview = new SelectorView<ExchangeRate>(ExchangeRate.class);
 		selectorview.setColumnConfigs(getTableColumnConfig());
-		ActionHelper.setDefaultListViewActions(selectorview, "exchangeRateEditorView");
+		ActionHelper.setExchangeRateSelectorViewActions(selectorview, "exchangeRateEditorView");
 		return selectorview;
+	}
+	
+	@Bean
+	@Scope("prototype")
+	public ExchangeRateFilter getExchangeRateFilter() {
+		return new ExchangeRateFilter();
 	}
 	
 	private TableColumnConfig[] getTableColumnConfig() {
@@ -56,8 +64,8 @@ public class ExchangeRateConfiguration {
 
 			   new TableColumnConfig("date").desc(),
 			   new TableColumnConfig("institution").sortBy(".display").expand(1.0f), 
-			   new TableColumnConfig("sellCurrency").centerAlign(),
-			   new TableColumnConfig("buyCurrency").centerAlign(),
+			   new TableColumnConfig("fromCurrency").centerAlign(),
+			   new TableColumnConfig("toCurrency").centerAlign(),
 			   new TableColumnConfig("rate"),
 			   new TableColumnConfig("fee")
 		};

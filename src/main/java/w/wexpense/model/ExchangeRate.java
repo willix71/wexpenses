@@ -4,6 +4,7 @@ import java.text.MessageFormat;
 import java.util.Date;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -13,24 +14,26 @@ import javax.validation.constraints.NotNull;
 public class ExchangeRate extends DBable<ExchangeRate> {
 
 	private static final long serialVersionUID = 2482940442245899869L;
-	
-    @ManyToOne 
-    //@JoinColumn(name="PAYEE_OID")
-    private Payee institution;
-    
-    @Temporal(TemporalType.DATE)
-    private Date date;
-    
-    @NotNull
-    private Currency buyCurrency;
-    
-    @NotNull
-    private Currency sellCurrency; 
-    
-    @NotNull
-    private Double rate;
-    
-    private Double fee;
+
+	@ManyToOne
+	// @JoinColumn(name="PAYEE_OID")
+	private Payee institution;
+
+	@Temporal(TemporalType.DATE)
+	private Date date;
+
+	@NotNull
+	@ManyToOne(fetch = FetchType.EAGER)
+	private Currency toCurrency;
+
+	@NotNull
+	@ManyToOne(fetch = FetchType.EAGER)
+	private Currency fromCurrency;
+
+	@NotNull
+	private Double rate;
+
+	private Double fee;
 
 	public Payee getInstitution() {
 		return institution;
@@ -48,20 +51,20 @@ public class ExchangeRate extends DBable<ExchangeRate> {
 		this.date = date;
 	}
 
-	public Currency getBuyCurrency() {
-		return buyCurrency;
+	public Currency getToCurrency() {
+		return toCurrency;
 	}
 
-	public void setBuyCurrency(Currency buyCurrency) {
-		this.buyCurrency = buyCurrency;
+	public void setToCurrency(Currency currency) {
+		this.toCurrency = currency;
 	}
 
-	public Currency getSellCurrency() {
-		return sellCurrency;
+	public Currency getFromCurrency() {
+		return fromCurrency;
 	}
 
-	public void setSellCurrency(Currency sellCurrency) {
-		this.sellCurrency = sellCurrency;
+	public void setFromCurrency(Currency currency) {
+		this.fromCurrency = currency;
 	}
 
 	public Double getRate() {
@@ -79,9 +82,9 @@ public class ExchangeRate extends DBable<ExchangeRate> {
 	public void setFee(Double fee) {
 		this.fee = fee;
 	}
-	
+
 	@Override
-	public String toString() {		
-		return MessageFormat.format("{0} x {2,number, 0.00000} {1}", sellCurrency, buyCurrency, rate);
-	} 
+	public String toString() {
+		return MessageFormat.format("{0} x {2,number, 0.00000} {1}", fromCurrency, toCurrency, rate);
+	}
 }

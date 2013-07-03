@@ -47,4 +47,8 @@ public class OneToManyContainer<BEANTYPE> extends BeanItemContainer<BEANTYPE> {
 	public boolean isEmpty() {
 		return beans.isEmpty();
 	}
+	
+	public void fireItemSetChange() {
+      super.fireItemSetChange();
+  }
 }

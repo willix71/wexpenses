@@ -28,62 +28,39 @@ import com.vaadin.data.util.filter.Or;
 @Configuration
 public class ConsolidationConfiguration {
 
-	@Autowired
-	@Qualifier("consolidationService")
-	private StorableService<Consolidation, Long> consolidationService;
-	
-	@Bean
-	@Scope("prototype")
-	public EditorView<Consolidation, Long> consolidationEditorView() {
-		OneToManyField<TransactionLine> transactions = new OneToManyField<>(TransactionLine.class, getTransactionLinesTableColumnConfig());
-		
-		final EditorView<Consolidation, Long> editorview = new EditorView<Consolidation, Long>(consolidationService);
-		editorview.setProperties("fullId","uid","date","institution","openingBalance","closingBalance","transactions");
-		editorview.setField("transactions",  transactions);
-		
-		AddMultiSelectionAction<TransactionLine> addSelectionAction = new AddMultiSelectionAction<TransactionLine>("consolidationTransactionLineSelectorView") {
-			@Override
-         public Filter getFilter() {
-				Filter filter = new IsNull("consolidation");
-				Consolidation c = editorview.getInstance();
-				if (!c.isNew()) {
-					filter = new Or(filter, new Compare.Equal("consolidation", c));
-				}
-				return filter;
-         }			
-		};
-      
-      ActionHandler action = new ActionHandler();
-		action.addListViewAction(addSelectionAction);
-		action.addListViewAction(new RemoveAction<Expense>());
-		transactions.setActionHandler(action);
-		
-		return editorview;
-	}
-	
-	@Bean
-	@Scope("prototype")
-	public MultiSelectorView<TransactionLine> consolidationTransactionLineSelectorView() {
-		MultiSelectorView<TransactionLine> selector = new MultiSelectorView<TransactionLine>(TransactionLine.class);
-		selector.setColumnConfigs(getTransactionLinesTableColumnConfig());				
-		return selector;
-	}
-	
-	private TableColumnConfig[] getTransactionLinesTableColumnConfig() {
-		return new TableColumnConfig[] {
-				new TableColumnConfig("fullId").collapse().rightAlign(),
-			   new TableColumnConfig("uid").collapse(),
-			   new TableColumnConfig("createdTs").collapse(),
-			   new TableColumnConfig("modifiedTs").collapse(),
-
-			   new TableColumnConfig("consolidatedDate").desc(),
-			   new TableColumnConfig("amount").rightAlign(),
-			   new TableColumnConfig("exchangeRate").rightAlign(),
-			   new TableColumnConfig("payee").expand(1.0f),			   
-			   new TableColumnConfig("inValue").rightAlign(),
-			   new TableColumnConfig("outValue").rightAlign()
-		};
-	}
+//	@Autowired
+//	@Qualifier("consolidationService")
+//	private StorableService<Consolidation, Long> consolidationService;
+//	
+//	@Bean
+//	@Scope("prototype")
+//	public EditorView<Consolidation, Long> consolidationEditorView() {
+//		OneToManyField<TransactionLine> transactions = new OneToManyField<>(TransactionLine.class, getTransactionLinesTableColumnConfig());
+//		
+//		final EditorView<Consolidation, Long> editorview = new EditorView<Consolidation, Long>(consolidationService);
+//		editorview.setProperties("fullId","uid","date","institution","openingBalance","closingBalance","transactions");
+//		editorview.setCustomField("transactions",  transactions);
+//		
+//		AddMultiSelectionAction<TransactionLine> addSelectionAction = new AddMultiSelectionAction<TransactionLine>("consolidationTransactionLineSelectorView") {
+//			@Override
+//         public Filter getFilter() {
+//				Filter filter = new IsNull("consolidation");
+//				Consolidation c = editorview.getInstance();
+//				if (!c.isNew()) {
+//					filter = new Or(filter, new Compare.Equal("consolidation", c));
+//				}
+//				return filter;
+//         }			
+//		};
+//      
+//      ActionHandler action = new ActionHandler();
+//		action.addListViewAction(addSelectionAction);
+//		action.addListViewAction(new RemoveAction<Expense>());
+//		transactions.setActionHandler(action);
+//		
+//		return editorview;
+//	}
+//	
 	
 	@Bean
 	@Scope("prototype")
@@ -103,5 +80,29 @@ public class ConsolidationConfiguration {
 		   
 		ActionHelper.setDefaultListViewActions(listview, "consolidationEditorView");
 		return listview;
+	}
+	
+	@Bean
+	@Scope("prototype")
+	public MultiSelectorView<TransactionLine> consolidationTransactionLineSelectorView() {
+		MultiSelectorView<TransactionLine> selector = new MultiSelectorView<TransactionLine>(TransactionLine.class);
+		selector.setColumnConfigs(getTransactionLinesTableColumnConfig());				
+		return selector;
+	}
+	
+	public static TableColumnConfig[] getTransactionLinesTableColumnConfig() {
+		return new TableColumnConfig[] {
+				new TableColumnConfig("fullId").collapse().rightAlign(),
+			   new TableColumnConfig("uid").collapse(),
+			   new TableColumnConfig("createdTs").collapse(),
+			   new TableColumnConfig("modifiedTs").collapse(),
+
+			   new TableColumnConfig("date").asc(),
+			   new TableColumnConfig("amount").rightAlign(),
+			   new TableColumnConfig("exchangeRate").rightAlign(),
+			   new TableColumnConfig("payee").expand(1.0f),			   
+			   new TableColumnConfig("inValue").rightAlign(),
+			   new TableColumnConfig("outValue").rightAlign()
+		};
 	}
 }

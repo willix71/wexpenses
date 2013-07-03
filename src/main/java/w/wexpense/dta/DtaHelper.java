@@ -161,7 +161,8 @@ public class DtaHelper {
 		// clearing of the beneficiary's bank
 		if (expense == null) {
 			sb.append(pad(7));
-		} else {String iban = getTransactionLine(OUT, expense).getAccount().getExternalReference();
+		} else {
+			String iban = getTransactionLine(OUT, expense).getAccount().getExternalReference();
 			String clearing = iban.substring(4, 9);
 			// remove leading zero and then pad to 7
 			String purgedClearing = Integer.valueOf(clearing).toString();

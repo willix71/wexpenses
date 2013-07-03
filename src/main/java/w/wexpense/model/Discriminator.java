@@ -51,7 +51,7 @@ public class Discriminator extends AbstractType<Discriminator> implements Parent
 	@Override
    public Discriminator duplicate() {
 		Discriminator klone = super.duplicate();
-		klone.getChildren().clear();
+		klone.setChildren(new ArrayList<Discriminator>());
 		return klone;
    }
 

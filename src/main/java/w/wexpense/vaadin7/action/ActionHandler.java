@@ -23,6 +23,8 @@ public class ActionHandler implements Action.Handler, ItemClickListener {
 	protected ListViewAction defaultAction;
 	
 	protected List<ListViewAction> actions = new ArrayList<>();
+	
+	protected boolean enabled = true;
 
    public ActionHandler() {}
    
@@ -42,7 +44,7 @@ public class ActionHandler implements Action.Handler, ItemClickListener {
 		Collection<ListViewAction> c = Collections2.filter(actions,
 				new Predicate<ListViewAction>() {
 					public boolean apply(@Nullable ListViewAction action) {
-						return action.canHandle(target, sender);
+						return enabled && action.canHandle(target, sender);
 					}
 				});
 		return c.toArray(new Action[c.size()]);
@@ -88,4 +90,20 @@ public class ActionHandler implements Action.Handler, ItemClickListener {
 			defaultAction.handleAction(table, target);
 		}
 	}
+
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+
+		requestRepaint();
+	}
+	
+   private void requestRepaint() {
+      if (table != null) {
+          table.markAsDirtyRecursive();
+      }
+  }
 }

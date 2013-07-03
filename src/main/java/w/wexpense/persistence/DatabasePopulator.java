@@ -96,15 +96,15 @@ public class DatabasePopulator {
 			// === Exchange rates ===
 			ExchangeRate rate = new ExchangeRate();
 			rate.setDate(new GregorianCalendar(2000,1,1).getTime());
-			rate.setBuyCurrency(chf);
-			rate.setSellCurrency(euro);
+			rate.setToCurrency(chf);
+			rate.setFromCurrency(euro);
 			rate.setRate(1.6);
 			rate = save(rate);
 			
 			rate = new ExchangeRate();
 			rate.setDate(new Date());
-			rate.setBuyCurrency(chf);
-			rate.setSellCurrency(gbp);
+			rate.setToCurrency(chf);
+			rate.setFromCurrency(gbp);
 			rate.setRate(1.48315);
 			rate = save(rate);
 			
@@ -112,8 +112,8 @@ public class DatabasePopulator {
 			
 			rate = new ExchangeRate();
 			rate.setDate(d);
-			rate.setBuyCurrency(chf);
-			rate.setSellCurrency(euro);
+			rate.setToCurrency(chf);
+			rate.setFromCurrency(euro);
 			rate.setRate(1.2);
 			rate = save(rate);
 			
@@ -193,7 +193,13 @@ public class DatabasePopulator {
 		payee.setAddress1(adr1);
 		payee.setAddress2(adr2);
 		payee.setCity(city);
-		payee.setExternalReference(xRef);
+		if (xRef != null) {
+			if (xRef.indexOf('-')>0) {
+				payee.setPostalAccount(xRef);
+			} else {
+				payee.setIban(xRef);
+			}
+		}
 		return save(payee);		
 	}
 	

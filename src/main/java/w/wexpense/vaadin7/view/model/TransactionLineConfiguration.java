@@ -2,20 +2,18 @@ package w.wexpense.vaadin7.view.model;
 
 import java.io.Serializable;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 
 import w.wexpense.model.TransactionLine;
-import w.wexpense.service.StorableService;
 import w.wexpense.vaadin7.action.ActionHandler;
 import w.wexpense.vaadin7.action.AddNewAction;
 import w.wexpense.vaadin7.action.EditAction;
 import w.wexpense.vaadin7.action.RefreshAction;
+import w.wexpense.vaadin7.filter.ExpenseFilter;
+import w.wexpense.vaadin7.filter.TransactionLineFilter;
 import w.wexpense.vaadin7.support.TableColumnConfig;
-import w.wexpense.vaadin7.view.EditorView;
 import w.wexpense.vaadin7.view.ListView;
 
 import com.vaadin.addon.jpacontainer.JPAContainerItem;
@@ -24,17 +22,17 @@ import com.vaadin.ui.Table;
 @Configuration
 public class TransactionLineConfiguration {
 
-	@Autowired
-	@Qualifier("transactionLineService") 
-	private StorableService<TransactionLine, Long> transactionLineService;
-	
-	@Bean
-	@Scope("prototype")
-	public EditorView<TransactionLine, Long> transactionLineEditorView() {
-		EditorView<TransactionLine, Long> editorview = new EditorView<TransactionLine, Long>(transactionLineService);
-		editorview.setProperties("fullId","uid","expense","account","discriminator","factor","amount","value","consolidatedDate","consolidation","description");
-		return editorview;
-	}
+//	@Autowired
+//	@Qualifier("transactionLineService") 
+//	private StorableService<TransactionLine, Long> transactionLineService;
+//	
+//	@Bean
+//	@Scope("prototype")
+//	public EditorView<TransactionLine, Long> transactionLineEditorView() {
+//		EditorView<TransactionLine, Long> editorview = new EditorView<TransactionLine, Long>(transactionLineService);
+//		editorview.setProperties("fullId","uid","expense","account","discriminator","factor","amount","value","consolidatedDate","consolidation","description");
+//		return editorview;
+//	}
 	
 	@Bean
 	@Scope("prototype")
@@ -46,7 +44,8 @@ public class TransactionLineConfiguration {
 				   new TableColumnConfig("createdTs").collapse(),
 				   new TableColumnConfig("modifiedTs").collapse(),
 
-				   new TableColumnConfig("expense.date", "Date").rightAlign().asc(),
+				   new TableColumnConfig("date").rightAlign().asc(),
+				   new TableColumnConfig("consolidation.date", "consolidation\nDate").collapse(),
 				   new TableColumnConfig("expense.payee", "Payee").expand(1.0f),
 				   new TableColumnConfig("account"),
 				   new TableColumnConfig("discriminator"),
@@ -54,14 +53,19 @@ public class TransactionLineConfiguration {
 				   new TableColumnConfig("expense.currency", "Currency"),
 				   new TableColumnConfig("inValue", "In"),
 				   new TableColumnConfig("outValue", "Out"),
-				   new TableColumnConfig("description").collapse(),
-				   new TableColumnConfig("date", "consolidated\nDate").collapse(),
-				   new TableColumnConfig("consolidation.date", "consolidation\nDate").collapse()
+				   new TableColumnConfig("description").collapse()
 				   );
 		   
 		listview.setActionHandler(getTransactionLineActionHandler("expenseEditorView"));
-		
+		listview.addFilterSource(getTransactionLineFilter());
 		return listview;
+	}
+	
+	
+	@Bean
+	@Scope("prototype")
+	public TransactionLineFilter getTransactionLineFilter() {
+		return new TransactionLineFilter();
 	}
 	
 	public ActionHandler getTransactionLineActionHandler(String editorName) {
