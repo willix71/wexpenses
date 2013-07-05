@@ -1,10 +1,5 @@
 
-Advanced filters on expense (combo nor working) and transaction lines
-
 Default order on list views (only on expenses)
-
-
-exchange rate handling
 
 transaction line filters account
 
@@ -17,8 +12,6 @@ GUI
 center new windows
 
 height of cells in editable sub view
-
-field custom header name (see expense type and the Payment Generator Class Name field which should be renamed to Generator)
 
 
 NICE TO HAVE
