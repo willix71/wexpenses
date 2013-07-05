@@ -69,7 +69,7 @@ public class BvoDtaFormaterTest {
 		garageDeLEtraz.setName("Etraz");
 		garageDeLEtraz.setAddress1("Case postale 1359");
 		garageDeLEtraz.setCity(nyon);
-		garageDeLEtraz.setExternalReference("17-1288-4");
+		garageDeLEtraz.setPostalAccount("17-1288-4");
 		
 		// === Expense 1 ===
 		BigDecimal amount = new BigDecimal("22.50");

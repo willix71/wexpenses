@@ -13,6 +13,7 @@
 	<bean id="jdbc" class="w.wexpense.persistence.PersistenceConfiguration" >
 		<property name="driverClassName" value="org.h2.Driver"/>
 		<property name="url" value="jdbc:h2:mem:test;DB_CLOSE_DELAY=-1"/>
+		<!-- <property name="url" value="jdbc:h2:~/temp/w.wexpense.hibernate.2.db;AUTO_SERVER=TRUE" /> -->
 		<property name="username" value="sa"/>
 		<property name="password" value="sa"/>
 		<property name="jpaAdapterProperties">

@@ -10,7 +10,7 @@ import w.wexpense.dta.BvrDtaFormaterTest;
 import w.wexpense.dta.IbanDtaFormaterTest;
 import w.wexpense.model.Payment;
 import w.wexpense.model.PaymentDta;
-import w.wexpense.service.model.PaymentDtaService;
+import w.wexpense.utils.PaymentDtaUtils;
 
 public class PaymentDtaServiceTest {
 
@@ -21,10 +21,8 @@ public class PaymentDtaServiceTest {
 				BvrDtaFormaterTest.getBvrExpense(),
 				IbanDtaFormaterTest.getIbanExpense()); 
 		
-		PaymentDtaService service = new PaymentDtaService(null);
-		
 		int i = 1;
-		for (PaymentDta dta: service.getPaymentDtas(payment)) {	
+		for (PaymentDta dta: PaymentDtaUtils.getPaymentDtas(payment)) {	
 			String line = dta.getData();
 			System.out.println(line + "]]");
 			Assert.assertEquals("line "+i+"'s length is not 128",128, line.length());

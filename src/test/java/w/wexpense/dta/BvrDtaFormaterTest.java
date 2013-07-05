@@ -1,6 +1,7 @@
 package w.wexpense.dta;
 
 import static w.wexpense.dta.DtaCommonTestData.bursins;
+import static w.wexpense.dta.DtaCommonTestData.nyon;
 import static w.wexpense.dta.DtaCommonTestData.bvr;
 import static w.wexpense.dta.DtaCommonTestData.chf;
 import static w.wexpense.dta.DtaCommonTestData.createDate;
@@ -58,12 +59,16 @@ public class BvrDtaFormaterTest {
 		
 		Account sportsAcc = new Account(null, 4, "sports", EXPENSE, null);
 		Account foot = new Account(sportsAcc, 1, "football", EXPENSE, chf);			
+
+		Payee ubs = new Payee();
+		ubs.setCity(nyon);
+		ubs.setPostalAccount("12-756431-0");
 		
-		Payee garageDeLEtraz = new Payee();
-		garageDeLEtraz.setName("FOOTBALL-CLUB");
-		garageDeLEtraz.setAddress1("BURSINS-ROLLE-PERROY");
-		garageDeLEtraz.setCity(bursins);
-		garageDeLEtraz.setExternalReference("12-756431-0");
+		Payee brp = new Payee();
+		brp.setName("FOOTBALL-CLUB");
+		brp.setAddress1("BURSINS-ROLLE-PERROY");
+		brp.setCity(bursins);
+		brp.setBankDetails(ubs);
 		
 		// === Expense 1 ===
 		BigDecimal amount = new BigDecimal("260.00");
@@ -73,7 +78,7 @@ public class BvrDtaFormaterTest {
 		expense.setAmount(amount);
 		expense.setCurrency(chf);
 		expense.setDate(createDate(02,12,2012));
-		expense.setPayee(garageDeLEtraz);
+		expense.setPayee(brp);
 		expense.setDescription("William Keyser;Cotisation 2012-2013");
 		
 		TransactionLine line1 = new TransactionLine();

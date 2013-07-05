@@ -140,8 +140,8 @@ public class PersistenceTest {
 			}
 		});
 		
-		final TransactionLine tl2 = buildTransactionLine(cashAccount, OUT, new BigDecimal("44"));
-		
+		// create but dont save the transaction line
+		final TransactionLine tl2 = buildTransactionLine(cashAccount, OUT, new BigDecimal("11"));
 		transactionTemplate.execute(new TransactionCallbackWithoutResult() {
 			@Override
 			protected void doInTransactionWithoutResult(TransactionStatus status) {
@@ -155,6 +155,27 @@ public class PersistenceTest {
 			@Override
 			protected void doInTransactionWithoutResult(TransactionStatus status) {
 				TransactionLine tl = getByUid(TransactionLine.class, tl2.getUid());				
+				Assert.assertNotNull(tl);
+				Assert.assertNotNull(tl.getExpense());
+			}
+		});
+		
+		// create but dont save the transaction line
+		final TransactionLine tl3 = buildTransactionLine(cashAccount, OUT, new BigDecimal("33"));
+		
+		transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+			@Override
+			protected void doInTransactionWithoutResult(TransactionStatus status) {
+				Expense ex = getByUid(Expense.class, expense1.getUid());								
+				ex.getTransactions().add(tl3);
+				tl3.setExpense(ex);
+			}
+		});
+		
+		transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+			@Override
+			protected void doInTransactionWithoutResult(TransactionStatus status) {
+				TransactionLine tl = getByUid(TransactionLine.class, tl3.getUid());				
 				Assert.assertNotNull(tl);
 				Assert.assertNotNull(tl.getExpense());
 			}

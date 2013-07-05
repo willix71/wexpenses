@@ -64,12 +64,12 @@ public class IbanDtaFormaterTest {
 		Payee brp = new Payee();
 		brp.setName("F.C. Bursins 'Veterans'");
 		brp.setCity(new City("1183", "Bursins", ch));
-		brp.setExternalReference("CH25 0024 3243 G767 3557 0");
+		brp.setIban("CH25 0024 3243 G767 3557 0");
 		
 		Payee ubs = new Payee();
 		ubs.setName("UBS SA");
 		ubs.setCity(new City("1196","Gland",ch));
-		ubs.setExternalReference("80-2-2");
+		ubs.setPostalAccount("80-2-2");
 		brp.setBankDetails(ubs);
 		
 		// === Expense 1 ===
