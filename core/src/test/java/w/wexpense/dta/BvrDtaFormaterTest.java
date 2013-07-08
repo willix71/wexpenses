@@ -55,7 +55,7 @@ public class BvrDtaFormaterTest {
 	public static Expense getBvrExpense() {			
 		Account assetAcc = new Account(null, 1, "asset", ASSET, null);						
 		Account ecAcc = new Account(assetAcc, 2, "courant", ASSET, chf);
-		ecAcc.setExternalReference("CH650022822851333340B");
+		ecAcc.setBankDetails(DtaHelperTest.getWilliamsBankDetails());
 		
 		Account sportsAcc = new Account(null, 4, "sports", EXPENSE, null);
 		Account foot = new Account(sportsAcc, 1, "football", EXPENSE, chf);			

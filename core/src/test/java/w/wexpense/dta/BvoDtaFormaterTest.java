@@ -59,7 +59,7 @@ public class BvoDtaFormaterTest {
 	public static Expense getBvoExpense() {	
 		Account assetAcc = new Account(null, 1, "asset", ASSET, null);						
 		Account ecAcc = new Account(assetAcc, 2, "courant", ASSET, chf);
-		ecAcc.setExternalReference("CH650022822851333340B");
+		ecAcc.setBankDetails(DtaHelperTest.getWilliamsBankDetails());
 		
 		Account vehicleAcc = new Account(null, 4, "vehicle", EXPENSE, null);
 		Account gasAcc = new Account(vehicleAcc, 1, "gas", EXPENSE, chf);			
