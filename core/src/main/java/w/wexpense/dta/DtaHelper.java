@@ -11,10 +11,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import w.wexpense.model.City;
-import w.wexpense.model.Country;
 import w.wexpense.model.Expense;
-import w.wexpense.model.Payee;
 import w.wexpense.model.TransactionLine;
 import w.wexpense.model.enums.TransactionLineEnum;
 
@@ -127,13 +124,13 @@ public class DtaHelper {
 		return null;
 	}
 	
-	public static Payee getUserDetail() {
-		Payee p = new Payee();
-		p.setName("William Keyser");
-		p.setAddress1("11 ch du Grand Noyer");
-		p.setCity(new City("1197", "Prangins", new Country("CH", null, null)));
-		return p;
-	}
+//	public static Payee getUserDetail() {
+//		Payee p = new Payee();
+//		p.setName("William Keyser");
+//		p.setAddress1("11 ch du Grand Noyer");
+//		p.setCity(new City("1197", "Prangins", new Country("CH", null, null)));
+//		return p;
+//	}
 	
 	public static String getHeader(String transactionType, Date paymentDate, int index, Expense expense, boolean dateInHeader) {
 		StringBuilder sb = new StringBuilder();
@@ -162,7 +159,7 @@ public class DtaHelper {
 		if (expense == null) {
 			sb.append(pad(7));
 		} else {
-			String iban = getTransactionLine(OUT, expense).getAccount().getExternalReference();
+			String iban = getTransactionLine(OUT, expense).getAccount().getBankDetails().getIban();
 			String clearing = iban.substring(4, 9);
 			// remove leading zero and then pad to 7
 			String purgedClearing = Integer.valueOf(clearing).toString();
@@ -193,7 +190,7 @@ public class DtaHelper {
 		line01.append("ID");
 		line01.append(zeroPad(expense.getId().intValue(), 9));
 		
-		String iban = getTransactionLine(OUT, expense).getAccount().getExternalReference();
+		String iban = getTransactionLine(OUT, expense).getAccount().getBankDetails().getIban();
 		line01.append(pad(iban,24));
 		
 		// date (blank mean as indicated in the header)		

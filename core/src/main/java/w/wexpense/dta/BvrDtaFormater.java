@@ -3,6 +3,7 @@ package w.wexpense.dta;
 import static w.wexpense.dta.DtaHelper.formatLine01;
 import static w.wexpense.dta.DtaHelper.lineSeparator;
 import static w.wexpense.dta.DtaHelper.pad;
+import static w.wexpense.model.enums.TransactionLineEnum.OUT;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,9 @@ public class BvrDtaFormater implements DtaFormater {
 	
 	public void check(Expense expense) {
 		// Must have a payee.externalReference (account number)
+		Preconditions.checkNotNull(DtaHelper.getTransactionLine(OUT, expense).getAccount().getBankDetails().getIban(), "Out account must have a bank details");		
+		Preconditions.checkNotNull(DtaHelper.getTransactionLine(OUT, expense).getAccount().getBankDetails().getIban(), "Out account's bank details must have an Iban");
+
 		Preconditions.checkNotNull(expense.getPayee().getBankDetails(), "Payee's bank details is mandatory for BVR payments (827)");
 		Preconditions.checkNotNull(expense.getPayee().getBankDetails().getPostalAccount(), "Payee's bank details postal account is mandatory for BVR payments (827)");
 	}
@@ -43,7 +47,7 @@ public class BvrDtaFormater implements DtaFormater {
 		StringBuilder line02 = new StringBuilder();
 		line02.append("02");
 		
-		Payee payee = DtaHelper.getUserDetail();
+		Payee payee = DtaHelper.getTransactionLine(OUT, expense).getAccount().getBankDetails();
 		line02.append(pad(payee.getName(),24));
 		line02.append(pad(payee.getAddress1(),24));
 		line02.append(pad(payee.getAddress2(),24));

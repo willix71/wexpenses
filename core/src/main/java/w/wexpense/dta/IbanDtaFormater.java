@@ -4,6 +4,7 @@ import static w.wexpense.dta.DtaHelper.formatLine01;
 import static w.wexpense.dta.DtaHelper.lineSeparator;
 import static w.wexpense.dta.DtaHelper.pad;
 import static w.wexpense.dta.DtaHelper.stripBlanks;
+import static w.wexpense.model.enums.TransactionLineEnum.OUT;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +34,9 @@ public class IbanDtaFormater implements DtaFormater {
 
 	public void check(Expense expense) {
 		// Must have a payee.bankingDetail and an payee.externalReference (IBAN)
+		Preconditions.checkNotNull(DtaHelper.getTransactionLine(OUT, expense).getAccount().getBankDetails(), "Out account must have a bank details");		
+		Preconditions.checkNotNull(DtaHelper.getTransactionLine(OUT, expense).getAccount().getBankDetails().getIban(), "Out account's bank details must have an Iban");
+
 		Preconditions.checkNotNull(expense.getPayee().getBankDetails(), "Payee's banking detail is mandatory for Iban payments (836)");
 		Preconditions.checkNotNull(expense.getPayee().getIban(), "Payee's IBAN is mandatory for Iban payments (836)");
 		// TODO check external reference is an Iban
@@ -46,7 +50,7 @@ public class IbanDtaFormater implements DtaFormater {
 			// conversation rate if agreed
 			line02.append(pad(12));
 			
-			Payee payee = DtaHelper.getUserDetail();
+			Payee payee = DtaHelper.getTransactionLine(OUT, expense).getAccount().getBankDetails();
 			line02.append(pad(payee.getName(),35));
 			line02.append(pad(payee.getAddress1(),35));
 			line02.append(pad(payee.getCity().toString(),35));

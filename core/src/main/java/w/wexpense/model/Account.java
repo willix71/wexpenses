@@ -44,7 +44,10 @@ public class Account extends AbstractType<Account> implements Parentable<Account
 
 	// Iban, card number
 	private String externalReference; 
-	
+	   
+   @ManyToOne(fetch = FetchType.EAGER)
+   private Payee bankDetails;  
+   
 	public Account() {
 		super();
 	}
@@ -143,6 +146,14 @@ public class Account extends AbstractType<Account> implements Parentable<Account
 		this.externalReference = externalReference;
 	}
 	
+	public Payee getBankDetails() {
+		return bankDetails;
+	}
+
+	public void setBankDetails(Payee bankDetails) {
+		this.bankDetails = bankDetails;
+	}
+
 	@Override
 	public String toString() {
 		return fullName;

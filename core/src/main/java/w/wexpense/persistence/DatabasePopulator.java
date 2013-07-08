@@ -62,10 +62,16 @@ public class DatabasePopulator {
 			City nyon = save(new City("1260", "Nyon", ch));
 			City prangins = save(new City("1197", "Prangins", ch));
 			
+			Payee accountOwner = new Payee();
+			accountOwner.setName("William Keyser");
+			accountOwner.setAddress1("11 ch du Grand Noyer");
+			accountOwner.setCity(nyon);
+			accountOwner.setIban("CH650022822851333340B");
+						
 			Account assetAcc = save(new Account(null, 1, "asset", ASSET, null));			
 			Account cashAcc = save(new Account(assetAcc, 1, "cash", ASSET, chf));			
 			Account ecAcc = save(new Account(assetAcc, 2, "courant", ASSET, chf));
-			ecAcc.setExternalReference("CH650022822851333340B");
+			ecAcc.setBankDetails(save(accountOwner));
 			save(new Account(assetAcc, 3, "epargne", ASSET, chf));
 			
 			Account vehicleAcc = save(new Account(null, 4, "vehicle", EXPENSE, null));

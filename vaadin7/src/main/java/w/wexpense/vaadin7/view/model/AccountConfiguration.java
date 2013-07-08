@@ -65,7 +65,7 @@ public class AccountConfiguration {
 			   f.addValueChangeListener(listener);
 		   }	
 		};
-		editorview.setProperties("fullId","uid","parent","name","fullName","number","fullNumber","type","externalReference","currency","selectable");
+		editorview.setProperties("fullId","uid","parent","name","fullName","number","fullNumber","type","externalReference","bankDetails","currency","selectable");
 		return editorview;
 	}
 	
@@ -85,7 +85,8 @@ public class AccountConfiguration {
 			   new TableColumnConfig("fullNumber").asc(),
 			   new TableColumnConfig("type"),
 			   new TableColumnConfig("currency.code"),
-			   new TableColumnConfig("externalReference").collapse()
+			   new TableColumnConfig("externalReference").collapse(),
+			   new TableColumnConfig("bankDetails.display").collapse()			   
 			   );
 	   
 	   ActionHelper.setDefaultListViewActions(listview, "accountEditorView", new ListViewAction("renumber") {
