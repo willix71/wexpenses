@@ -11,7 +11,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.NotEmpty;
 
 @Entity
 public class Payment extends DBable<Payment> implements Selectable {
@@ -20,7 +21,7 @@ public class Payment extends DBable<Payment> implements Selectable {
 
 	public static final String DEFAULT_FILENAME = "undefined";
 	
-	@NotNull
+	@NotEmpty
 	private String filename = DEFAULT_FILENAME;
 
 	@Temporal(TemporalType.DATE)

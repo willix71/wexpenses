@@ -14,10 +14,13 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+
+import w.wexpense.validation.Transactionized;
 
 @Entity
 public class Expense extends DBable<Expense> {
@@ -54,6 +57,8 @@ public class Expense extends DBable<Expense> {
    @OneToMany(mappedBy="expense", cascade={CascadeType.ALL}, orphanRemoval=true)
    @OrderBy("factor, amount")
    @OnDelete(action=OnDeleteAction.CASCADE)
+   @Transactionized
+   @Valid
    private List<TransactionLine> transactions = new ArrayList<>();
    
 	public Date getDate() {

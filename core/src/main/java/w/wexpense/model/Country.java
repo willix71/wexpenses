@@ -6,6 +6,8 @@ import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import org.hibernate.validator.constraints.NotEmpty;
+
 @Entity
 public class Country implements Codable<Country>  {
 
@@ -15,7 +17,7 @@ public class Country implements Codable<Country>  {
 	@Size(min = 2, max = 2)
 	private String code;
 
-	@NotNull
+	@NotEmpty
 	private String name;
 
 	@NotNull

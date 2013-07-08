@@ -6,7 +6,8 @@ import java.util.ArrayList;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
-import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.NotEmpty;
 
 import w.wexpense.model.enums.TransactionLineEnum;
 
@@ -15,7 +16,7 @@ public class Template extends DBable<Template> {
 
 	private static final long serialVersionUID = 2482940442245899869L;
 	
-	@NotNull
+	@NotEmpty
 	private String templateName;
 	
 	private String templateDescription;

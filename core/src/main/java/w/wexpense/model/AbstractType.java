@@ -1,14 +1,15 @@
 package w.wexpense.model;
 
 import javax.persistence.MappedSuperclass;
-import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.NotEmpty;
 
 @MappedSuperclass
 public abstract class AbstractType<T extends AbstractType<T>> extends DBable<T> implements Selectable {
 	
 	private static final long serialVersionUID = 2482940442245899869L;
 
-	@NotNull
+	@NotEmpty
 	private String name;
 
 	private boolean selectable = true;

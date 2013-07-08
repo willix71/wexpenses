@@ -7,7 +7,8 @@ import javax.persistence.InheritanceType;
 import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
-import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.NotEmpty;
 
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
@@ -17,7 +18,7 @@ public class City extends DBable<City> {
 
 	private String zip;
 
-	@NotNull
+	@NotEmpty
 	private String name;
 
 	@ManyToOne(fetch = FetchType.EAGER)

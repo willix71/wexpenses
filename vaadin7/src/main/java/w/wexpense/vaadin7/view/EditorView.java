@@ -25,6 +25,7 @@ import com.vaadin.data.fieldgroup.FieldGroup;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.DefaultFieldFactory;
 import com.vaadin.ui.Field;
 import com.vaadin.ui.FormLayout;
@@ -202,6 +203,9 @@ public class EditorView<T, ID extends Serializable> extends GenericView<T> {
 				} else {
 					f = fieldGroup.buildAndBind(propertyId);
 				}
+				// to have a validation straight away
+				((AbstractComponent)f).setImmediate(true);
+				
 				formLayout.addComponent(f);
 			}
 			initMenus();
@@ -229,7 +233,7 @@ public class EditorView<T, ID extends Serializable> extends GenericView<T> {
 			}
 		} else {			
 			if (Codable.class.isAssignableFrom(getEntityClass())) {
-				if (((Codable) t).getCode() != null) {
+				if (((Codable<?>) t).getCode() != null) {
 					// we dont want the code to change because it's the entity's id
 					fieldGroup.getField("code").setReadOnly(true);
 				}
@@ -278,14 +282,22 @@ public class EditorView<T, ID extends Serializable> extends GenericView<T> {
 		return fieldGroup.getField(propertyId);
 	}
 	
-	public T save() throws FieldGroup.CommitException {
-		fieldGroup.commit();
+	public T save() throws FieldGroup.CommitException {				
 
-		T t = storeService.save(fieldGroup.getItemDataSource().getBean());
+		if (!fieldGroup.isValid()) {
+			throw new FieldGroup.CommitException("Not valid");
+		}
 		
+		// will not do much because we are not in a buffered mode
+		fieldGroup.commit();
+		
+		T t1 = fieldGroup.getItemDataSource().getBean();
+	
+		T t = storeService.save(t1);
+	
 		fireEntityChange(t);
-
-		return t;
+	
+		return t;	
 	}
 
 	public void fireEntityChange(T t) {

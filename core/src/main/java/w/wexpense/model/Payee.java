@@ -5,7 +5,11 @@ import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+
+import org.hibernate.validator.constraints.NotEmpty;
+
+import w.wexpense.validation.Ibanized;
 
 @Entity
 public class Payee extends DBable<Payee> {
@@ -13,11 +17,11 @@ public class Payee extends DBable<Payee> {
 	private static final long serialVersionUID = 2482940442245899869L;
 	
     @ManyToOne(fetch = FetchType.EAGER)
-     private PayeeType type;
+    private PayeeType type;
 
     private String prefix;
     
-    @NotNull
+    @NotEmpty
     private String name;
 
     private String address1;
@@ -27,8 +31,10 @@ public class Payee extends DBable<Payee> {
     @ManyToOne(fetch = FetchType.EAGER)
     private City city;
     
+    @Ibanized
     private String iban;
     
+    @Pattern(regexp="\\d{1,2}-\\d{1,6}-\\d")
     private String postalAccount;
     
     private String externalReference;
