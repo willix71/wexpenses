@@ -15,17 +15,20 @@ import w.wexpense.model.DBable;
 import w.wexpense.model.Duplicatable;
 import w.wexpense.persistence.PersistenceUtils;
 import w.wexpense.service.StorableService;
+import w.wexpense.vaadin7.component.RelationalFieldCustomizer;
 import w.wexpense.vaadin7.component.RelationalFieldFactory;
+import w.wexpense.vaadin7.component.RelationalFieldHelper;
 import w.wexpense.vaadin7.container.ContainerService;
 import w.wexpense.vaadin7.event.EntityChangeEvent;
 import w.wexpense.vaadin7.menu.EnabalebalMenuBar;
 
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
 import com.vaadin.data.fieldgroup.FieldGroup;
+import com.vaadin.data.fieldgroup.FieldGroupFieldFactory;
 import com.vaadin.data.util.BeanItem;
+import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.DefaultFieldFactory;
 import com.vaadin.ui.Field;
 import com.vaadin.ui.FormLayout;
@@ -66,6 +69,8 @@ public class EditorView<T, ID extends Serializable> extends GenericView<T> {
 	protected BeanFieldGroup<T> fieldGroup;
 
 	protected Map<String, Field<?>> customFields = new HashMap<>();
+	
+	protected RelationalFieldCustomizer[] relationalFieldCustomizers = RelationalFieldHelper.defaultCustomisers;
 	
 	protected HorizontalLayout buttonLayout;	
 	
@@ -191,7 +196,7 @@ public class EditorView<T, ID extends Serializable> extends GenericView<T> {
 		fieldGroup.setItemDataSource(new BeanItem<T>(t));
 
 		if (!initialized) {
-			fieldGroup.setFieldFactory(new RelationalFieldFactory(persistenceService));
+			fieldGroup.setFieldFactory(getFieldGroupFieldFactory());
 
 			// Loop through the properties
 			for (Object propertyId : properties) {
@@ -217,6 +222,11 @@ public class EditorView<T, ID extends Serializable> extends GenericView<T> {
 		initMenus(t);
 		initFields(t);
 	}
+	
+	protected FieldGroupFieldFactory getFieldGroupFieldFactory() {
+		return new RelationalFieldFactory(persistenceService, relationalFieldCustomizers);
+	}
+	
 	public void initMenus() {
 		// void
 	}
@@ -278,6 +288,10 @@ public class EditorView<T, ID extends Serializable> extends GenericView<T> {
 		customFields.put(propertyId, field);
 	}
 	
+	public void setRelationalFieldCustomizers(RelationalFieldCustomizer[] relationalFieldCustomizers) {
+		this.relationalFieldCustomizers = relationalFieldCustomizers;
+	}
+
 	public Field<?> getField(String propertyId) {
 		return fieldGroup.getField(propertyId);
 	}

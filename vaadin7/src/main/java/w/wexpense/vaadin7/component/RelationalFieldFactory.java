@@ -1,5 +1,8 @@
 package w.wexpense.vaadin7.component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import w.wexpense.model.Codable;
 import w.wexpense.model.DBable;
 import w.wexpense.model.ExchangeRate;
@@ -7,6 +10,9 @@ import w.wexpense.vaadin7.container.ContainerService;
 
 import com.vaadin.addon.jpacontainer.fieldfactory.SingleSelectConverter;
 import com.vaadin.data.Container;
+import com.vaadin.data.Container.Filter;
+import com.vaadin.data.util.filter.And;
+import com.vaadin.data.util.filter.Or;
 import com.vaadin.shared.ui.combobox.FilteringMode;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Field;
@@ -18,9 +24,12 @@ public class RelationalFieldFactory extends SimpleFieldFactory {
 	
 	protected ContainerService persistenceService;
 	
-	public RelationalFieldFactory(ContainerService persistenceService) {
+	private RelationalFieldCustomizer[] customizers;
+	
+	public RelationalFieldFactory(ContainerService persistenceService, RelationalFieldCustomizer ... customizers) {
 		super();
 		this.persistenceService = persistenceService;
+		this.customizers = customizers;
 	}
 
 	@Override
@@ -69,6 +78,45 @@ public class RelationalFieldFactory extends SimpleFieldFactory {
 	}
 	
 	protected Container getContainer(Class<?> type) {
-		return persistenceService.getContainer(type);		
+		List<Filter> interfaceFilters = new ArrayList<Filter>();
+		RelationalFieldFilter classFilter = null;
+		Object propertyIds[] = null;
+		boolean ascendings[] = null;
+		
+		if (customizers != null) {
+			for(RelationalFieldCustomizer customizer: customizers) {
+				if (customizer.getType().equals(type)) {
+					if (customizer instanceof RelationalFieldFilter) {
+						classFilter = (RelationalFieldFilter) customizer;
+					} else if (customizer instanceof RelationalFieldSorter) {
+						RelationalFieldSorter sorter = (RelationalFieldSorter) customizer;
+						propertyIds = sorter.getPropertyIds();
+						ascendings = sorter.getAscendings();
+					}
+				} else if (customizer.getType().isAssignableFrom(type)) {
+					interfaceFilters.add(((RelationalFieldFilter) customizer).getFilter());
+				}
+			}
+		}
+		
+		Filter filter = null;
+		if (classFilter != null) {
+			if (classFilter.getAssociater() == null) {
+				filter = classFilter.getFilter();
+			}else {
+				interfaceFilters.add(classFilter.getFilter());
+				if (RelationalFieldFilter.Associater.AND==classFilter.getAssociater()) {
+					filter = new And(interfaceFilters.toArray(new Filter[interfaceFilters.size()]));
+				} else if (RelationalFieldFilter.Associater.OR==classFilter.getAssociater()) {
+					filter = new Or(interfaceFilters.toArray(new Filter[interfaceFilters.size()]));
+				}
+			}
+		} else if (interfaceFilters.size()==1) {
+			filter = interfaceFilters.get(0);
+		} else if (interfaceFilters.size()>1) {
+			filter = new And(interfaceFilters.toArray(new Filter[interfaceFilters.size()]));
+		}
+		
+		return persistenceService.getContainer(type, filter, propertyIds, ascendings);
 	}
 }

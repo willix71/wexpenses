@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Scope;
 import w.wexpense.model.Discriminator;
 import w.wexpense.service.StorableService;
 import w.wexpense.vaadin7.action.ActionHelper;
+import w.wexpense.vaadin7.component.RelationalFieldHelper;
 import w.wexpense.vaadin7.support.TableColumnConfig;
 import w.wexpense.vaadin7.view.EditorView;
 import w.wexpense.vaadin7.view.ListView;
@@ -24,6 +25,7 @@ public class DiscriminatorConfiguration {
 	@Scope("prototype")
 	public EditorView<Discriminator, Long> discriminatorEditorView() {
 		EditorView<Discriminator, Long> editorview = new EditorView<Discriminator, Long>(discriminatorService);
+		editorview.setRelationalFieldCustomizers(RelationalFieldHelper.discriminatorCustomisers);
 		editorview.setProperties("fullId","uid","parent","name","selectable");
 		return editorview;
 	}

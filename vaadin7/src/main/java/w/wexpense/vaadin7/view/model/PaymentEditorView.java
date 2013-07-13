@@ -4,9 +4,11 @@ import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.Collection;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 
+import w.log.extras.Log;
 import w.wexpense.model.Expense;
 import w.wexpense.model.Payment;
 import w.wexpense.service.model.IPaymentService;
@@ -39,6 +41,9 @@ import com.vaadin.ui.Window;
 @Scope("prototype")
 public class PaymentEditorView extends EditorView<Payment, Long> {
 
+	@Log
+	private static Logger LOGGER;
+	
 	private OneToManyField<Expense> expensesField;
 	
 	private IPaymentService paymentService;
@@ -122,8 +127,8 @@ public class PaymentEditorView extends EditorView<Payment, Long> {
 		menuBar.addItem(mnuDta, "clear", this.NEW_DISABLER, new Command() {
          @SuppressWarnings("unchecked")
          public void menuSelected(MenuItem selectedItem) { 
+      		BeanItem<Payment> bp = getBeanItem();
          	try {
-         		BeanItem<Payment> bp = getBeanItem();
          		if (!bp.getBean().isSelectable()) {
          			bp.getItemProperty("filename").setValue(Payment.DEFAULT_FILENAME);
          			bp.getItemProperty("selectable").setValue(true);
@@ -133,14 +138,15 @@ public class PaymentEditorView extends EditorView<Payment, Long> {
          			(((OneToManyField<?>) getField("expenses"))).getActionHandler().setEnabled(true);
          		}         		
          	} catch(Exception e) {
+         		LOGGER.error("Failed clearing DTA for payement " + bp.getItemProperty("uid").getValue(), e);
          		throw new RuntimeException(e);
          	}
          }
       });
 		menuBar.addItem(mnuDta, "view", this.NEW_DISABLER, new Command() {
          public void menuSelected(MenuItem selectedItem) { 
+      		Payment p = getBeanItem().getBean();
          	try {
-         		Payment p = getBeanItem().getBean();
          		if (p.isSelectable()) {
          			p = generatePaymentDtas(PaymentEditorView.this, p);
          		} 
@@ -157,19 +163,21 @@ public class PaymentEditorView extends EditorView<Payment, Long> {
 	   			UI.getCurrent().addWindow(window);
 	   			
          	} catch(Exception e) {
+         		LOGGER.error("Failed viewing " + (p.isSelectable()?"generated":"") + " DTA for payement " + p.getUid(), e);
          		throw new RuntimeException(e);
          	}
           }
       });
 		menuBar.addItem(mnuDta, "save", this.NEW_DISABLER, new Command() {
          public void menuSelected(MenuItem selectedItem) { 
+      		Payment p = getBeanItem().getBean();
          	try {
-         		Payment p = getBeanItem().getBean();
          		if (p.isSelectable()) {
          			p = generatePaymentDtas(PaymentEditorView.this, p);
          		}         		
          		Page.getCurrent().open("download?paymentId=" + p.getId(), "_blank");
          	} catch(Exception e) {
+         		LOGGER.error("Failed saving " + (p.isSelectable()?"generated":"") + " DTA for payement " + p.getUid(), e);
          		throw new RuntimeException(e);
          	}
          }

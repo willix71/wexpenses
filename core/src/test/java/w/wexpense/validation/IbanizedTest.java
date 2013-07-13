@@ -38,6 +38,8 @@ public class IbanizedTest extends AbstractValidationTest {
 		good("IL62-0108-0000-0009-9999-999");
 		good("SA03.8000.0000.6080.1016.7519");
 		good("CH93 0076     2011     6238     5295	7");
+		
+		good("CH2200767000Z50223861");
 	}
 	
 	@Test

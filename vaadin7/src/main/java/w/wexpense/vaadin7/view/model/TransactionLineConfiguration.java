@@ -2,16 +2,18 @@ package w.wexpense.vaadin7.view.model;
 
 import java.io.Serializable;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 
 import w.wexpense.model.TransactionLine;
+import w.wexpense.service.model.ITransactionLineService;
 import w.wexpense.vaadin7.action.ActionHandler;
 import w.wexpense.vaadin7.action.AddNewAction;
+import w.wexpense.vaadin7.action.BalanceTransactionLineAction;
 import w.wexpense.vaadin7.action.EditAction;
 import w.wexpense.vaadin7.action.RefreshAction;
-import w.wexpense.vaadin7.filter.ExpenseFilter;
 import w.wexpense.vaadin7.filter.TransactionLineFilter;
 import w.wexpense.vaadin7.support.TableColumnConfig;
 import w.wexpense.vaadin7.view.ListView;
@@ -22,17 +24,8 @@ import com.vaadin.ui.Table;
 @Configuration
 public class TransactionLineConfiguration {
 
-//	@Autowired
-//	@Qualifier("transactionLineService") 
-//	private StorableService<TransactionLine, Long> transactionLineService;
-//	
-//	@Bean
-//	@Scope("prototype")
-//	public EditorView<TransactionLine, Long> transactionLineEditorView() {
-//		EditorView<TransactionLine, Long> editorview = new EditorView<TransactionLine, Long>(transactionLineService);
-//		editorview.setProperties("fullId","uid","expense","account","discriminator","factor","amount","value","consolidatedDate","consolidation","description");
-//		return editorview;
-//	}
+	@Autowired
+	private ITransactionLineService transactionLineService;
 	
 	@Bean
 	@Scope("prototype")
@@ -53,14 +46,14 @@ public class TransactionLineConfiguration {
 				   new TableColumnConfig("expense.currency", "Currency"),
 				   new TableColumnConfig("inValue", "In"),
 				   new TableColumnConfig("outValue", "Out"),
+				   new TableColumnConfig("balance").collapse(),
 				   new TableColumnConfig("description").collapse()
 				   );
 		   
 		listview.setActionHandler(getTransactionLineActionHandler("expenseEditorView"));
 		listview.addFilterSource(getTransactionLineFilter());
 		return listview;
-	}
-	
+	}	
 	
 	@Bean
 	@Scope("prototype")
@@ -68,17 +61,22 @@ public class TransactionLineConfiguration {
 		return new TransactionLineFilter();
 	}
 	
-	public ActionHandler getTransactionLineActionHandler(String editorName) {
+	private ActionHandler getTransactionLineActionHandler(String editorName) {
 		ActionHandler handler = new ActionHandler();
 		handler.addListViewAction(new AddNewAction(editorName));
 		handler.addListViewAction(new EditAction(editorName) {
 			@Override
 			public Serializable getInstanceId(Object sender, Object target) {
 				com.vaadin.data.Container c = ((Table) sender) .getContainerDataSource();
-				return ((JPAContainerItem<TransactionLine>) c.getItem(target)).getEntity().getExpense().getId();
+				@SuppressWarnings("unchecked")
+            JPAContainerItem<TransactionLine> i = (JPAContainerItem<TransactionLine>) c.getItem(target);
+				return i.getEntity().getExpense().getId();
 			}
 		}, true);
 		handler.addListViewAction(new RefreshAction());
+		
+		handler.addListViewAction(new BalanceTransactionLineAction(transactionLineService));
+		
 		return handler;
 		
 	}

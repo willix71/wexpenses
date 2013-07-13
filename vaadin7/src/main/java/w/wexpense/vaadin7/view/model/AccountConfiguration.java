@@ -10,6 +10,7 @@ import w.wexpense.model.Account;
 import w.wexpense.service.model.IAccountService;
 import w.wexpense.vaadin7.action.ActionHelper;
 import w.wexpense.vaadin7.action.ListViewAction;
+import w.wexpense.vaadin7.component.RelationalFieldHelper;
 import w.wexpense.vaadin7.support.TableColumnConfig;
 import w.wexpense.vaadin7.view.EditorView;
 import w.wexpense.vaadin7.view.ListView;
@@ -66,6 +67,7 @@ public class AccountConfiguration {
 		   }	
 		};
 		editorview.setProperties("fullId","uid","parent","name","fullName","number","fullNumber","type","externalReference","bankDetails","currency","selectable");
+		editorview.setRelationalFieldCustomizers(RelationalFieldHelper.accountCustomisers);
 		return editorview;
 	}
 	

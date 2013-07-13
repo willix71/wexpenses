@@ -14,6 +14,7 @@ import com.vaadin.addon.jpacontainer.EntityItem;
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.JPAContainerFactory;
 import com.vaadin.data.Container;
+import com.vaadin.data.Container.Filter;
 import com.vaadin.data.Item;
 
 public class ContainerService {
@@ -24,7 +25,7 @@ public class ContainerService {
 	private EntityManager entityManager;
 	
 	public Container refresh(Container container) {
-		((JPAContainer) container).refresh();
+		((JPAContainer<?>) container).refresh();
 		return container;
 	}
 	
@@ -40,17 +41,30 @@ public class ContainerService {
 		return getJPAContainer(entityClass);
 	}
 	
-	public <T> Container getContainer(Class<T> entityClass, String... nestedProperties) {
+	public <T> Container getContainer(Class<T> entityClass, Filter filter, Object sortPropertyIds[], boolean sortDirections[]) {
 		JPAContainer<T> jpac = getJPAContainer(entityClass);
-
-		if (nestedProperties != null) {
-			for (String nestedProperty : nestedProperties) {
-				jpac.addNestedContainerProperty(nestedProperty);
-			}
+		
+		if (filter != null) {
+			jpac.addContainerFilter(filter);			
 		}
-	
+		if (sortPropertyIds!=null && sortDirections!=null) {
+			jpac.sort( sortPropertyIds, sortDirections);
+		}
+		
 		return jpac;
 	}
+	
+//	public <T> Container getContainer(Class<T> entityClass, String... nestedProperties) {
+//		JPAContainer<T> jpac = getJPAContainer(entityClass);
+//
+//		if (nestedProperties != null) {
+//			for (String nestedProperty : nestedProperties) {
+//				jpac.addNestedContainerProperty(nestedProperty);
+//			}
+//		}
+//	
+//		return jpac;
+//	}
 	
 	public <T> Container getContainer(Class<T> entityClass, TableColumnConfig... configs) {	
 		JPAContainer<T> jpac = getJPAContainer(entityClass);
@@ -70,8 +84,8 @@ public class ContainerService {
 		return jpac;
 	}
 
-	public <T> T getEntity(Item i) {
-		EntityItem<T> item=  (EntityItem<T>) i;
-		return item.getEntity();
-	}
+//	public <T> T getEntity(Item i) {
+//		EntityItem<T> item=  (EntityItem<T>) i;
+//		return item.getEntity();
+//	}
 }

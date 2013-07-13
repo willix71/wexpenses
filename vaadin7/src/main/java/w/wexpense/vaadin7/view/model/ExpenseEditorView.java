@@ -18,6 +18,7 @@ import w.wexpense.model.TransactionLine;
 import w.wexpense.service.StorableService;
 import w.wexpense.utils.TransactionLineUtils;
 import w.wexpense.vaadin7.UIHelper;
+import w.wexpense.vaadin7.WexUI;
 import w.wexpense.vaadin7.action.ActionHandler;
 import w.wexpense.vaadin7.action.ListViewAction;
 import w.wexpense.vaadin7.action.RemoveAction;
@@ -31,9 +32,11 @@ import w.wexpense.vaadin7.view.EditorView;
 import com.vaadin.data.Container;
 import com.vaadin.data.Container.ItemSetChangeEvent;
 import com.vaadin.data.Property;
+import com.vaadin.data.util.BeanItem;
 import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.Field;
 import com.vaadin.ui.Table;
+import com.vaadin.ui.UI;
 
 @org.springframework.stereotype.Component
 @Scope("prototype")
@@ -83,6 +86,14 @@ public class ExpenseEditorView extends EditorView<Expense, Long> {
 					} else if ("exchangeRate".equals(fcevnt.getColId()) && fcevnt.getField() instanceof ExchangeRateField) {
 						exchangeRateFields.add((ExchangeRateField) fcevnt.getField());
 						fcevnt.getField().addListener(exchangeRateListener);
+					} else if (("factor").equals(fcevnt.getColId())) {
+						((AbstractComponent) fcevnt.getField()).setImmediate(true);
+						fcevnt.getField().addValueChangeListener(new Property.ValueChangeListener() {
+							@Override
+							public void valueChange(Property.ValueChangeEvent event) {
+								expenseTransactionsField.itemChange();
+							}
+						});
 					}
 				}
 			}
@@ -208,8 +219,29 @@ public class ExpenseEditorView extends EditorView<Expense, Long> {
 			}
 		};
       
+		ListViewAction editAction = new ListViewAction("edit") {			
+			@Override
+			public void handleAction(Object sender, Object target) {
+				if (target != null) {
+					Table table = (Table) sender;
+					
+					@SuppressWarnings("unchecked")
+					OneToManyContainer<TransactionLine> container = (OneToManyContainer<TransactionLine>) table.getContainerDataSource();
+					
+					BeanItem<TransactionLine> item = container.getItem(target);
+					TransactionLineEditorView editor = ((WexUI) UI.getCurrent()).getBean(TransactionLineEditorView.class, "transactionLineEditorView");
+					editor.setBeanItem(item);					
+					UIHelper.displayModalWindow(editor);
+				}
+			}
+			@Override
+			public boolean canHandle(Object target, Object sender) {
+				return target != null;
+			}
+		};
       ActionHandler actionHandler = new ActionHandler();
       actionHandler.addListViewAction(addAction);
+      actionHandler.addListViewAction(editAction);
       actionHandler.addListViewAction(new RemoveAction<TransactionLine>());
       return actionHandler;
 	}

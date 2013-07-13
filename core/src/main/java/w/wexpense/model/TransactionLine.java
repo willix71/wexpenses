@@ -121,14 +121,18 @@ public class TransactionLine extends DBable<TransactionLine> {
 		// using double because it will be rounded by the AmountValue object anyway
 		// so we don't need the precision of a BigDecimal
 		
-		double v = amount == null?0.0:amount.doubleValue();
+		if (amount == null) {
+			value = null;
+			return;
+		}
+		BigDecimal v = amount;
 		
 		Currency currency = null;
 		if (exchangeRate != null) {
-			v *= exchangeRate.getRate();			
+			v = v.multiply(BigDecimal.valueOf(exchangeRate.getRate()));			
 			if (exchangeRate.getFee() != null) {
 				
-				v = v * (1+exchangeRate.getFee());
+				v = v.multiply(BigDecimal.valueOf(1+exchangeRate.getFee()));
 			}
 			// get the currency of the exchange rate
 			currency = exchangeRate.getToCurrency();
@@ -139,10 +143,10 @@ public class TransactionLine extends DBable<TransactionLine> {
 		}
 		if (currency != null && currency.getRoundingFactor() != null) {
 			// perform rounding
-			v = Math.rint(v * currency.getRoundingFactor());
-			value = BigDecimal.valueOf(v).divide(BigDecimal.valueOf(currency.getRoundingFactor()));
+			double round = Math.rint(v.doubleValue() * currency.getRoundingFactor());
+			value = BigDecimal.valueOf(round).divide(BigDecimal.valueOf(currency.getRoundingFactor()));
 		} else {
-			value = BigDecimal.valueOf(v);
+			value = v;
 		}
 		// @AmountValue
 		//amountValue = AmountValue.fromRealValue(v);

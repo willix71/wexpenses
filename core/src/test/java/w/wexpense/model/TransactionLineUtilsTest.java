@@ -1,7 +1,5 @@
 package w.wexpense.model;
 
-import static w.wexpense.model.enums.TransactionLineEnum.*;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,84 +11,182 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 import w.utils.DateUtils;
+import w.wexpense.model.enums.AccountEnum;
 import w.wexpense.model.enums.TransactionLineEnum;
 import w.wexpense.utils.ExpenseUtils;
 import w.wexpense.utils.TransactionLineUtils;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
+/**
+ * @author willy
+ *
+ */
 public class TransactionLineUtilsTest {
 
-	private TransactionLine[] initTransactionLines() {
-		Account[] accounts = new Account[]{new Account()};
+	public static Currency CHF = new Currency("CHF","Swiss Francs",20);
+	public static Currency USD = new Currency("USD","US Dollars",100);
+	public static Account A1 = new Account(null, 1, "A1", AccountEnum.EXPENSE, CHF);
+	public static Account A11 = new Account(A1, 11, "A11", AccountEnum.EXPENSE, CHF);
+	public static Account A111 = new Account(A11, 111, "A111", AccountEnum.EXPENSE, CHF);
+	public static Account A12 = new Account(A1, 12, "A12", AccountEnum.EXPENSE, CHF);
+	public static Account A13 = new Account(A1, 13, "A13", AccountEnum.EXPENSE, CHF);
+	public static Account A2 = new Account(null, 2, "A2", AccountEnum.ASSET, USD);
+	public static Account App = new Account(null, 9, "App", AccountEnum.EXPENSE, CHF);
+	
+	
+	/**
+	 * @return the initial expenses to test the balance on
+	 */
+	private List<Expense> initExpenses() {
+		List<Expense> xs = new ArrayList<Expense>();
+		xs.add( createExpense(DateUtils.getDate(2013,2), new BigDecimal("100"), CHF, A11, A111) );
+		xs.add( createExpense(DateUtils.getDate(2014,4), new BigDecimal("45"), CHF, A11, A12) );
+		xs.add( createExpense(DateUtils.getDate(2012,1), new BigDecimal("200"), CHF, A13, A11) );	
 		
-		Expense x = ExpenseUtils.newExpense(DateUtils.getDate(2013), new BigDecimal(100), new Currency("CHF","test",20), null, null, null);
-		TransactionLine[] initlines = new TransactionLine[] {
-				addTransactionLine(new Account(), OUT, new BigDecimal("10"), DateUtils.getDate(2013)),	// 5			
-				addTransactionLine(accounts[0], IN, new BigDecimal("20"), DateUtils.getDate(2012)), 	// 2
-				addTransactionLine(new Account(), IN, BigDecimal.ZERO, x), 										// 4
-				addTransactionLine(accounts[0], SUM, new BigDecimal("40"), x),									// 3
-				addTransactionLine(accounts[0], OUT, new BigDecimal("70"), DateUtils.getDate(2011)), 	// 1
-		};
+		Expense xsum = createExpense(DateUtils.getDate(2015,10), new BigDecimal("0"), CHF, null, App);
+		addTransactionLine(xsum, A12, TransactionLineEnum.SUM, new BigDecimal("300"));
+		xs.add(xsum);
 		
-		return initlines;
+		xs.add( createExpense(DateUtils.getDate(2016), new BigDecimal("88"), CHF, A11, A12) );
+		return xs;
 	}
+
 	
 	@Test
 	public void testBalanceSort() {
-		TransactionLine[]  initlines = initTransactionLines();
-		List<TransactionLine> lines = TransactionLineUtils.sortForBalance(new ArrayList<TransactionLine>(Arrays.asList(initlines)));
-		Assert.assertEquals("2011", initlines[4], lines.get(0));
-		Assert.assertEquals("2012", initlines[1], lines.get(1));
-		Assert.assertEquals("SUM", initlines[3], lines.get(2));
-		Assert.assertEquals("IN", initlines[2], lines.get(3));
-		Assert.assertEquals("OUT", initlines[0], lines.get(4));
+		List<TransactionLine> initlines = TransactionLineUtils.getAllTransactionLines(initExpenses());
+		
+		List<TransactionLine> lines = TransactionLineUtils.sortForBalance(initlines);
+		Date d = DateUtils.getDate(2000);
+		
+		for(TransactionLine l: lines) {
+			Assert.assertFalse(l.getDate().before(d));
+			if (l.getDate().equals(d)) {
+				// the first line is either a SUM or an OUT so the second has to be an IN
+				Assert.assertTrue(TransactionLineEnum.IN.equals(l.getFactor()));
+			}
+			d = l.getDate();
+		}
 	}
 
 	@Test
-	public void testBalance() {
-		TransactionLine[]  initlines = initTransactionLines();
-		TransactionLineUtils.balance(new ArrayList<TransactionLine>(Arrays.asList(initlines)));
-		BigDecimal balances[] = new BigDecimal[]{
-				new BigDecimal("10.0"),
-				new BigDecimal("50.0"),
-				new BigDecimal("40.0"),
-				new BigDecimal("10.0"),
-				new BigDecimal("70.0"),				
-		};
-		for(int i=0;i<balances.length;i++) {	
-			Assert.assertEquals("wrong balance for " + i, balances[i],initlines[i].getBalance());
+	public void testBalance() {	
+		List<Expense> xs = initExpenses();
+		
+		Multimap<Account, BigDecimal> balances = ArrayListMultimap.create();
+		balances.putAll(A11, Arrays.asList(new BigDecimal[]{new BigDecimal("200"),new BigDecimal("100"),new BigDecimal("55"),new BigDecimal("-33")}));
+		balances.put(A111, new BigDecimal("100"));
+		balances.putAll(A12, Arrays.asList(new BigDecimal[]{new BigDecimal("45"),new BigDecimal("300"),new BigDecimal("300"),new BigDecimal("388")}));
+		balances.put(A13, new BigDecimal("-200"));
+		balances.put(App, new BigDecimal("-255"));
+		
+		TransactionLineUtils.sortAndBalance(TransactionLineUtils.getAllTransactionLines(xs));
+
+		checkBalance(balances, xs);
+	}
+	
+	@Test
+	public void testReBalance() {	
+		List<Expense> xs = initExpenses();
+		
+		Multimap<Account, BigDecimal> balances = ArrayListMultimap.create();
+		balances.putAll(A11, Arrays.asList(new BigDecimal[]{new BigDecimal("200"),new BigDecimal("100"),new BigDecimal("55"),new BigDecimal("-33")}));
+		balances.put(A111, new BigDecimal("100"));
+		balances.putAll(A12, Arrays.asList(new BigDecimal[]{new BigDecimal("45"),new BigDecimal("300"),new BigDecimal("300"),new BigDecimal("388")}));
+		balances.put(A13, new BigDecimal("-200"));
+		balances.put(App, new BigDecimal("-255"));
+		
+		TransactionLineUtils.sortAndBalance(TransactionLineUtils.getAllTransactionLines(xs));
+
+		clearBalance(TransactionLineUtils.getAllTransactionLines(xs));
+		
+		TransactionLineUtils.sortAndBalance(TransactionLineUtils.getAllTransactionLines(xs));
+
+		checkBalance(balances, xs);
+	}
+	
+	@Test
+	public void testReBalanceModified() {	
+		List<Expense> xs = initExpenses();
+		
+		Multimap<Account, BigDecimal> balances = ArrayListMultimap.create();
+		balances.putAll(A11, Arrays.asList(new BigDecimal[]{new BigDecimal("200"),new BigDecimal("100"),new BigDecimal("55"),new BigDecimal("43"),new BigDecimal("-45")}));
+		balances.put(A111, new BigDecimal("100"));
+		balances.putAll(A12, Arrays.asList(new BigDecimal[]{new BigDecimal("45"),new BigDecimal("57"),new BigDecimal("300"),new BigDecimal("300"),new BigDecimal("388")}));
+		balances.put(A13, new BigDecimal("-200"));
+		balances.put(App, new BigDecimal("-243"));
+		
+		TransactionLineUtils.sortAndBalance(TransactionLineUtils.getAllTransactionLines(xs));
+
+		xs.add(createExpense(DateUtils.getDate(2014,4), new BigDecimal("12"), CHF, A11, A12));
+		
+		clearBalance(TransactionLineUtils.getAllTransactionLines(xs));
+		
+		TransactionLineUtils.sortAndBalance(TransactionLineUtils.getAllTransactionLines(xs));
+
+		checkBalance(balances, xs);
+	}
+	
+	// =================================
+	
+	public void checkBalance(Multimap<Account, BigDecimal> balances, List<Expense> xs) {
+		// sort the transaction because they might have been some new lines added in the balance process
+		for(TransactionLine l : TransactionLineUtils.sortForBalance( TransactionLineUtils.getAllTransactionLines(xs) )) {
+			List<BigDecimal> values = (List<BigDecimal>) balances.get(l.getAccount());
+			if (!values.isEmpty()) {
+				BigDecimal v = values.remove(0);
+				BigDecimal b = l.getBalance();
+				// can't use equal because the scale has to be the same
+				Assert.assertTrue(v + " is different than " + b, v.compareTo(b) == 0);
+			}
 		}
 	}
 	
-	public static TransactionLine addTransactionLine(Account account, TransactionLineEnum factor, Object ...args) {
+	public void clearBalance(List<TransactionLine> lines) {
+		for(TransactionLine l:lines) l.setBalance(null);
+	}
+	
+	// =================================
+	
+	public static Expense createExpense(Date date, BigDecimal amount, Currency currency, Account ...accounts) {
+		Expense x = ExpenseUtils.newExpense(date, amount, currency, null, null, null);
+		if (accounts.length>0 && accounts[0]!=null) addTransactionLine(x, accounts[0], TransactionLineEnum.OUT);
+		if (accounts.length>1 && accounts[1]!=null) addTransactionLine(x, accounts[1], TransactionLineEnum.IN);
+		return x;
+	}
+	
+	public static TransactionLine addTransactionLine(Expense x, Account account, TransactionLineEnum factor, Object ...args) {
 		TransactionLine tx = new TransactionLine();
 		tx.setAccount(account);
 		tx.setFactor(factor);
-		for(Object o: args) {
-			if (o instanceof Expense) {
-				Expense x = (Expense) o;
-				tx.setExpense(x);
-				
-				List<TransactionLine> lines = x.getTransactions();
-				if (lines == null) {
-					lines = new ArrayList<TransactionLine>();
-					x.setTransactions(lines);			
-				}
-				lines.add(tx);
 
-				if (tx.getAmount() == null) {
-					tx.setAmount(x.getAmount());
-					tx.setValue(x.getAmount());
-				}
-			}
+		tx.setExpense(x);
+		List<TransactionLine> lines = x.getTransactions();
+		if (lines == null) {
+			lines = new ArrayList<TransactionLine>();
+			x.setTransactions(lines);			
+		}
+		lines.add(tx);
+
+		tx.setAmount(x.getAmount());
+		tx.setValue(x.getAmount());
+
+		tx.setDate(x.getDate());
+		
+		for(Object o: args) {
 			if (o instanceof Date) {
 				tx.setDate((Date) o);
-			}
-			if (o instanceof Number) {
-				BigDecimal d = BigDecimal.valueOf(((Number) o).doubleValue());
+			} else if (o instanceof BigDecimal) {
+				BigDecimal d = (BigDecimal) o;
+				tx.setAmount(d);
+				tx.setValue(d);
+			} else if (o instanceof Number) {
+				BigDecimal d = new BigDecimal(o.toString());
 				tx.setAmount(d);
 				tx.setValue(d);
 			}
-
 		}
 		return tx;	
 	}

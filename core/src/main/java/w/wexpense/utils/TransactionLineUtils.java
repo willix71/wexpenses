@@ -1,14 +1,13 @@
 package w.wexpense.utils;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import w.wexpense.model.Account;
 import w.wexpense.model.Expense;
@@ -72,25 +71,7 @@ public class TransactionLineUtils {
 		}
 		return total;
 	}
-	
-	public static BigDecimal[] getInAndOutTotal(Collection<TransactionLine> transactions) {
-		BigDecimal[] total = { new BigDecimal(0), new BigDecimal(0)};
-		if (transactions != null) {
-			for(TransactionLine transaction: transactions) {
-				BigDecimal amount = transaction.getAmount();
-				TransactionLineEnum factor = transaction.getFactor();
-				if (amount != null && factor != null) {
-					if (TransactionLineEnum.IN==factor) {					
-						total[0] = total[0].add(amount);
-					} else if (TransactionLineEnum.OUT==factor) {
-						total[1] = total[1].add( amount );
-					}
-				}
-			}
-		}
-		return total;
-	}
-	
+		
 	public static void sortAndBalance(List<TransactionLine> lines) {
 		balance(sortForBalance(lines));
 	}
@@ -103,41 +84,39 @@ public class TransactionLineUtils {
 				if (o1.getFactor()==o2.getFactor()) return 0;
 				if (o1.getFactor()==TransactionLineEnum.SUM) return -1;
 				if (o2.getFactor()==TransactionLineEnum.SUM) return 1;
-				if (o1.getFactor()==TransactionLineEnum.IN) return -1;
-				if (o2.getFactor()==TransactionLineEnum.IN) return 1;
 				if (o1.getFactor()==TransactionLineEnum.OUT) return -1;
 				if (o2.getFactor()==TransactionLineEnum.OUT) return 1;
+				if (o1.getFactor()==TransactionLineEnum.IN) return -1;
+				if (o2.getFactor()==TransactionLineEnum.IN) return 1;
 				return 0;
 			}
 		});
 		return lines;
 	}
 	
-	public static void balance(Collection<TransactionLine> lines) {
-		Set<TransactionLine> balanced = new HashSet<TransactionLine>();
+	public static void balance(Iterable<TransactionLine> lines) {
 		Map<Account, BigDecimal> balances = new HashMap<Account, BigDecimal>();
 		for(TransactionLine line: lines) {
+			if (line.getBalance() != null) continue;
+			
 			Account account = line.getAccount();
 			BigDecimal balance = balances.get(account);
 			if (line.getFactor() == TransactionLineEnum.IN) {
 				balance = balance == null?line.getValue():balance.add(line.getValue());
 			} else if (line.getFactor() == TransactionLineEnum.OUT) { 
-				balance = balance == null?line.getValue():balance.subtract(line.getValue());
+				balance = balance == null?line.getValue().negate():balance.subtract(line.getValue());
 			} else {
-				TransactionLine deltaLine = balanceSum(balance == null?BigDecimal.ZERO:balance, line);
-				if (deltaLine!=null) {
-					balanced.add(deltaLine);
-				}
+				balanceSum(balance == null?BigDecimal.ZERO:balance, line);
+
 				// reset the balance
 				balance = line.getValue();
 			}
 			line.setBalance(balance);
 			balances.put(account, balance);
-			balanced.add(line);
 		}		
 	}
 	
-	private static TransactionLine balanceSum(BigDecimal balance, TransactionLine sumLine) {	
+	private static void balanceSum(BigDecimal balance, TransactionLine sumLine) {	
 		Expense expense = sumLine.getExpense();
 		
 		TransactionLine deltaLine = null;
@@ -155,29 +134,39 @@ public class TransactionLineUtils {
 		if (sumLine.getValue().equals(balance)) {
 			counterLine.setAmount(BigDecimal.ZERO);
 			counterLine.setFactor(TransactionLineEnum.OUT);
+
 			if (deltaLine != null) {
 				expense.getTransactions().remove(deltaLine);
 			}
 		} else {					
 			BigDecimal delta = sumLine.getValue().subtract(balance);
-			TransactionLineEnum deltaFacor = delta.signum()>0?TransactionLineEnum.IN:TransactionLineEnum.OUT;
-			TransactionLineEnum counterFacor = delta.signum()<0?TransactionLineEnum.IN:TransactionLineEnum.OUT;
+			TransactionLineEnum deltaFactor = delta.signum()>0?TransactionLineEnum.IN:TransactionLineEnum.OUT;
+			TransactionLineEnum counterFactor = delta.signum()<0?TransactionLineEnum.IN:TransactionLineEnum.OUT;			
+			delta = delta.abs();
 			
-			counterLine.setAmount(delta.abs());
-			counterLine.setFactor(counterFacor);
+			counterLine.setAmount(delta);			
+			counterLine.setFactor(counterFactor);
+			counterLine.updateValue();
 			
 			if (deltaLine == null) {
 				deltaLine = new TransactionLine();
+				deltaLine.setDate(sumLine.getDate());
+				deltaLine.setPeriod(sumLine.getPeriod());
+				deltaLine.setAccount(sumLine.getAccount());
 				expense.addTransaction(deltaLine);
 			}				
 			deltaLine.setAmount(delta.abs());
-			deltaLine.setFactor(deltaFacor);
+			deltaLine.setFactor(deltaFactor);
+			deltaLine.updateValue();
 			deltaLine.setBalance(sumLine.getValue());
 		}
 		
 		sumLine.setBalance(sumLine.getValue());
-		
-		return deltaLine;
 	}
 
+	public static List<TransactionLine> getAllTransactionLines(Iterable<Expense> xs) {	
+		List<TransactionLine> lines = new ArrayList<TransactionLine>();
+		for(Expense x: xs ){ lines.addAll(x.getTransactions()); }
+		return lines;
+	}
 }

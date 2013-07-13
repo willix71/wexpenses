@@ -31,7 +31,8 @@ public class SimpleFieldFactory implements FieldGroupFieldFactory, TableFieldFac
 		return createField(type, Field.class);
 	}
 	
-	@Override
+   @Override
+   @SuppressWarnings({ "rawtypes", "unchecked" })
    public <T extends Field> T createField(Class<?> dataType, Class<T> fieldType) {
 		Field field = createField(dataType);		
 		
