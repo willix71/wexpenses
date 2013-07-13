@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import w.wexpense.model.PaymentDta;
 
-public interface IPaymentDtaJpaDao extends JpaRepository< PaymentDta, Long >, JpaSpecificationExecutor< PaymentDta > {
-	PaymentDta findByUid(String uid);
+public interface IPaymentDtaJpaDao extends JpaRepository< PaymentDta, Long >, JpaSpecificationExecutor< PaymentDta >, IDBableJpaDao<PaymentDta> {
+
 }
