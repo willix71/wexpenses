@@ -49,20 +49,22 @@ public class AllInOneView extends Panel implements View {
 
 	@PostConstruct
 	public void PostConstruct() {
-		addView("currencyListView");
-		addView("countryListView");
+		addView(new AdminView(), 
+				addView("currencyListView"), 
+				addView("countryListView"),
+				addView("payeeTypeListView"),
+				addView("expenseTypeListView"),
+				addView("templateListView")
+				);
 		addView("cityListView");
-		addView("payeeTypeListView");
 		addView("payeeListView");
-		addView("discriminatorListView");
 		addView("accountListView");
+		addView("discriminatorListView");
 		addView("exchangeRateListView");
-		addView("expenseTypeListView");
-		addView("expenseListView");
+		addView("expenseListView", addView("todaysExpenseListView"));
 		addView("transactionLineListView");
 		addView("paymentListView");
 		addView("consolidationListView");
-		addView("templateListView");
 		
 		navTree.setSelectable(true);
 		navTree.setImmediate(true);
@@ -72,7 +74,7 @@ public class AllInOneView extends Panel implements View {
 
 			@Override
 			public void valueChange(ValueChangeEvent event) {
-				ListView<?> cv = (ListView<?>) event.getProperty().getValue();
+				Panel cv = (Panel) event.getProperty().getValue();
 				cv.setSizeFull();
 				horizontalSplitPanel.setSecondComponent(cv);
 				horizontalSplitPanel.markAsDirty();
@@ -96,17 +98,26 @@ public class AllInOneView extends Panel implements View {
 		setContent(layout);
 	}
 
-	public Object addView(String name) {
-		return addView(applicationContext.getBean(name, ListView.class));
+	public Object addView(String name, Object ...children) {
+		return addView(applicationContext.getBean(name, ListView.class), children);
 	}
 	
-	public Object addView(ListView<?> view) {
-		Object componentId = navTree.addItem(view);
-		navTree.setItemCaption(view, view.getEntityClass().getSimpleName());
-		navTree.setChildrenAllowed(view, false);
-		return componentId;
-	}
+	public Object addView(WindowView view, Object ...children) {
+		navTree.addItem(view);
+		navTree.setItemCaption(view, view.getViewName());
+		
+		if (children != null && children.length > 0) {
+			navTree.setChildrenAllowed(view, true);
+			for(Object child: children) {
+				navTree.setParent(child, view);
+			}
+		} else {
+			navTree.setChildrenAllowed(view, false);
+		}
 
+		return view;
+	}
+	
 	private class TemplateMenu implements MenuBar.Command {
 		private Template template;
 		public TemplateMenu(Template template) {
