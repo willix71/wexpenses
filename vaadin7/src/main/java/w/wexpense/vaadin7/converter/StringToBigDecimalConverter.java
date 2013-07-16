@@ -10,7 +10,7 @@ public class StringToBigDecimalConverter implements Converter<String, BigDecimal
 
 	@Override
    public BigDecimal convertToModel(String value, Locale locale) throws com.vaadin.data.util.converter.Converter.ConversionException {
-		if (value == null) return null;
+		if (value == null || value.length() == 0) return null;
 	   else return new BigDecimal(value);
    }
 
