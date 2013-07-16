@@ -46,7 +46,7 @@ public class Account extends AbstractType<Account> implements Parentable<Account
 	private String externalReference; 
 	   
    @ManyToOne(fetch = FetchType.EAGER)
-   private Payee bankDetails;  
+   private Payee owner;  
    
 	public Account() {
 		super();
@@ -146,12 +146,12 @@ public class Account extends AbstractType<Account> implements Parentable<Account
 		this.externalReference = externalReference;
 	}
 	
-	public Payee getBankDetails() {
-		return bankDetails;
+	public Payee getOwner() {
+		return owner;
 	}
 
-	public void setBankDetails(Payee bankDetails) {
-		this.bankDetails = bankDetails;
+	public void setOwner(Payee bankDetails) {
+		this.owner = bankDetails;
 	}
 
 	@Override

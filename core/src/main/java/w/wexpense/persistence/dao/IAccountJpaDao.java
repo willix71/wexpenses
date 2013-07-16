@@ -14,5 +14,8 @@ public interface IAccountJpaDao extends JpaRepository< Account, Long >, JpaSpeci
 	@Query("from Account a where a.parent is null")
 	List<Account> findParents();
 
-	List<Account> findByBankDetails(Payee p);
+	List<Account> findByOwner(Payee owner);
+	
+	@Query("from Account a where a.owner = ?1 or a.owner.bankDetails = ?1")
+	List<Account> findByOwnerAndBankDetails(Payee owner);
 }

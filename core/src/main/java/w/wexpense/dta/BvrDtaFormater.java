@@ -32,8 +32,8 @@ public class BvrDtaFormater implements DtaFormater {
 	
 	public void check(Expense expense) {
 		// Must have a payee.externalReference (account number)
-		Preconditions.checkNotNull(DtaHelper.getTransactionLine(OUT, expense).getAccount().getBankDetails().getIban(), "Out account must have a bank details");		
-		Preconditions.checkNotNull(DtaHelper.getTransactionLine(OUT, expense).getAccount().getBankDetails().getIban(), "Out account's bank details must have an Iban");
+		Preconditions.checkNotNull(DtaHelper.getTransactionLine(OUT, expense).getAccount().getOwner().getIban(), "Out account must have a bank details");		
+		Preconditions.checkNotNull(DtaHelper.getTransactionLine(OUT, expense).getAccount().getOwner().getIban(), "Out account's bank details must have an Iban");
 
 		Preconditions.checkNotNull(expense.getPayee().getBankDetails(), "Payee's bank details is mandatory for BVR payments (827)");
 		Preconditions.checkNotNull(expense.getPayee().getBankDetails().getPostalAccount(), "Payee's bank details postal account is mandatory for BVR payments (827)");
@@ -47,7 +47,7 @@ public class BvrDtaFormater implements DtaFormater {
 		StringBuilder line02 = new StringBuilder();
 		line02.append("02");
 		
-		Payee payee = DtaHelper.getTransactionLine(OUT, expense).getAccount().getBankDetails();
+		Payee payee = DtaHelper.getTransactionLine(OUT, expense).getAccount().getOwner();
 		line02.append(pad(payee.getName(),24));
 		line02.append(pad(payee.getAddress1(),24));
 		line02.append(pad(payee.getAddress2(),24));

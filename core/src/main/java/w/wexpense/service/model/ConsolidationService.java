@@ -93,7 +93,7 @@ public class ConsolidationService extends DaoService<Consolidation, Long> implem
 
 	@Override
    public List<Account> getConsolidationAccounts(Payee institution) {
-	   return accountDao.findByBankDetails(institution);
+	   return accountDao.findByOwnerAndBankDetails(institution);
    }
   
 }

@@ -71,7 +71,7 @@ public class DatabasePopulator {
 			Account assetAcc = save(new Account(null, 1, "asset", ASSET, null));			
 			Account cashAcc = save(new Account(assetAcc, 1, "cash", ASSET, chf));			
 			Account ecAcc = save(new Account(assetAcc, 2, "courant", ASSET, chf));
-			ecAcc.setBankDetails(save(accountOwner));
+			ecAcc.setOwner(save(accountOwner));
 			save(new Account(assetAcc, 3, "epargne", ASSET, chf));
 			
 			Account vehicleAcc = save(new Account(null, 4, "vehicle", EXPENSE, null));

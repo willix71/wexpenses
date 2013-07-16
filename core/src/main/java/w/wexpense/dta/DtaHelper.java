@@ -159,7 +159,7 @@ public class DtaHelper {
 		if (expense == null) {
 			sb.append(pad(7));
 		} else {
-			String iban = getTransactionLine(OUT, expense).getAccount().getBankDetails().getIban();
+			String iban = getTransactionLine(OUT, expense).getAccount().getOwner().getIban();
 			String clearing = iban.substring(4, 9);
 			// remove leading zero and then pad to 7
 			String purgedClearing = Integer.valueOf(clearing).toString();
@@ -190,7 +190,7 @@ public class DtaHelper {
 		line01.append("ID");
 		line01.append(zeroPad(expense.getId().intValue(), 9));
 		
-		String iban = getTransactionLine(OUT, expense).getAccount().getBankDetails().getIban();
+		String iban = getTransactionLine(OUT, expense).getAccount().getOwner().getIban();
 		line01.append(pad(iban,24));
 		
 		// date (blank mean as indicated in the header)		

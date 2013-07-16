@@ -34,8 +34,8 @@ public class IbanDtaFormater implements DtaFormater {
 
 	public void check(Expense expense) {
 		// Must have a payee.bankingDetail and an payee.externalReference (IBAN)
-		Preconditions.checkNotNull(DtaHelper.getTransactionLine(OUT, expense).getAccount().getBankDetails(), "Out account must have a bank details");		
-		Preconditions.checkNotNull(DtaHelper.getTransactionLine(OUT, expense).getAccount().getBankDetails().getIban(), "Out account's bank details must have an Iban");
+		Preconditions.checkNotNull(DtaHelper.getTransactionLine(OUT, expense).getAccount().getOwner(), "Out account must have a bank details");		
+		Preconditions.checkNotNull(DtaHelper.getTransactionLine(OUT, expense).getAccount().getOwner().getIban(), "Out account's bank details must have an Iban");
 
 		Preconditions.checkNotNull(expense.getPayee().getBankDetails(), "Payee's banking detail is mandatory for Iban payments (836)");
 		Preconditions.checkNotNull(expense.getPayee().getIban(), "Payee's IBAN is mandatory for Iban payments (836)");
@@ -50,7 +50,7 @@ public class IbanDtaFormater implements DtaFormater {
 			// conversation rate if agreed
 			line02.append(pad(12));
 			
-			Payee payee = DtaHelper.getTransactionLine(OUT, expense).getAccount().getBankDetails();
+			Payee payee = DtaHelper.getTransactionLine(OUT, expense).getAccount().getOwner();
 			line02.append(pad(payee.getName(),35));
 			line02.append(pad(payee.getAddress1(),35));
 			line02.append(pad(payee.getCity().toString(),35));
