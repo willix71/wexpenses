@@ -10,6 +10,8 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 
+import w.utils.DateUtils;
+
 @Entity
 public class ExchangeRate extends DBable<ExchangeRate> {
 
@@ -35,6 +37,15 @@ public class ExchangeRate extends DBable<ExchangeRate> {
 
 	private Double fee;
 
+	public ExchangeRate() {}
+	
+	public ExchangeRate(Currency fromCurrency, Currency toCurrency, Double rate) {
+		this.date = DateUtils.getDate();
+		this.fromCurrency = fromCurrency;
+		this.toCurrency = toCurrency;
+		this.rate = rate;		
+	}
+	
 	public Payee getInstitution() {
 		return institution;
 	}
