@@ -6,16 +6,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import w.wexpense.model.Account;
 import w.wexpense.model.Consolidation;
+import w.wexpense.model.Payee;
 import w.wexpense.model.TransactionLine;
+import w.wexpense.persistence.dao.IAccountJpaDao;
 import w.wexpense.persistence.dao.IConsolidationJpaDao;
 import w.wexpense.persistence.dao.ITransactionLineJpaDao;
 import w.wexpense.service.DaoService;
 import w.wexpense.utils.DBableUtils;
 
 @Service
-public class ConsolidationService extends DaoService<Consolidation, Long> {
+public class ConsolidationService extends DaoService<Consolidation, Long> implements IConsolidationService {
 
+	@Autowired
+	private IAccountJpaDao accountDao;
+	
 	@Autowired
 	private ITransactionLineJpaDao transationLineDao;
 	
@@ -61,28 +67,33 @@ public class ConsolidationService extends DaoService<Consolidation, Long> {
 			return conso;	
 		}
    }
-	
-   public Consolidation saveOld(Consolidation entity) {
-	   LOGGER.debug("Saving consolidation's transactions {}", entity.getTransactions());
-	   
-	   List<TransactionLine> newTransactionLines = entity.getTransactions();
-	   
-	   Consolidation newConsolidation = super.save(entity);
-	   
-	   List<TransactionLine> oldTransactionLines = transationLineDao.findByConsolidation(newConsolidation);	   
-	   LOGGER.debug("old payment's expenses size{}", oldTransactionLines.size());
-	   
-	   for(TransactionLine newTransactionLine: newTransactionLines) {
-	   	newTransactionLine.setConsolidation(newConsolidation);
-	   	transationLineDao.save(newTransactionLine);
-	   }
-	   for(TransactionLine oldTransactionLine: oldTransactionLines) {
-	   	if (!newTransactionLines.contains(oldTransactionLine)) {
-	   		oldTransactionLine.setConsolidation(null);
-	   		transationLineDao.save(oldTransactionLine);
-	   	}
-	   }
-	   return newConsolidation;
-   }
+		
+//   public Consolidation saveOld(Consolidation entity) {
+//	   LOGGER.debug("Saving consolidation's transactions {}", entity.getTransactions());
+//	   
+//	   List<TransactionLine> newTransactionLines = entity.getTransactions();
+//	   
+//	   Consolidation newConsolidation = super.save(entity);
+//	   
+//	   List<TransactionLine> oldTransactionLines = transationLineDao.findByConsolidation(newConsolidation);	   
+//	   LOGGER.debug("old payment's expenses size{}", oldTransactionLines.size());
+//	   
+//	   for(TransactionLine newTransactionLine: newTransactionLines) {
+//	   	newTransactionLine.setConsolidation(newConsolidation);
+//	   	transationLineDao.save(newTransactionLine);
+//	   }
+//	   for(TransactionLine oldTransactionLine: oldTransactionLines) {
+//	   	if (!newTransactionLines.contains(oldTransactionLine)) {
+//	   		oldTransactionLine.setConsolidation(null);
+//	   		transationLineDao.save(oldTransactionLine);
+//	   	}
+//	   }
+//	   return newConsolidation;
+//   }
 
+	@Override
+   public List<Account> getConsolidationAccounts(Payee institution) {
+	   return accountDao.findByBankDetails(institution);
+   }
+  
 }

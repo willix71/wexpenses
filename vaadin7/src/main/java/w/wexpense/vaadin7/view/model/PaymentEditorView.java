@@ -14,20 +14,20 @@ import w.wexpense.model.Payment;
 import w.wexpense.service.model.IPaymentService;
 import w.wexpense.utils.PaymentDtaUtils;
 import w.wexpense.vaadin7.action.ActionHandler;
+import w.wexpense.vaadin7.action.ActionHelper;
 import w.wexpense.vaadin7.action.AddMultiSelectionAction;
 import w.wexpense.vaadin7.action.RemoveAction;
 import w.wexpense.vaadin7.component.OneToManyField;
 import w.wexpense.vaadin7.container.OneToManyContainer;
 import w.wexpense.vaadin7.menu.EnabalebalMenuBar;
 import w.wexpense.vaadin7.view.EditorView;
+import w.wexpense.vaadin7.view.MultiSelectorView;
 
 import com.vaadin.data.Container;
 import com.vaadin.data.Container.Filter;
 import com.vaadin.data.Container.ItemSetChangeEvent;
 import com.vaadin.data.util.BeanItem;
-import com.vaadin.data.util.filter.Compare;
-import com.vaadin.data.util.filter.IsNull;
-import com.vaadin.data.util.filter.Or;
+import com.vaadin.data.util.filter.And;
 import com.vaadin.server.Page;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Label;
@@ -43,6 +43,24 @@ public class PaymentEditorView extends EditorView<Payment, Long> {
 
 	@Log
 	private static Logger LOGGER;
+	
+	private class AddMultiExpensesAction extends AddMultiSelectionAction<Expense> {
+		public AddMultiExpensesAction(boolean resetMode) {
+			super("paymentExpenseSelectorView", resetMode);
+		}
+		@Override
+		public void prepareSelector(MultiSelectorView<Expense> selector, OneToManyContainer<Expense> container, boolean resetMode) {
+			Filter f = ActionHelper.parentFilter("payment", PaymentEditorView.this.getInstance());
+			if (!resetMode && !container.isEmpty()) {
+				f = new And(f, ActionHelper.excludeFilter(container.getBeans()));
+			}
+			selector.setFilter(f);
+			
+			if (resetMode && !container.isEmpty()) {
+				selector.setValues(container.getBeans());
+			}
+      }		
+	};	
 	
 	private OneToManyField<Expense> expensesField;
 	
@@ -84,20 +102,9 @@ public class PaymentEditorView extends EditorView<Payment, Long> {
 	private OneToManyField<Expense> initExpensesField() {
 		final OneToManyField<Expense> xField = new OneToManyField<Expense>(Expense.class, super.persistenceService, PaymentConfiguration.getExpenseTableColumnConfig());
 		
-		// init action for one to many fields
-		AddMultiSelectionAction<Expense> addSelectionAction = new AddMultiSelectionAction<Expense>("paymentExpenseSelectorView") {
-			@Override
-         public Filter getFilter() {
-				Filter filter = new IsNull("payment");
-				Payment p = getInstance();
-				if (!p.isNew()) {
-					filter = new Or(filter, new Compare.Equal("payment", p));
-				}
-				return filter;
-         }			
-		};		
 		ActionHandler expensesActions = new ActionHandler();
-      expensesActions.addListViewAction(addSelectionAction);
+      expensesActions.addListViewAction(new AddMultiExpensesAction(true));
+      expensesActions.addListViewAction(new AddMultiExpensesAction(false));
       expensesActions.addListViewAction(new RemoveAction<Expense>());
       xField.setActionHandler(expensesActions);
       

@@ -1,7 +1,6 @@
 package w.wexpense.vaadin7;
 
 import java.io.IOException;
-import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +42,7 @@ public class WexUI extends UI {
       DiscoveryNavigator navigator = new DiscoveryNavigator(this, this);
       navigator.navigateTo(UI.getCurrent().getPage().getUriFragment());
 
-      
+      // request handler used to download a payment DTA
 		VaadinSession.getCurrent().addRequestHandler(new RequestHandler() {
 			@Override
 			public boolean handleRequest(VaadinSession session, VaadinRequest request, VaadinResponse response) throws IOException {

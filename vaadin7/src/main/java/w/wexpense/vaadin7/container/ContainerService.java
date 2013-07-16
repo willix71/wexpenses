@@ -10,12 +10,10 @@ import org.slf4j.LoggerFactory;
 
 import w.wexpense.vaadin7.support.TableColumnConfig;
 
-import com.vaadin.addon.jpacontainer.EntityItem;
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.JPAContainerFactory;
 import com.vaadin.data.Container;
 import com.vaadin.data.Container.Filter;
-import com.vaadin.data.Item;
 
 public class ContainerService {
 

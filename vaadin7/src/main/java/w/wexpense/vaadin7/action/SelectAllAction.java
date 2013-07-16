@@ -1,6 +1,5 @@
 package w.wexpense.vaadin7.action;
 
-import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.ui.Table;
 
 public class SelectAllAction extends ListViewAction {

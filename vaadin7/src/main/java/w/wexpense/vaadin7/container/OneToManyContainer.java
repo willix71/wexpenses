@@ -31,6 +31,12 @@ public class OneToManyContainer<BEANTYPE> extends BeanItemContainer<BEANTYPE> {
 		removeAllItems();
 		addAll(ts);
 	}
+	
+	public void addBeans(Collection<BEANTYPE> ts) {
+		beans.addAll(ts);
+		
+		addAll(ts);
+	}
 
 	public BeanItem<BEANTYPE> addBean(BEANTYPE t) {		
 		beans.add(t);

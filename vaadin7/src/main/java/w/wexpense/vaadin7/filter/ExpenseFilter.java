@@ -41,6 +41,7 @@ public class ExpenseFilter extends AbstractFilterView {
 	ComboBox currencyValue;
 	ComboBox typeValue;
 	Button clear;
+	
 	public ExpenseFilter() {
 		UIHelper.rightAlign(this);
 		
