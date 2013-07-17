@@ -15,6 +15,10 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.validator.constraints.Range;
+
+import w.wexpense.validation.Warning;
+
 @Entity
 public class Consolidation extends DBable<Consolidation> {
 
@@ -31,6 +35,9 @@ public class Consolidation extends DBable<Consolidation> {
 	private BigDecimal openingBalance;
 	
 	private BigDecimal closingBalance;
+	
+	@Range(min=0,max=0,groups=Warning.class)
+	private BigDecimal deltaBalance;
 	
     @OneToMany(mappedBy="consolidation", cascade={CascadeType.PERSIST, CascadeType.MERGE})
     @OrderBy("date")
@@ -68,6 +75,22 @@ public class Consolidation extends DBable<Consolidation> {
 		this.closingBalance = closingBalance;
 	}
 
+	public BigDecimal getDeltaBalance() {
+		return deltaBalance;
+	}
+
+	public void updateDeltaBalance(BigDecimal deltaBalance) {
+		BigDecimal delta = closingBalance == null ? BigDecimal.ZERO : closingBalance;
+		if (openingBalance != null) {
+			delta = delta.subtract(openingBalance);
+		}
+		if (deltaBalance != null) {
+			delta = delta.subtract(deltaBalance);
+		}
+
+		this.deltaBalance = delta;
+	}
+	
 	public List<TransactionLine> getTransactions() {
 		return transactions;
 	}

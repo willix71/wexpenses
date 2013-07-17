@@ -27,7 +27,8 @@ public class ConsolidationConfiguration {
 			   new TableColumnConfig("date").desc(),
 			   new TableColumnConfig("institution").expand(1.0f),
 			   new TableColumnConfig("openingBalance"),
-			   new TableColumnConfig("closingBalance")
+			   new TableColumnConfig("closingBalance"),
+			   new TableColumnConfig("deltaBalance", "delta")
 			   );
 		   
 		ActionHelper.setDefaultListViewActions(listview, "consolidationEditorView");

@@ -62,4 +62,10 @@ UPDATE ACCOUNT set currency_code = 'CHF' where currency_code is null;
 ALTER TABLE ACCOUNT add column bankDetails_id bigint;
 alter table Account add constraint FK1D0C220D96A05241 foreign key (bankDetails_id) references Payee;
 
+--//////// v2 ////////
+
 ALTER TABLE ACCOUNT alter column bankDetails_id rename to owner_id;
+
+alter table CONSOLIDATION add column DELTABALANCE DECIMAL(19,2);
+
+alter table Transactionline alter column amountvalue set null;

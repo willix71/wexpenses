@@ -28,8 +28,10 @@ import w.wexpense.vaadin7.view.EditorView;
 import w.wexpense.vaadin7.view.MultiSelectorView;
 
 import com.vaadin.data.Container;
+import com.vaadin.data.Property;
 import com.vaadin.data.Container.Filter;
 import com.vaadin.data.Container.ItemSetChangeEvent;
+import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.filter.And;
 import com.vaadin.data.util.filter.Compare;
@@ -85,12 +87,26 @@ public class ConsolidationEditorView extends EditorView<Consolidation, Long> {
 		
 		consolidationTransactionsField = initConsolidationTransactionsField();
 
-		this.setProperties("fullId","uid","date","institution","openingBalance","closingBalance","transactions");
+		this.setProperties("fullId","uid","date","institution","openingBalance","closingBalance","deltaBalance","transactions");
 		this.setCustomField("transactions",  consolidationTransactionsField);
 
 		
 	}
 	
+	
+	@Override
+   public void initFields() {
+	   super.initFields();
+	   Property.ValueChangeListener listener = new Property.ValueChangeListener() {
+			@Override
+			public void valueChange(ValueChangeEvent event) {
+				updateDelta();				
+			}
+		};
+	   fieldGroup.getField("openingBalance").addValueChangeListener(listener);
+	   fieldGroup.getField("closingBalance").addValueChangeListener(listener);
+   }
+
 	private OneToManyField<TransactionLine> initConsolidationTransactionsField() {
 		final OneToManyField<TransactionLine> tlField = new OneToManyField<TransactionLine>(TransactionLine.class, super.persistenceService, ConsolidationConfiguration.getTransactionLinesTableColumnConfig());
      
@@ -122,10 +138,22 @@ public class ConsolidationEditorView extends EditorView<Consolidation, Long> {
 				tlField.setFooter("outValue", MessageFormat.format("{0,number,0.00}",values[1]));
 				tlField.setFooter("inValue", MessageFormat.format("{0,number,0.00}",values[2]));				
 				tlField.setFooter("payee", MessageFormat.format("{0,number,0} X",tls.size()));
+				
+				updateDelta(values[0]);				
 			}
 		});
       
 		return tlField;
+	}
+	
+	private void updateDelta() {
+		BigDecimal[] values = TransactionLineUtils.getDeltaAndTotals(getInstance().getTransactions());
+		updateDelta(values[0]);	
+	}
+	
+	private void updateDelta(BigDecimal delta) {
+		getInstance().updateDeltaBalance(delta);				
+		fieldGroup.getField("deltaBalance").markAsDirty();
 	}
 	
 	private Filter getAccountFilter() {

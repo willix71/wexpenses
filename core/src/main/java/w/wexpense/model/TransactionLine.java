@@ -17,13 +17,14 @@ import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 
 import w.wexpense.model.enums.TransactionLineEnum;
+import w.wexpense.validation.EchangeRateTransactionLineized;
 
 @Entity
 @TypeDefs({
-	//@AmountValue
 	@TypeDef(name = "amountValueType", typeClass = w.wexpense.persistence.type.AmountValueType.class),
 	@TypeDef(name = "transactionLineEnumType", typeClass = w.wexpense.persistence.type.TransactionLineEnumType.class)
 	})
+@EchangeRateTransactionLineized
 public class TransactionLine extends DBable<TransactionLine> {
 
 	private static final long serialVersionUID = 2482940442245899869L;
@@ -49,11 +50,6 @@ public class TransactionLine extends DBable<TransactionLine> {
 	    
 	@ManyToOne(fetch = FetchType.EAGER)
 	private ExchangeRate exchangeRate;
-	
-	//@AmountValue
-	//@NotNull
-	@Type(type="amountValueType")
-	private AmountValue amountValue;
 	
 	@NotNull
 	private BigDecimal value;
@@ -148,27 +144,19 @@ public class TransactionLine extends DBable<TransactionLine> {
 		} else {
 			value = v;
 		}
-		// @AmountValue
-		//amountValue = AmountValue.fromRealValue(v);
 	}
 
 	@Override
 	public void preupdate() {
 		super.preupdate();
-		// @AmountValue
-		this.amountValue = AmountValue.fromBigValue(value);
 	}
 	
 	public BigDecimal getValue() {
 		return value;
-		// @AmountValue
-		//return amountValue==null?null:amountValue.getBigValue();
 	}
 
 	public void setValue(BigDecimal value) {
 		this.value = value;
-		// @AmountValue
-		//this.amountValue = value==null?null:AmountValue.fromBigValue(value);
 	}
 
 	public BigDecimal getInValue() {
