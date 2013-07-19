@@ -18,6 +18,8 @@ import w.wexpense.model.enums.TransactionLineEnum;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 
 public class DtaHelper {
 
@@ -124,14 +126,15 @@ public class DtaHelper {
 		return null;
 	}
 	
-//	public static Payee getUserDetail() {
-//		Payee p = new Payee();
-//		p.setName("William Keyser");
-//		p.setAddress1("11 ch du Grand Noyer");
-//		p.setCity(new City("1197", "Prangins", new Country("CH", null, null)));
-//		return p;
-//	}
-	
+	public static int getTransactionLineIndex(TransactionLineEnum factor, Expense expense) {
+		int i = 0;
+		for(TransactionLine l: expense.getTransactions()) {
+			if (l.getFactor()==factor) return i;
+			i++;
+		}
+		return -1;
+	}
+		
 	public static String getHeader(String transactionType, Date paymentDate, int index, Expense expense, boolean dateInHeader) {
 		StringBuilder sb = new StringBuilder();
 		
@@ -208,5 +211,39 @@ public class DtaHelper {
 		// reserved
 		line01.append(pad(14));
 		return line01.toString();
+	}
+	
+	public static Multimap<String, String> commonValidation(Expense expense) {
+		Multimap<String, String> errors = ArrayListMultimap.create();
+		
+		TransactionLine outLine = getTransactionLine(OUT, expense);
+		int outIndex = getTransactionLineIndex(OUT, expense);
+		if (outLine == null) {
+			errors.put("transactions", "No OUT transaction line");
+		} else if (outLine.getAccount() == null) {
+			errors.put("transactions["+outIndex+"]", "Out transaction line must have an account");
+		} else if (outLine.getAccount().getOwner() == null){
+			errors.put("transactions["+outIndex+"]", "Out transaction line account must have an owner");		
+		} else {
+			if (Strings.isNullOrEmpty(outLine.getAccount().getOwner().getIban())){
+				errors.put("transactions["+outIndex+"]", "Out transaction line account's owner must have an Iban");
+			}
+			if (expense.getPayee().getCity()==null) {
+				errors.put("transactions["+outIndex+"]", "Out transaction line account's owner must have a city");
+			}
+		}
+		
+		TransactionLine inLine = getTransactionLine(IN, expense);
+		int inIndex = getTransactionLineIndex(IN, expense);
+		if (inLine == null) {
+			errors.put("transactions", "No IN transaction line");
+		} else if (inLine.getAccount() == null) {
+			errors.put("transactions["+inIndex+"]", "IN transaction line must have an account");
+		}
+		
+		if (expense.getPayee().getCity()==null) {
+			errors.put("payee.city", "Payee's must have a city");
+		}
+		return errors;
 	}
 }

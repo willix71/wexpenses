@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
 import w.wexpense.model.Account;
+import w.wexpense.model.Discriminator;
 import w.wexpense.vaadin7.UIHelper;
 import w.wexpense.vaadin7.container.ContainerService;
 
@@ -30,13 +31,14 @@ public class TransactionLineFilter extends AbstractFilterView {
 	@Autowired
 	protected ContainerService persistenceService;
 	
-	Field<String> dateField = FilterHelper.getSelectFilter(this, 2, "expense.date","createdTs","modifiedTs");
+	Field<String> dateField = FilterHelper.getSelectFilter(this, 2, "date","createdTs","modifiedTs");
 	Field<String> dateComparator = FilterHelper.getSelectFilter(this, 0, ">",">=","=","<=","<");
 	DateField dateValue = FilterHelper.getDateFilter(this, null);
 	Field<String> amountComparator = FilterHelper.getSelectFilter(this, 0, ">",">=","=","<=","<");
 	TextField amountValue = FilterHelper.getTextFilter(this, "amount");
 	TextField payeeValue = FilterHelper.getTextFilter(this, "payee");
 	ComboBox accountValue;
+	ComboBox discriminatorValue;
 	Button clear;
 	public TransactionLineFilter() {
 		UIHelper.rightAlign(this);
@@ -64,6 +66,9 @@ public class TransactionLineFilter extends AbstractFilterView {
 	
 		accountValue = FilterHelper.getEntityFilter(this, Account.class, persistenceService);
 		addComponent(accountValue);
+
+		discriminatorValue = FilterHelper.getEntityFilter(this, Discriminator.class, persistenceService);
+		addComponent(discriminatorValue);
 		
 		addComponent(dateField);
 		
@@ -85,6 +90,9 @@ public class TransactionLineFilter extends AbstractFilterView {
 		
 		if (accountValue.getValue() != null) {
 			filters.add(new Compare.Equal("account", accountValue.getValue()));
+		}
+		if (discriminatorValue.getValue() != null) {
+			filters.add(new Compare.Equal("discriminator", discriminatorValue.getValue()));
 		}	
 		if (dateValue.getValue() != null) {
 			filters.add(FilterHelper.compare(dateField.getValue(), dateComparator.getValue(), dateValue.getValue()));

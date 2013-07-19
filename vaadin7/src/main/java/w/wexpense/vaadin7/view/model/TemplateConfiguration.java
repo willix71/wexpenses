@@ -1,5 +1,7 @@
 package w.wexpense.vaadin7.view.model;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -24,6 +26,8 @@ import com.vaadin.ui.MenuBar.MenuItem;
 @Configuration
 public class TemplateConfiguration {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(TemplateConfiguration.class);
+	
 	@Autowired
 	@Qualifier("templateService")
 	private StorableService<Template, String> templateService;
@@ -81,6 +85,7 @@ public class TemplateConfiguration {
          		
          		editorview.close();
          	} catch(Exception e) {
+         		LOGGER.error("Failed to convert template to expense", e);
          		throw new RuntimeException(e);
          	}
          }

@@ -38,7 +38,7 @@ public class BvoDtaFormaterTest {
 	}
 
 	@Test
-	public void testBvoExpense() {
+	public void testBvoExpense() throws DtaException {
 		Payment payment = createPaymentData(15,2,2012,"test.dta", getBvoExpense());
 		List<String> l = new BvoDtaFormater().format(payment, 1, payment.getExpenses().get(0));
 		Assert.assertEquals(3, l.size());

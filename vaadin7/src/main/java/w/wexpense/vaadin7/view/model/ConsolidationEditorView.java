@@ -1,6 +1,5 @@
 package w.wexpense.vaadin7.view.model;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -20,23 +19,22 @@ import w.wexpense.utils.TransactionLineUtils;
 import w.wexpense.vaadin7.action.ActionHandler;
 import w.wexpense.vaadin7.action.ActionHelper;
 import w.wexpense.vaadin7.action.AddMultiSelectionAction;
-import w.wexpense.vaadin7.action.EditAction;
+import w.wexpense.vaadin7.action.EditConsolidationTransactionLineAction;
 import w.wexpense.vaadin7.action.RemoveAction;
 import w.wexpense.vaadin7.component.OneToManyField;
 import w.wexpense.vaadin7.container.OneToManyContainer;
+import w.wexpense.vaadin7.filter.FilterHelper;
 import w.wexpense.vaadin7.view.EditorView;
 import w.wexpense.vaadin7.view.MultiSelectorView;
 
 import com.vaadin.data.Container;
-import com.vaadin.data.Property;
 import com.vaadin.data.Container.Filter;
 import com.vaadin.data.Container.ItemSetChangeEvent;
+import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.filter.And;
 import com.vaadin.data.util.filter.Compare;
 import com.vaadin.data.util.filter.Or;
-import com.vaadin.ui.Table;
 
 @org.springframework.stereotype.Component
 @Scope("prototype")
@@ -45,20 +43,17 @@ public class ConsolidationEditorView extends EditorView<Consolidation, Long> {
 	@Log
 	private static Logger LOGGER;
 	
+	@Autowired
+	private EditConsolidationTransactionLineAction editConsolidationTransactionLineAction;
+	
 	private class AddMultiTransactionLinesAction extends AddMultiSelectionAction<TransactionLine> {
 		public AddMultiTransactionLinesAction(boolean resetMode) {
-			super("consolidationTransactionLineSelectorView", resetMode);
-			
+			super("consolidationTransactionLineSelectorView", resetMode);			
 		} 
 		
 		@Override
 		public void prepareSelector(MultiSelectorView<TransactionLine> selector, OneToManyContainer<TransactionLine> container, boolean resetMode) {
-			Filter f = getAccountFilter();
-			if (f == null) {
-				f = ActionHelper.parentFilter("consolidation", ConsolidationEditorView.this.getInstance());
-			} else {
-				f = new And(f, ActionHelper.parentFilter("consolidation", ConsolidationEditorView.this.getInstance()));
-			}
+			Filter f = FilterHelper.and(getAccountFilter(),ActionHelper.parentFilter("consolidation", ConsolidationEditorView.this.getInstance()));
 			
 			if (!resetMode && !container.isEmpty()) {
 				f = new And(f, ActionHelper.excludeFilter(container.getBeans()));
@@ -89,10 +84,7 @@ public class ConsolidationEditorView extends EditorView<Consolidation, Long> {
 
 		this.setProperties("fullId","uid","date","institution","openingBalance","closingBalance","deltaBalance","transactions");
 		this.setCustomField("transactions",  consolidationTransactionsField);
-
-		
 	}
-	
 	
 	@Override
    public void initFields() {
@@ -110,20 +102,12 @@ public class ConsolidationEditorView extends EditorView<Consolidation, Long> {
 	private OneToManyField<TransactionLine> initConsolidationTransactionsField() {
 		final OneToManyField<TransactionLine> tlField = new OneToManyField<TransactionLine>(TransactionLine.class, super.persistenceService, ConsolidationConfiguration.getTransactionLinesTableColumnConfig());
      
-		EditAction editAction = new EditAction("expenseEditorView") {
-			@Override
-			public Serializable getInstanceId(Object sender, Object target) {
-				com.vaadin.data.Container c = ((Table) sender) .getContainerDataSource();
-				@SuppressWarnings("unchecked")
-				BeanItem<TransactionLine> i = (BeanItem<TransactionLine>) c.getItem(target);
-				return i.getBean().getExpense().getId();
-			}
-		};
+		
 		
       ActionHandler action = new ActionHandler();
 		action.addListViewAction(new AddMultiTransactionLinesAction(true));
 		action.addListViewAction(new AddMultiTransactionLinesAction(false));
-		action.addListViewAction(editAction);
+		action.addListViewAction(editConsolidationTransactionLineAction);
 		action.addListViewAction(new RemoveAction<TransactionLine>());
 		tlField.setActionHandler(action);
 		
@@ -134,7 +118,7 @@ public class ConsolidationEditorView extends EditorView<Consolidation, Long> {
 				@SuppressWarnings("unchecked")
 				OneToManyContainer<TransactionLine> otmContainer = (OneToManyContainer<TransactionLine>) event.getContainer();
 				Collection<TransactionLine> tls = otmContainer.getBeans();
-				BigDecimal[] values = TransactionLineUtils.getDeltaAndTotals(otmContainer.getBeans());
+				BigDecimal[] values = TransactionLineUtils.getValueDeltaAndTotals(otmContainer.getBeans());
 				tlField.setFooter("outValue", MessageFormat.format("{0,number,0.00}",values[1]));
 				tlField.setFooter("inValue", MessageFormat.format("{0,number,0.00}",values[2]));				
 				tlField.setFooter("payee", MessageFormat.format("{0,number,0} X",tls.size()));
@@ -147,7 +131,7 @@ public class ConsolidationEditorView extends EditorView<Consolidation, Long> {
 	}
 	
 	private void updateDelta() {
-		BigDecimal[] values = TransactionLineUtils.getDeltaAndTotals(getInstance().getTransactions());
+		BigDecimal[] values = TransactionLineUtils.getValueDeltaAndTotals(getInstance().getTransactions());
 		updateDelta(values[0]);	
 	}
 	

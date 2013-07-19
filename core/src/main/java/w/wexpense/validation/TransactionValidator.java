@@ -19,7 +19,7 @@ public class TransactionValidator implements ConstraintValidator<Transactionized
 	@Override
 	public boolean isValid(Collection<TransactionLine> lines, ConstraintValidatorContext context) {
 		if (lines!=null && lines.size()>=2) {
-			BigDecimal[] total = TransactionLineUtils.getDeltaAndTotals(lines);
+			BigDecimal[] total = TransactionLineUtils.getAmountDeltaAndTotals(lines);
 			return total[1].equals(total[2]);
 		}
 		return false;

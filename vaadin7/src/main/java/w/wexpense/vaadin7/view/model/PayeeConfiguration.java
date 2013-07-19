@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Scope;
 import w.wexpense.model.Payee;
 import w.wexpense.service.StorableService;
 import w.wexpense.vaadin7.action.ActionHelper;
-import w.wexpense.vaadin7.filter.DisplayFilter;
+import w.wexpense.vaadin7.filter.PayeeFilter;
 import w.wexpense.vaadin7.support.TableColumnConfig;
 import w.wexpense.vaadin7.view.EditorView;
 import w.wexpense.vaadin7.view.ListView;
@@ -43,9 +43,11 @@ public class PayeeConfiguration {
 				   new TableColumnConfig("prefix"),
 				   new TableColumnConfig("name").asc(),
 				   new TableColumnConfig("city").sortBy(".display"),
-				   new TableColumnConfig("externalReference").collapse()
+				   new TableColumnConfig("externalReference").collapse(),
+				   new TableColumnConfig("bankDetails.display","bank details").collapse(),
+				   new TableColumnConfig("bankDetails.externalReference","bank externalReference").collapse()
 				   );
-		listview.addFilterSource(new DisplayFilter());
+		listview.addFilterSource(new PayeeFilter());
 		ActionHelper.setDefaultListViewActions(listview, "payeeEditorView");
 		return listview;
 	}

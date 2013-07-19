@@ -13,14 +13,20 @@ import w.wexpense.model.Expense;
 import w.wexpense.model.Payee;
 import w.wexpense.model.Payment;
 
-import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.collect.Multimap;
+
 public class BvoDtaFormater implements DtaFormater {
 
 	public static final String TRANSACTION_TYPE = "826";
 	
 	@Override
-	public List<String> format(Payment payment, int index, Expense expense) {
-		check(expense); 
+	public List<String> format(Payment payment, int index, Expense expense) throws DtaException {
+		Multimap<String, String> violations = validate(expense);
+		if (!violations.isEmpty()) {
+			throw new DtaException(violations);
+		}
+		
 		List<String> lines = new ArrayList<String>();
 		lines.add(formatLine01(TRANSACTION_TYPE, payment.getDate(), index, expense, true));
 		lines.add(formatLine02(payment, index, expense));
@@ -28,13 +34,17 @@ public class BvoDtaFormater implements DtaFormater {
 		return lines;
 	}
 	
-	public void check(Expense expense) {
-		// Must have an externalReference and a payee.externalReference
-		Preconditions.checkNotNull(DtaHelper.getTransactionLine(OUT, expense).getAccount().getOwner(), "Out account must have a bank details");		
-		Preconditions.checkNotNull(DtaHelper.getTransactionLine(OUT, expense).getAccount().getOwner().getIban(), "Out account's bank details must have an Iban");
-		Preconditions.checkNotNull(expense.getExternalReference(), "External reference is mandatory for BVO payments (826)");
-		Preconditions.checkNotNull(expense.getPayee().getPostalAccount(), "Payee's postal account is mandatory for BVO payments (826)");
-	}	
+	@Override
+	public Multimap<String, String> validate(Expense expense) {
+		Multimap<String, String> errors = DtaHelper.commonValidation(expense);
+		if (Strings.isNullOrEmpty(expense.getExternalReference())) {
+			errors.put("externalReference", "External reference is mandatory for BVO payments (826)");
+		}
+		if (Strings.isNullOrEmpty(expense.getPayee().getPostalAccount())) {
+			errors.put("payee.postalAccount", "Payee's postal account is mandatory for BVO payments (826)");
+		}
+		return errors;
+	}		
 	
 	protected String formatLine02(Payment payment, int index, Expense expense) {
 		StringBuilder line02 = new StringBuilder();

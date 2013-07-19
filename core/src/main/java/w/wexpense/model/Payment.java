@@ -44,6 +44,12 @@ public class Payment extends DBable<Payment> implements Selectable {
 	public void setDate(Date date) {
 		this.date = date;
 	}
+	
+	// little hack to display something when the date is null
+	public Object getNextDate() {
+		if (date == null) return "next";
+		else return MessageFormat.format("{0,date,dd.MM.yyyy}", date);
+	}
 
 	public String getFilename() {
 		return filename;
@@ -89,7 +95,8 @@ public class Payment extends DBable<Payment> implements Selectable {
 	}
 
 	@Override
-	public String toString() {		
+	public String toString() {
+		if (date == null) return "next" + " " + filename;
 		return MessageFormat.format("{0,date,dd/MM/yyyy} {1}", date, filename);
 	} 
 	

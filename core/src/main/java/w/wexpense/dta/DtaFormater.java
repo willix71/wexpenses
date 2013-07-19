@@ -5,7 +5,11 @@ import java.util.List;
 import w.wexpense.model.Expense;
 import w.wexpense.model.Payment;
 
+import com.google.common.collect.Multimap;
+
 public interface DtaFormater {
 
-	List<String> format(Payment payment, int index, Expense expense);
+	Multimap<String, String> validate(Expense expense);
+
+	List<String> format(Payment payment, int index, Expense expense) throws DtaException;
 }

@@ -5,6 +5,11 @@ import com.vaadin.ui.Table;
 
 import w.wexpense.service.model.ITransactionLineService;
 
+/**
+ * An action to trigger a full balance on all transaction line
+ * @author willy
+ *
+ */
 public class BalanceTransactionLineAction extends ListViewAction {
 
 	private static final long serialVersionUID = 1L;
@@ -24,7 +29,7 @@ public class BalanceTransactionLineAction extends ListViewAction {
 			((JPAContainer<?>) c).refresh();
 			
 		} catch(Exception e) {
-			LOGGER.error("failed to bblance transaction lines", e);
+			LOGGER.error("failed to balance transaction lines", e);
 		}
 	}
 

@@ -16,6 +16,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -58,6 +59,7 @@ public class Expense extends DBable<Expense> {
    @OrderBy("factor, amount")
    @OnDelete(action=OnDeleteAction.CASCADE)
    @Transactionized
+   @Size(min=2,message="A expense must have at least 2 transaction lines: one IN and one OUT")
    @Valid
    private List<TransactionLine> transactions = new ArrayList<>();
    

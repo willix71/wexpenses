@@ -47,7 +47,7 @@ public class ExpenseConfiguration {
 	                new TableColumnConfig("createdTs").collapse(),
 	                new TableColumnConfig("modifiedTs").collapse(),
 	                new TableColumnConfig("date").desc(),
-	                new TableColumnConfig("payment.date", "Payment"),
+	                new TableColumnConfig("payment.nextDate", "Payment"),
 	                new TableColumnConfig("type").centerAlign(),
 	                new TableColumnConfig("amount").rightAlign(),
 	                new TableColumnConfig("currency").centerAlign(),

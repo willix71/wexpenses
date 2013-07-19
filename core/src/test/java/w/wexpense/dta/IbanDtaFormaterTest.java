@@ -35,7 +35,7 @@ public class IbanDtaFormaterTest {
 	};
 	
 	@Test
-	public void testIbanExpense() {
+	public void testIbanExpense() throws DtaException {
 		Payment payment = createPaymentData(18,12,2012,"test.dta", getIbanExpense());
 		List<String> l = new IbanDtaFormater().format(payment, 5, payment.getExpenses().get(0));
 		Assert.assertEquals(5, l.size());
@@ -81,7 +81,7 @@ public class IbanDtaFormaterTest {
 		expense.setCurrency(chf);
 		expense.setDate(createDate(18,12,2012));
 		expense.setPayee(brp);
-		expense.setDescription("William Keyser Saison 2012-2013");
+		expense.setExternalReference("William Keyser Saison 2012-2013");
 		
 		TransactionLine line1 = new TransactionLine();
 		line1.setExpense(expense);

@@ -10,9 +10,12 @@ import org.springframework.context.annotation.Scope;
 
 import w.wexpense.model.DBable;
 import w.wexpense.model.TransactionLine;
+import w.wexpense.vaadin7.ValidationHelper;
+import w.wexpense.vaadin7.component.ExchangeRateField;
 import w.wexpense.vaadin7.component.RelationalFieldFactory;
 import w.wexpense.vaadin7.container.ContainerService;
 import w.wexpense.vaadin7.view.GenericView;
+import w.wexpense.validation.Warning;
 
 import com.vaadin.data.Property;
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
@@ -26,6 +29,7 @@ import com.vaadin.ui.Field;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.VerticalLayout;
 
 @org.springframework.stereotype.Component
@@ -53,15 +57,14 @@ public class TransactionLineEditorView extends GenericView<TransactionLine> {
 	
 	protected HorizontalLayout buttonLayout;	
 	
+	private long lastWarningTs = 0;
+	
 	protected Button[] buttons = new Button[] {
 			new Button("close", new Button.ClickListener() {
 				@Override
 				public void buttonClick(ClickEvent event) {
-					try {
-						save();
+					if (validateAndSave()) {
 						close();
-					} catch (FieldGroup.CommitException e) {
-						throw new RuntimeException(e);
 					}
 				}
 			})
@@ -155,6 +158,7 @@ public class TransactionLineEditorView extends GenericView<TransactionLine> {
 				fieldGroup.getField(propertyId).setReadOnly(DBable.SYSTEM_PROPERTIES.contains(propertyId));
 			}
 		}
+		((ExchangeRateField) fieldGroup.getField("exchangeRate")).setOwner(t);
 	}
 
 	public TransactionLine getInstance() {
@@ -181,9 +185,36 @@ public class TransactionLineEditorView extends GenericView<TransactionLine> {
 		return fieldGroup.getField(propertyId);
 	}
 	
-	public void save() throws FieldGroup.CommitException {				
+	public boolean validateAndSave() {
+		String errorMsg = ValidationHelper.validate(fieldGroup.getItemDataSource().getBean());
+		if (errorMsg != null) {
+			Notification.show("Error", errorMsg,  Notification.Type.ERROR_MESSAGE);
+			return false;
+		}
+			
+		// check their are no warnings and that we havn't displayed the warnings in the last 5 seconds
+		String warningMsg = ValidationHelper.validate(fieldGroup.getItemDataSource().getBean(), Warning.class);
+		long currentWarningTs = System.currentTimeMillis();
+		if (warningMsg != null && (currentWarningTs-lastWarningTs>5000)) {			
+			Notification.show("Warning", warningMsg,  Notification.Type.WARNING_MESSAGE);
+			lastWarningTs = currentWarningTs;
+			return false;
+		}
+	
+		try {
+			save();
+			
+			return true;
+		} catch (FieldGroup.CommitException e) {
+			LOGGER.error("Failed to save " + getEntityClass(), e);
+			throw new RuntimeException(e);
+		}
+	}
+	
+	private void save() throws FieldGroup.CommitException {				
 
 		if (!fieldGroup.isValid()) {
+			// this should never happen since validation has already been performed
 			throw new FieldGroup.CommitException("Not valid");
 		}
 		

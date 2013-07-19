@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import w.wexpense.vaadin7.UIHelper;
 import w.wexpense.vaadin7.WexUI;
+import w.wexpense.vaadin7.container.OneToManyContainer;
 import w.wexpense.vaadin7.event.EntityChangeEvent;
 import w.wexpense.vaadin7.view.EditorView;
 
@@ -43,6 +44,12 @@ public class EditAction extends ListViewAction {
 							} else {
 								((JPAContainer<?>) c).refresh();
 							}
+						} else if (c instanceof OneToManyContainer) {
+							Object o = ((EntityChangeEvent) event).getObject();
+							Object bean = getBean(sender, target, o);
+							// first remove the bean (they have the same id) and add it back
+							((OneToManyContainer) c).removeBean(bean);
+							((OneToManyContainer) c).addBean(bean);
 						}
 					}
 				}
@@ -52,6 +59,10 @@ public class EditAction extends ListViewAction {
 		}
 	}
 
+	public Object getBean(Object sender, Object target, Object bean) {
+		return bean;
+	}
+	
 	public Serializable getInstanceId(Object sender, Object target) {
 		return (Serializable) target;
 	}

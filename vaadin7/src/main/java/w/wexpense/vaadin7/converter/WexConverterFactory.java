@@ -18,8 +18,10 @@ public class WexConverterFactory extends DefaultConverterFactory {
          return new StringToAmountConverter();
      } else if (Date.class.isAssignableFrom(sourceType)) {
           return new StringToDateConverter();
+      } else if (Date.class.isAssignableFrom(sourceType)) {
+      	return new StringToStringConverter();
       } else {
-          return super.createStringConverter(sourceType);
+      	return super.createStringConverter(sourceType);
       }
   };
 

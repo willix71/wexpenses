@@ -17,14 +17,14 @@ import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 
 import w.wexpense.model.enums.TransactionLineEnum;
-import w.wexpense.validation.EchangeRateTransactionLineized;
+import w.wexpense.validation.ExchangeRateTransactionLineized;
 
 @Entity
 @TypeDefs({
 	@TypeDef(name = "amountValueType", typeClass = w.wexpense.persistence.type.AmountValueType.class),
 	@TypeDef(name = "transactionLineEnumType", typeClass = w.wexpense.persistence.type.TransactionLineEnumType.class)
 	})
-@EchangeRateTransactionLineized
+@ExchangeRateTransactionLineized
 public class TransactionLine extends DBable<TransactionLine> {
 
 	private static final long serialVersionUID = 2482940442245899869L;

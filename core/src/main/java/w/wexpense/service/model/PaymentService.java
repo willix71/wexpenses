@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import w.wexpense.dta.DtaException;
 import w.wexpense.dta.DtaHelper;
 import w.wexpense.model.Expense;
 import w.wexpense.model.Payment;
@@ -80,7 +81,7 @@ public class PaymentService extends DaoService<Payment, Long> implements IPaymen
    }
 
 	@Override
-	public Payment generatePaymentDtas(Payment payment) throws Exception {
+	public Payment generatePaymentDtas(Payment payment) throws DtaException {
 		boolean isNew = payment.isNew();
 		
 		if (payment.getDate() == null) {

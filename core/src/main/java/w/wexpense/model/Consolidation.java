@@ -36,7 +36,7 @@ public class Consolidation extends DBable<Consolidation> {
 	
 	private BigDecimal closingBalance;
 	
-	@Range(min=0,max=0,groups=Warning.class)
+	@Range(min=0,max=0, message="Delta balance should be 0", groups=Warning.class)
 	private BigDecimal deltaBalance;
 	
     @OneToMany(mappedBy="consolidation", cascade={CascadeType.PERSIST, CascadeType.MERGE})

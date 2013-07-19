@@ -45,9 +45,10 @@ public class OneToManyContainer<BEANTYPE> extends BeanItemContainer<BEANTYPE> {
 	}
 
 	public void removeBean(BEANTYPE t) {	
-		removeItem(t);
-		
+		// first remove from OneToMany beans because the next call will fire the itemSetChange
 		beans.remove(t);
+
+		removeItem(t);		
 	}
 	
 	public boolean isEmpty() {

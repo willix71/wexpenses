@@ -3,7 +3,6 @@ package w.wexpense.service.model;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import w.wexpense.model.Account;
 import w.wexpense.model.City;
 import w.wexpense.model.Country;
 import w.wexpense.model.Currency;
@@ -22,6 +21,7 @@ import w.wexpense.persistence.dao.ITemplateJpaDao;
 import w.wexpense.service.DaoService;
 import w.wexpense.service.GenericService;
 import w.wexpense.service.StorableService;
+import w.wexpense.service.instanciator.ExchangeRateInitializor;
 import w.wexpense.service.instanciator.NameInitializor;
 import w.wexpense.service.instanciator.ParentInitializor;
 
@@ -65,7 +65,7 @@ public class StorableServiceConfiguration {
 	
 	@Bean 
 	public StorableService<ExchangeRate, Long> exchangeRateService(IExchangeRateJpaDao dao) {
-		return new DaoService<ExchangeRate, Long>(ExchangeRate.class, dao);
+		return new DaoService<ExchangeRate, Long>(ExchangeRate.class, dao, new ExchangeRateInitializor());
 	}
 
 	@Bean 

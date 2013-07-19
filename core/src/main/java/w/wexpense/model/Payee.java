@@ -34,7 +34,7 @@ public class Payee extends DBable<Payee> {
     @Ibanized
     private String iban;
     
-    @Pattern(regexp="\\d{1,2}-\\d{1,6}-\\d")
+    @Pattern(regexp="|\\d{1,2}-\\d{1,6}-\\d")
     private String postalAccount;
     
     private String externalReference;
@@ -157,10 +157,9 @@ public class Payee extends DBable<Payee> {
 	
 	@Override
 	public String toString() {
-		if (city == null) {
-			return getPrefixedName();
-		} else {
-			return getPrefixedName() + ", " + city.toString();	
-		}
+		String s = getPrefixedName();
+		if (city != null) s += ", " + city.toString();	
+		if (externalReference != null) s += "; " + externalReference;
+		return s;
 	}
 }

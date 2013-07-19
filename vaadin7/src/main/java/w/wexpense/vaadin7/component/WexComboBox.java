@@ -1,5 +1,7 @@
 package w.wexpense.vaadin7.component;
 
+import java.io.Serializable;
+
 import w.wexpense.model.DBable;
 import w.wexpense.vaadin7.UIHelper;
 import w.wexpense.vaadin7.event.EntityChangeEvent;
@@ -24,7 +26,7 @@ import com.vaadin.ui.CustomField;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.NativeSelect;
 
-public class WexComboBox<T> extends CustomField<T> implements Button.ClickListener {
+public class WexComboBox<T, ID extends Serializable> extends CustomField<T> implements Button.ClickListener {
 
 	private static final long serialVersionUID = -5068539384518692094L;
 	
@@ -84,15 +86,18 @@ public class WexComboBox<T> extends CustomField<T> implements Button.ClickListen
 
 	
 	protected GenericView<T> addNew() {
-		final EditorView<T, ?> editor = UIHelper.getEditorView(entityClass);
+		final EditorView<T, ID> editor = (EditorView<T, ID>) UIHelper.getEditorView(entityClass);
 
 		// disable edit menu???
 		
-		T t = (T) comboBox.getConvertedValue();
-		if (t == null) {
+		ID id = (ID) comboBox.getValue();
+		if (id == null) {
 			editor.newInstance(text);
 		} else {
-			editor.setInstance(t);
+			// reload the instance so that if modified but canceled, 
+			// the changes are not reflected in the current instance
+			// (also prevents lazy loading exceptions)
+			editor.loadInstance(id);
 		}
 		
 		editor.addListener(new Component.Listener() {
@@ -105,7 +110,7 @@ public class WexComboBox<T> extends CustomField<T> implements Button.ClickListen
 					((JPAContainer<?>) comboBox.getContainerDataSource()).refresh();
 
 					// set the new value
-					comboBox.setValue(comboBox.getConverter().convertToPresentation(((EntityChangeEvent) event).getObject(),null));
+					comboBox.setValue(((EntityChangeEvent) event).getId());
 				} 
 			}
 		});

@@ -8,16 +8,16 @@ import java.lang.annotation.Target;
 import javax.validation.Constraint;
 import javax.validation.Payload;
 
-@Target({ElementType.TYPE, ElementType.ANNOTATION_TYPE})
+@Target({ElementType.TYPE,ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy=ExchangeRateTransactionLineValidator.class)
-public @interface EchangeRateTransactionLineized {
+@Constraint(validatedBy=DtaValidator.class)
+public @interface Dtanized {
 
 	/**
 	 * Can be overriden with a custom message by using curly brackers
-	 * i.e.: "{w.wexpense.validation.transaction.total}"
+	 * i.e.: "{w.wexpense.validation.iban}"
 	 */
-	String message() default "Invalid exchange rate for transaction line";
+	String message() default "Can not generate DTA";
 	
 	Class<?>[] groups() default {};
 	

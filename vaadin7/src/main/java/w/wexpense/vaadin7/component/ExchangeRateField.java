@@ -1,13 +1,18 @@
 package w.wexpense.vaadin7.component;
 
+import w.wexpense.model.Currency;
 import w.wexpense.model.ExchangeRate;
+import w.wexpense.model.TransactionLine;
 import w.wexpense.vaadin7.UIHelper;
 import w.wexpense.vaadin7.WexUI;
 import w.wexpense.vaadin7.event.EntityChangeEvent;
 import w.wexpense.vaadin7.event.SelectionChangeEvent;
+import w.wexpense.vaadin7.filter.FilterHelper;
 import w.wexpense.vaadin7.view.EditorView;
 import w.wexpense.vaadin7.view.SelectorView;
 
+import com.vaadin.data.Container.Filter;
+import com.vaadin.data.util.filter.Compare;
 import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -25,6 +30,7 @@ public class ExchangeRateField extends CustomField<ExchangeRate> implements Butt
 	private Button btnAdd;
 	private Button btnSelect;
 	private ExchangeRate value;
+	private TransactionLine owner;
 	
 	public ExchangeRateField() {		
 		layout = new HorizontalLayout();		
@@ -76,6 +82,21 @@ public class ExchangeRateField extends CustomField<ExchangeRate> implements Butt
 		if (btnSelect == event.getSource()){
 			final SelectorView<ExchangeRate> selector = ((WexUI) UI.getCurrent()).getBean(SelectorView.class, "exchangeRateSelectorView");
 			
+			if (owner!=null) {
+				Filter f=null;
+				if (owner.getExpense()!=null) {
+					Currency c = owner.getExpense().getCurrency();
+					if (c!=null) f = FilterHelper.and(f, new Compare.Equal("fromCurrency", c));
+				}
+									
+				if (owner.getAccount()!=null) {
+					Currency c = owner.getAccount().getCurrency();
+					if (c!=null) f = FilterHelper.and(f, new Compare.Equal("toCurrency", c));
+				}
+				
+				if (f!=null) selector.setFilter(f);
+			}
+			
 			if (value!=null) {
 				selector.setValue(value);
 			}
@@ -98,6 +119,8 @@ public class ExchangeRateField extends CustomField<ExchangeRate> implements Butt
 			
 			if (value!=null) {
 				editor.setInstance(value);
+			} else if (owner!=null){
+				editor.newInstance(owner);
 			} else {
 				editor.newInstance();
 			}
@@ -116,4 +139,8 @@ public class ExchangeRateField extends CustomField<ExchangeRate> implements Butt
 			Window w = UIHelper.displayModalWindow(editor);
 		}
    }
+
+	public void setOwner(TransactionLine owner) {
+		this.owner = owner;
+	}
 }

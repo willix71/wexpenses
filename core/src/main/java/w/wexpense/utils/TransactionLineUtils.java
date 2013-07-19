@@ -34,7 +34,7 @@ public class TransactionLineUtils {
 		TransactionLineEnum factor;
 		BigDecimal value;
 		
-		BigDecimal[] deltaAndTotalOut = getDeltaAndTotals(transactions);
+		BigDecimal[] deltaAndTotalOut = getAmountDeltaAndTotals(transactions);
 		if (deltaAndTotalOut[1].compareTo(amount) < 0) {
 			value = amount.subtract(deltaAndTotalOut[1]);
 			factor = TransactionLineEnum.OUT;
@@ -54,10 +54,18 @@ public class TransactionLineUtils {
 		return line;
 	}
 	
-	public static BigDecimal[] getDeltaAndTotals(Collection<TransactionLine> transactions) {
+	public static BigDecimal[] getAmountDeltaAndTotals(Collection<TransactionLine> transactions) {
+		return getDeltaAndTotals(true, transactions);
+	}
+	
+	public static BigDecimal[] getValueDeltaAndTotals(Collection<TransactionLine> transactions) {
+		return getDeltaAndTotals(false, transactions);
+	}
+	
+	private static BigDecimal[] getDeltaAndTotals(boolean forAmount, Collection<TransactionLine> transactions) {
 		BigDecimal[] total = { new BigDecimal(0), new BigDecimal(0), new BigDecimal(0)};
 		for(TransactionLine transaction: transactions) {
-			BigDecimal amount = transaction.getAmount();
+			BigDecimal amount = forAmount?transaction.getAmount():transaction.getValue();
 			TransactionLineEnum factor = transaction.getFactor();
 			if (amount != null && factor != null) {
 				if (TransactionLineEnum.OUT==factor) {					
@@ -71,7 +79,7 @@ public class TransactionLineUtils {
 		}
 		return total;
 	}
-		
+	
 	public static void sortAndBalance(List<TransactionLine> lines) {
 		balance(sortForBalance(lines));
 	}

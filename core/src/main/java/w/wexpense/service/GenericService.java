@@ -85,8 +85,11 @@ public class GenericService<T, ID extends Serializable> implements StorableServi
 	
 	@Override
 	public T save(T entity) {
-		//entityManager.merge(entity);
-		entityManager.persist(entity);
+		if (PersistenceUtils.getIdValue(entity) == null) {			
+			entityManager.persist(entity);
+		} else {
+			entity = entityManager.merge(entity);
+		}
 		
 		return entity;
 	}

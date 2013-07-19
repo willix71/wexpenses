@@ -15,12 +15,14 @@ import w.wexpense.model.DBable;
 import w.wexpense.model.Duplicatable;
 import w.wexpense.persistence.PersistenceUtils;
 import w.wexpense.service.StorableService;
+import w.wexpense.vaadin7.ValidationHelper;
 import w.wexpense.vaadin7.component.RelationalFieldCustomizer;
 import w.wexpense.vaadin7.component.RelationalFieldFactory;
 import w.wexpense.vaadin7.component.RelationalFieldHelper;
 import w.wexpense.vaadin7.container.ContainerService;
 import w.wexpense.vaadin7.event.EntityChangeEvent;
 import w.wexpense.vaadin7.menu.EnabalebalMenuBar;
+import w.wexpense.validation.Warning;
 
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
 import com.vaadin.data.fieldgroup.FieldGroup;
@@ -75,16 +77,15 @@ public class EditorView<T, ID extends Serializable> extends GenericView<T> {
 	protected HorizontalLayout buttonLayout;	
 	
 	protected EnabalebalMenuBar<T> menuBar;
+		
+	private long lastWarningTs = 0;
 	
 	protected Button[] buttons = new Button[] {
 			new Button("Save", new Button.ClickListener() {
 				@Override
 				public void buttonClick(ClickEvent event) {
-					try {
-						save();
+					if (validateAndSave() != null) {
 						close();
-					} catch (FieldGroup.CommitException e) {
-						throw new RuntimeException(e);
 					}
 				}
 			}), new Button("Cancel", new Button.ClickListener() {
@@ -106,13 +107,11 @@ public class EditorView<T, ID extends Serializable> extends GenericView<T> {
 
 		MenuItem editMenu = menuBar.addItem("edit", null);		
 		menuBar.addItem(editMenu, "save", null, new Command() {
-	         public void menuSelected(MenuItem selectedItem) { 
-	         	try {
-						setInstance(save());
-						Notification.show("saved...", Notification.Type.TRAY_NOTIFICATION);
-					} catch (FieldGroup.CommitException e) {
-						throw new RuntimeException(e);
-					}
+	         public void menuSelected(MenuItem selectedItem) {
+	         	T saved = validateAndSave();
+	         	if (saved != null) {
+	         		setInstance(saved);
+	         	}
 	         }
 	      });
 		
@@ -296,9 +295,38 @@ public class EditorView<T, ID extends Serializable> extends GenericView<T> {
 		return fieldGroup.getField(propertyId);
 	}
 	
-	public T save() throws FieldGroup.CommitException {				
+	public T validateAndSave() {
+		String errorMsg = ValidationHelper.validate(fieldGroup.getItemDataSource().getBean());
+		if (errorMsg != null) {
+			Notification.show("Error", errorMsg,  Notification.Type.ERROR_MESSAGE);
+			return null;
+		}
+			
+		// check their are no warnings and that we havn't displayed the warnings in the last 5 seconds
+		String warningMsg = ValidationHelper.validate(fieldGroup.getItemDataSource().getBean(), Warning.class);
+		long currentWarningTs = System.currentTimeMillis();
+		if (warningMsg != null && (currentWarningTs-lastWarningTs>5000)) {			
+			Notification.show("Warning", warningMsg,  Notification.Type.WARNING_MESSAGE);
+			lastWarningTs = currentWarningTs;
+			return null;
+		}
+	
+		try {
+			T saved = save();
+			
+			Notification.show("saved...", Notification.Type.TRAY_NOTIFICATION);
+			
+			return saved;
+		} catch (FieldGroup.CommitException e) {
+			LOGGER.error("Failed to save " + getEntityClass(), e);
+			throw new RuntimeException(e);
+		}
+	}
+		
+	private T save() throws FieldGroup.CommitException {				
 
 		if (!fieldGroup.isValid()) {
+			// this should never happen since validation has already been performed
 			throw new FieldGroup.CommitException("Not valid");
 		}
 		
@@ -307,11 +335,11 @@ public class EditorView<T, ID extends Serializable> extends GenericView<T> {
 		
 		T t1 = fieldGroup.getItemDataSource().getBean();
 	
-		T t = storeService.save(t1);
+		T t2 = storeService.save(t1);
 	
-		fireEntityChange(t);
+		fireEntityChange(t2);
 	
-		return t;	
+		return t2;	
 	}
 
 	public void fireEntityChange(T t) {

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 
 import w.log.extras.Log;
+import w.wexpense.dta.DtaException;
 import w.wexpense.model.Expense;
 import w.wexpense.model.Payment;
 import w.wexpense.service.model.IPaymentService;
@@ -84,16 +85,11 @@ public class PaymentEditorView extends EditorView<Payment, Long> {
 		this.setCustomField("expenses", expensesField);
 
 	}
-	@Override
-   public void initFields() {
-		super.initFields();
-		fieldGroup.getField("selectable").setReadOnly(true);
-	}
 	
 	@Override
    public void initFields(Payment payment) {
       super.initFields(payment);
-
+      fieldGroup.getField("selectable").setReadOnly(true);
       fieldGroup.getField("date").setReadOnly(!payment.isSelectable());	         
       ((OneToManyField<?>) fieldGroup.getField("expenses")).getActionHandler().setEnabled(payment.isSelectable());
    }
@@ -169,6 +165,8 @@ public class PaymentEditorView extends EditorView<Payment, Long> {
 	   			window.center();
 	   			UI.getCurrent().addWindow(window);
 	   			
+         	} catch(DtaException dtae) {
+         		Notification.show("Error", dtae.getMessage(),  Notification.Type.ERROR_MESSAGE);
          	} catch(Exception e) {
          		LOGGER.error("Failed viewing " + (p.isSelectable()?"generated":"") + " DTA for payement " + p.getUid(), e);
          		throw new RuntimeException(e);
@@ -183,6 +181,8 @@ public class PaymentEditorView extends EditorView<Payment, Long> {
          			p = generatePaymentDtas(PaymentEditorView.this, p);
          		}         		
          		Page.getCurrent().open("download?paymentId=" + p.getId(), "_blank");
+         	} catch(DtaException dtae) { 
+         		Notification.show("Error", dtae.getMessage(),  Notification.Type.ERROR_MESSAGE);
          	} catch(Exception e) {
          		LOGGER.error("Failed saving " + (p.isSelectable()?"generated":"") + " DTA for payement " + p.getUid(), e);
          		throw new RuntimeException(e);
@@ -191,7 +191,7 @@ public class PaymentEditorView extends EditorView<Payment, Long> {
       });
 	}
 	
-	private Payment generatePaymentDtas(EditorView<Payment, Long> editorview, Payment p) throws Exception {
+	private Payment generatePaymentDtas(EditorView<Payment, Long> editorview, Payment p) throws DtaException {
 		editorview.getField("expenses").commit();
 		
 		p = paymentService.generatePaymentDtas(p);

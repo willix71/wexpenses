@@ -8,6 +8,7 @@ import com.vaadin.data.Container.Filter;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.util.IndexedContainer;
+import com.vaadin.data.util.filter.And;
 import com.vaadin.data.util.filter.Compare;
 import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.FieldEvents.TextChangeListener;
@@ -22,6 +23,22 @@ import com.vaadin.ui.TextField;
 
 public class FilterHelper {
 
+	public static Filter and(Filter f1, Filter f2) {
+		if (f1 != null) {
+			if (f2 != null) {
+				return new And(f1,f2);
+			} else {
+				return f1;
+			}
+		} else {
+			if (f2 != null) {
+				return f2;
+			} else {
+				return null;
+			}
+		}
+	}
+	
 	public static NativeSelect getSelectFilter(final AbstractFilterView view, String ... values) {
 		IndexedContainer c = new IndexedContainer();
 		for(String s: values) {

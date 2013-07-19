@@ -13,15 +13,20 @@ import w.wexpense.model.Expense;
 import w.wexpense.model.Payee;
 import w.wexpense.model.Payment;
 
-import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.collect.Multimap;
 
 public class BvrDtaFormater implements DtaFormater {
 
 	public static final String TRANSACTION_TYPE = "827";
 		
 	@Override
-	public List<String> format(Payment payment, int index, Expense expense) {
-		check(expense);
+	public List<String> format(Payment payment, int index, Expense expense) throws DtaException {
+		Multimap<String, String> violations = validate(expense);
+		if (!violations.isEmpty()) {
+			throw new DtaException(violations);
+		}
+		
 		List<String> lines = new ArrayList<String>();
 		lines.add(formatLine01(TRANSACTION_TYPE, payment.getDate(), index, expense, true));
 		lines.add(formatLine02(payment, index, expense));
@@ -30,14 +35,19 @@ public class BvrDtaFormater implements DtaFormater {
 		return lines;
 	}
 	
-	public void check(Expense expense) {
-		// Must have a payee.externalReference (account number)
-		Preconditions.checkNotNull(DtaHelper.getTransactionLine(OUT, expense).getAccount().getOwner().getIban(), "Out account must have a bank details");		
-		Preconditions.checkNotNull(DtaHelper.getTransactionLine(OUT, expense).getAccount().getOwner().getIban(), "Out account's bank details must have an Iban");
-
-		Preconditions.checkNotNull(expense.getPayee().getBankDetails(), "Payee's bank details is mandatory for BVR payments (827)");
-		Preconditions.checkNotNull(expense.getPayee().getBankDetails().getPostalAccount(), "Payee's bank details postal account is mandatory for BVR payments (827)");
-	}
+	@Override
+	public Multimap<String, String> validate(Expense expense) {
+		Multimap<String, String> errors = DtaHelper.commonValidation(expense);
+		if (Strings.isNullOrEmpty(expense.getPayee().getPostalAccount()) &&
+				(expense.getPayee().getBankDetails()==null || Strings.isNullOrEmpty(expense.getPayee().getBankDetails().getPostalAccount()))) {
+			
+			String msg = "Either the payee's postal account or the payee's bank detail postal account are needed for BVR payments (827)";
+			errors.put("payee.postalAccount", msg);
+			errors.put("payee.bankDetails.postalAccount", msg);
+		}
+		
+		return errors;
+	}		
 	
 	protected String getProcessingDate(Expense expense) {
 		return pad(expense.getDate());
@@ -61,11 +71,7 @@ public class BvrDtaFormater implements DtaFormater {
 		StringBuilder line03 = new StringBuilder();
 		line03.append("03");
 		
-		// beneficiary
-		line03.append("/C/");
-		
-		// ISR party number
-		line03.append(pad(expense.getPayee().getBankDetails().getPostalAccount(),27));
+		line03.append(getBeneficiaryAccount(expense));
 		
 		line03.append(pad(expense.getPayee().getPrefixedName(), 24));
 		line03.append(pad(expense.getPayee().getAddress1(), 24));
@@ -75,16 +81,24 @@ public class BvrDtaFormater implements DtaFormater {
 		return line03.toString();
 	}
 	
+	protected String getBeneficiaryAccount(Expense expense) {
+		String account = Strings.isNullOrEmpty(expense.getPayee().getPostalAccount())?
+				expense.getPayee().getBankDetails().getPostalAccount():expense.getPayee().getPostalAccount();
+		
+		// beneficiary
+		return "/C/" + pad(account,27);
+	}
+	
 	protected String formatLine04(Payment payment, int index, Expense expense) {
 		StringBuilder line04 = new StringBuilder();
 		line04.append("04");
 		
 		// description
-		String description = expense.getDescription();		
-		if (description == null || !description.contains(lineSeparator))  {
-			line04.append(pad(description, 112));
+		String externalReference = expense.getExternalReference();		
+		if (externalReference == null || !externalReference.contains(lineSeparator))  {
+			line04.append(pad(externalReference, 112));
 		} else {
-			String[] separated = description.split(Pattern.quote(lineSeparator));
+			String[] separated = externalReference.split(Pattern.quote(lineSeparator));
 			for(int i=0;i<4;i++) {
 				if (separated.length > i) {
 					line04.append(pad(separated[i],28));

@@ -84,8 +84,10 @@ public class ExpenseEditorView extends EditorView<Expense, Long> {
 						((AbstractComponent) fcevnt.getField()).setImmediate(true);
 						fcevnt.getField().addValueChangeListener(amountListener);
 					} else if ("exchangeRate".equals(fcevnt.getColId()) && fcevnt.getField() instanceof ExchangeRateField) {
-						exchangeRateFields.add((ExchangeRateField) fcevnt.getField());
-						fcevnt.getField().addListener(exchangeRateListener);
+						ExchangeRateField xRateField = (ExchangeRateField) fcevnt.getField();
+						exchangeRateFields.add(xRateField);
+						fcevnt.getField().addListener(exchangeRateListener); 
+						xRateField.setOwner((TransactionLine) fcevnt.getRowId());
 					} else if (("factor").equals(fcevnt.getColId())) {
 						((AbstractComponent) fcevnt.getField()).setImmediate(true);
 						fcevnt.getField().addValueChangeListener(new Property.ValueChangeListener() {
@@ -156,13 +158,12 @@ public class ExpenseEditorView extends EditorView<Expense, Long> {
 	private void updateTransactionLineDate() {
 		Expense x = getInstance();
 		Date xd = x.getDate();
-		if (xd != null && x.getTransactions() != null) {
+		if (x.getTransactions() != null) {
 			for(TransactionLine line: x.getTransactions()) {
-				if (line.getDate()==null || line.getDate().equals(xd)) {
-					line.setDate(xd);
-				}
+				line.setDate(xd);
 			}
 		}
+		expenseTransactionsField.itemChange();
 	}
 	
 	private OneToManyField<TransactionLine> initExpenseTransactionsField() {
@@ -187,7 +188,7 @@ public class ExpenseEditorView extends EditorView<Expense, Long> {
 			public void containerItemSetChange(ItemSetChangeEvent event) {
 				@SuppressWarnings("unchecked")
 				OneToManyContainer<TransactionLine> otmContainer = (OneToManyContainer<TransactionLine>) event.getContainer();
-				BigDecimal[] values = TransactionLineUtils.getDeltaAndTotals(otmContainer.getBeans());
+				BigDecimal[] values = TransactionLineUtils.getAmountDeltaAndTotals(otmContainer.getBeans());
 				if (values[1].equals(values[2])) {
 					xtransactionsField.setFooter("amount", MessageFormat.format("{0,number,0.00}",values[1]));
 				} else {

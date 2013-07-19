@@ -9,10 +9,10 @@ import w.wexpense.model.ExchangeRate;
 import w.wexpense.model.Expense;
 import w.wexpense.model.TransactionLine;
 
-public class ExchangeRateTransactionLineValidator implements ConstraintValidator<EchangeRateTransactionLineized, TransactionLine> {
+public class ExchangeRateTransactionLineValidator implements ConstraintValidator<ExchangeRateTransactionLineized, TransactionLine> {
 
 	@Override
-	public void initialize(EchangeRateTransactionLineized constraintAnnotation) {
+	public void initialize(ExchangeRateTransactionLineized constraintAnnotation) {
 		// void
 	}
 

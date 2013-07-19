@@ -34,7 +34,7 @@ public class BvrDtaFormaterTest {
 	};
 
 	@Test
-	public void testBvr() {
+	public void testBvr() throws DtaException {
 		Payment payment = createPaymentData(18,12,2012,"test.dta", getBvrExpense()); 
 		List<String> l = new BvrDtaFormater().format(payment, 1, payment.getExpenses().get(0));
 		Assert.assertEquals(4, l.size());
@@ -79,7 +79,8 @@ public class BvrDtaFormaterTest {
 		expense.setCurrency(chf);
 		expense.setDate(createDate(02,12,2012));
 		expense.setPayee(brp);
-		expense.setDescription("William Keyser;Cotisation 2012-2013");
+		expense.setExternalReference("William Keyser;Cotisation 2012-2013");
+		
 		
 		TransactionLine line1 = new TransactionLine();
 		line1.setExpense(expense);

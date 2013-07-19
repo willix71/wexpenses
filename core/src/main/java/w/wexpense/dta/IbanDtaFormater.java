@@ -14,15 +14,20 @@ import w.wexpense.model.Expense;
 import w.wexpense.model.Payee;
 import w.wexpense.model.Payment;
 
-import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.collect.Multimap;
 
 public class IbanDtaFormater implements DtaFormater {
 
 	public static final String TRANSACTION_TYPE = "836";
 		
 	@Override
-	public List<String> format(Payment payment, int index, Expense expense) {
-		check(expense);
+	public List<String> format(Payment payment, int index, Expense expense)  throws DtaException {
+		Multimap<String, String> violations = validate(expense);
+		if (!violations.isEmpty()) {
+			throw new DtaException(violations);
+		}
+		
 		List<String> lines = new ArrayList<String>();
 		lines.add(formatLine01(TRANSACTION_TYPE, payment.getDate(), index, expense, false));
 		lines.add(formatLine02(payment, index, expense));
@@ -32,15 +37,19 @@ public class IbanDtaFormater implements DtaFormater {
 		return lines;
 	}
 
-	public void check(Expense expense) {
-		// Must have a payee.bankingDetail and an payee.externalReference (IBAN)
-		Preconditions.checkNotNull(DtaHelper.getTransactionLine(OUT, expense).getAccount().getOwner(), "Out account must have a bank details");		
-		Preconditions.checkNotNull(DtaHelper.getTransactionLine(OUT, expense).getAccount().getOwner().getIban(), "Out account's bank details must have an Iban");
-
-		Preconditions.checkNotNull(expense.getPayee().getBankDetails(), "Payee's banking detail is mandatory for Iban payments (836)");
-		Preconditions.checkNotNull(expense.getPayee().getIban(), "Payee's IBAN is mandatory for Iban payments (836)");
-		// TODO check external reference is an Iban
-	}
+	@Override
+	public Multimap<String, String> validate(Expense expense) {
+		Multimap<String, String> errors = DtaHelper.commonValidation(expense);
+		if (Strings.isNullOrEmpty(expense.getPayee().getIban())) {
+			errors.put("payee.postalAccount", "Payee's Iban is mandatory for BVO payments (836)");
+		}
+		if (expense.getPayee().getBankDetails()==null) {
+			errors.put("payee.bankDetails", "Payee's must have a bank details");
+		} else if (expense.getPayee().getBankDetails().getCity()==null) {
+			errors.put("payee.bankDetails.city", "Payee's bank details must have a city");
+		}
+		return errors;
+	}		
 	
 	protected String formatLine02(Payment payment, int index, Expense expense) {
 		StringBuilder line02 = new StringBuilder();
@@ -99,12 +108,12 @@ public class IbanDtaFormater implements DtaFormater {
 		line05.append("U");
 		
 		// purpose
-		String description = expense.getDescription();		
-		if (description == null || !description.contains(lineSeparator))  {
-			line05.append(pad(description, 105));
+		String externalReference = expense.getExternalReference();		
+		if (externalReference == null || !externalReference.contains(lineSeparator))  {
+			line05.append(pad(externalReference, 105));
 		} else {
-			String[] separated = description.split(Pattern.quote(lineSeparator));
-			for(int i=0;i<3;i++) {
+			String[] separated = externalReference.split(Pattern.quote(lineSeparator));
+			for(int i=0;i<4;i++) {
 				if (separated.length > i) {
 					line05.append(pad(separated[i],35));
 				} else {
@@ -112,6 +121,7 @@ public class IbanDtaFormater implements DtaFormater {
 				}
 			}
 		}
+		
 		// Rules for charges
 		// 0=OUR=All charges debited to the ordering party
 		// 1=BEN=All charges debited to the beneficiary
